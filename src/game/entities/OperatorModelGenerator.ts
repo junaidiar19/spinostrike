@@ -1,0 +1,289 @@
+import * as THREE from 'three'
+import type { Team } from '../../types/game.types'
+
+export interface OperatorModelResult {
+  root: THREE.Group
+  hitboxes: THREE.Object3D[]
+}
+
+export class OperatorModelGenerator {
+  // Shared materials for optimal performance & realism
+  private static ctUniformMat = new THREE.MeshStandardMaterial({
+    color: 0x1e293b, // Modern SWAT / SAS Navy-Charcoal tactical fabric
+    roughness: 0.8,
+    metalness: 0.1,
+    flatShading: true
+  })
+
+  private static tUniformMat = new THREE.MeshStandardMaterial({
+    color: 0x4a5320, // Tactical Woodland / Desert Camo Olive
+    roughness: 0.8,
+    metalness: 0.1,
+    flatShading: true
+  })
+
+  private static vestMat = new THREE.MeshStandardMaterial({
+    color: 0x0f172a, // Heavy Kevlar Plate Carrier Charcoal
+    roughness: 0.7,
+    metalness: 0.2,
+    flatShading: true
+  })
+
+  private static helmetMat = new THREE.MeshStandardMaterial({
+    color: 0x1e2430, // Matte Ballistic Composite
+    roughness: 0.5,
+    metalness: 0.3,
+    flatShading: true
+  })
+
+  private static visorMat = new THREE.MeshPhysicalMaterial({
+    color: 0x0ea5e9, // Reflective Tactical Eyewear / Polarized Lens
+    roughness: 0.1,
+    metalness: 0.9,
+    clearcoat: 1.0,
+    reflectivity: 0.9,
+    flatShading: true
+  })
+
+  private static skinMat = new THREE.MeshStandardMaterial({
+    color: 0xd4a373,
+    roughness: 0.6,
+    metalness: 0.05,
+    flatShading: true
+  })
+
+  private static balaclavaMat = new THREE.MeshStandardMaterial({
+    color: 0x18181b, // Tactical Black Balaclava
+    roughness: 0.9,
+    flatShading: true
+  })
+
+  private static gearDarkMat = new THREE.MeshStandardMaterial({
+    color: 0x0a0a0c, // Matte nylon pouches, straps, boots
+    roughness: 0.85,
+    metalness: 0.15,
+    flatShading: true
+  })
+
+  private static metalHardwareMat = new THREE.MeshStandardMaterial({
+    color: 0x94a3b8, // NVG mounts, buckles, carabiners
+    roughness: 0.3,
+    metalness: 0.85,
+    flatShading: true
+  })
+
+  public static buildOperator(
+    team: Team,
+    entityName: string,
+    onHitCallback?: (damage: number, isHeadshot: boolean) => void,
+    remoteEntityId?: string
+  ): OperatorModelResult {
+    const root = new THREE.Group()
+    const hitboxes: THREE.Object3D[] = []
+
+    const uniformMat = team === 'CT' ? this.ctUniformMat : this.tUniformMat
+
+    const attachHitbox = (
+      mesh: THREE.Object3D,
+      type: 'head' | 'body' | 'leg'
+    ) => {
+      mesh.userData = {
+        hitboxType: type,
+        entityName,
+        entityId: remoteEntityId,
+        onHit: onHitCallback
+      }
+      hitboxes.push(mesh)
+    }
+
+    // ==========================================
+    // 1. HEAD & TACTICAL HELMET SYSTEM
+    // ==========================================
+    const headGroup = new THREE.Group()
+    headGroup.position.set(0, 1.55, 0)
+    root.add(headGroup)
+
+    // Balaclava Head Base
+    const headGeom = new THREE.BoxGeometry(0.24, 0.28, 0.25)
+    const headMesh = new THREE.Mesh(headGeom, this.balaclavaMat)
+    headMesh.position.set(0, 0, 0)
+    headMesh.castShadow = true
+    headGroup.add(headMesh)
+    attachHitbox(headMesh, 'head')
+
+    // Exposed Eye Area (Skin)
+    const eyeArea = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.07, 0.02), this.skinMat)
+    eyeArea.position.set(0, 0.02, 0.13)
+    headGroup.add(eyeArea)
+
+    // Tactical Polarized Ballistic Goggles
+    const goggles = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.06), this.visorMat)
+    goggles.position.set(0, 0.02, 0.14)
+    headGroup.add(goggles)
+    attachHitbox(goggles, 'head')
+
+    // High-Cut Ballistic Helmet
+    const helmetGeom = new THREE.BoxGeometry(0.28, 0.16, 0.28)
+    const helmet = new THREE.Mesh(helmetGeom, this.helmetMat)
+    helmet.position.set(0, 0.12, -0.01)
+    helmet.castShadow = true
+    headGroup.add(helmet)
+    attachHitbox(helmet, 'head')
+
+    // Night Vision Device (NVG) Shroud Mount on Helmet Front
+    const nvgMount = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.04), this.metalHardwareMat)
+    nvgMount.position.set(0, 0.14, 0.14)
+    headGroup.add(nvgMount)
+
+    // Tactical Headset Ear Cups (Left & Right)
+    const earLeft = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.09, 0.07), this.gearDarkMat)
+    earLeft.position.set(-0.14, 0.01, 0)
+    headGroup.add(earLeft)
+
+    const earRight = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.09, 0.07), this.gearDarkMat)
+    earRight.position.set(0.14, 0.01, 0)
+    headGroup.add(earRight)
+
+    // Headset Boom Microphone
+    const mic = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.02, 0.02), this.gearDarkMat)
+    mic.position.set(-0.1, -0.06, 0.09)
+    headGroup.add(mic)
+
+    // ==========================================
+    // 2. TORSO & TACTICAL PLATE CARRIER VEST
+    // ==========================================
+    const torsoGroup = new THREE.Group()
+    torsoGroup.position.set(0, 1.05, 0)
+    root.add(torsoGroup)
+
+    // Combat Shirt Torso
+    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.62, 0.26), uniformMat)
+    torso.castShadow = true
+    torsoGroup.add(torso)
+    attachHitbox(torso, 'body')
+
+    // Tactical Plate Carrier (Front & Back Armor Plates)
+    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.32), this.vestMat)
+    vest.position.set(0, 0.04, 0)
+    vest.castShadow = true
+    torsoGroup.add(vest)
+    attachHitbox(vest, 'body')
+
+    // 3x Ammo Mag Pouches on Front of Vest
+    for (let i = -1; i <= 1; i++) {
+      const magPouch = new THREE.Mesh(new THREE.BoxGeometry(0.09, 0.16, 0.07), this.gearDarkMat)
+      magPouch.position.set(i * 0.12, -0.08, 0.19)
+      torsoGroup.add(magPouch)
+    }
+
+    // Tactical Radio / PTT unit on Upper Left Chest
+    const radio = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.12, 0.06), this.gearDarkMat)
+    radio.position.set(-0.15, 0.16, 0.18)
+    torsoGroup.add(radio)
+
+    // Radio Antenna
+    const antenna = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.2, 6), this.gearDarkMat)
+    antenna.position.set(-0.17, 0.28, 0.18)
+    torsoGroup.add(antenna)
+
+    // Tactical Hydration / Assault Pack on Back
+    const backPack = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.42, 0.12), this.vestMat)
+    backPack.position.set(0, 0.02, -0.2)
+    torsoGroup.add(backPack)
+
+    // ==========================================
+    // 3. ARMS & TACTICAL GLOVES
+    // ==========================================
+    // Left Arm
+    const leftArmGroup = new THREE.Group()
+    leftArmGroup.position.set(-0.31, 1.25, 0)
+    root.add(leftArmGroup)
+
+    const leftUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.32, 0.14), uniformMat)
+    leftUpperArm.position.set(0, -0.12, 0)
+    leftArmGroup.add(leftUpperArm)
+
+    // Team Patch on Shoulder
+    const leftPatch = new THREE.Mesh(
+      new THREE.BoxGeometry(0.01, 0.08, 0.08),
+      new THREE.MeshStandardMaterial({ color: team === 'CT' ? 0x0284c7 : 0xdc2626 })
+    )
+    leftPatch.position.set(-0.065, -0.08, 0)
+    leftArmGroup.add(leftPatch)
+
+    // Left Forearm & Glove
+    const leftGlove = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.24, 0.12), this.gearDarkMat)
+    leftGlove.position.set(0, -0.34, 0.06)
+    leftGlove.rotation.x = -0.35
+    leftArmGroup.add(leftGlove)
+
+    // Right Arm (Holding Weapon)
+    const rightArmGroup = new THREE.Group()
+    rightArmGroup.position.set(0.31, 1.25, 0)
+    root.add(rightArmGroup)
+
+    const rightUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.32, 0.14), uniformMat)
+    rightUpperArm.position.set(0, -0.12, 0)
+    rightArmGroup.add(rightUpperArm)
+
+    const rightGlove = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.24, 0.12), this.gearDarkMat)
+    rightGlove.position.set(0, -0.32, 0.14)
+    rightGlove.rotation.x = -0.5
+    rightArmGroup.add(rightGlove)
+
+    // Operator Weapon in Hands
+    const gun = new THREE.Mesh(
+      new THREE.BoxGeometry(0.07, 0.12, 0.65),
+      new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.85, roughness: 0.25 })
+    )
+    gun.position.set(0.2, 1.02, 0.35)
+    root.add(gun)
+
+    // ==========================================
+    // 4. LEGS, KNEE PADS & COMBAT BOOTS
+    // ==========================================
+    // Left Leg
+    const leftLegGroup = new THREE.Group()
+    leftLegGroup.position.set(-0.13, 0.72, 0)
+    root.add(leftLegGroup)
+
+    const leftThigh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.38, 0.2), uniformMat)
+    leftThigh.position.set(0, -0.16, 0)
+    leftLegGroup.add(leftThigh)
+    attachHitbox(leftThigh, 'leg')
+
+    // Molded Hard-shell Knee Pad
+    const leftKneePad = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.08), this.gearDarkMat)
+    leftKneePad.position.set(0, -0.34, 0.1)
+    leftLegGroup.add(leftKneePad)
+
+    // Shin & Combat Boot
+    const leftBoot = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.32, 0.24), this.gearDarkMat)
+    leftBoot.position.set(0, -0.54, 0.03)
+    leftBoot.castShadow = true
+    leftLegGroup.add(leftBoot)
+    attachHitbox(leftBoot, 'leg')
+
+    // Right Leg
+    const rightLegGroup = new THREE.Group()
+    rightLegGroup.position.set(0.13, 0.72, 0)
+    root.add(rightLegGroup)
+
+    const rightThigh = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.38, 0.2), uniformMat)
+    rightThigh.position.set(0, -0.16, 0)
+    rightLegGroup.add(rightThigh)
+    attachHitbox(rightThigh, 'leg')
+
+    const rightKneePad = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.12, 0.08), this.gearDarkMat)
+    rightKneePad.position.set(0, -0.34, 0.1)
+    rightLegGroup.add(rightKneePad)
+
+    const rightBoot = new THREE.Mesh(new THREE.BoxGeometry(0.17, 0.32, 0.24), this.gearDarkMat)
+    rightBoot.position.set(0, -0.54, 0.03)
+    rightBoot.castShadow = true
+    rightLegGroup.add(rightBoot)
+    attachHitbox(rightBoot, 'leg')
+
+    return { root, hitboxes }
+  }
+}
