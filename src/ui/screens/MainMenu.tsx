@@ -263,12 +263,12 @@ export const MainMenu: React.FC<Props> = ({
                   <span className="key-desc">Aim & Look</span>
                 </div>
                 <div className="key-item">
-                  <span className="key-kbd">L-CLICK</span>
-                  <span className="key-desc">Shoot</span>
+                  <span className="key-kbd">KLIK / F</span>
+                  <span className="key-desc">Shoot (Tembak)</span>
                 </div>
                 <div className="key-item">
-                  <span className="key-kbd">R-CLICK</span>
-                  <span className="key-desc">ADS / Scope</span>
+                  <span className="key-kbd">R-KLIK / E</span>
+                  <span className="key-desc">Scope (Bidikan)</span>
                 </div>
                 <div className="key-item">
                   <span className="key-kbd">SPACE</span>

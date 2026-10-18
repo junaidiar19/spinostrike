@@ -89,6 +89,22 @@ export const SettingsModal: React.FC<Props> = ({ onClose }) => {
                 />
               </label>
             </div>
+
+            <div className="touchpad-tip-box" style={{
+              marginTop: 10,
+              padding: '10px 14px',
+              borderRadius: 8,
+              background: 'rgba(56, 189, 248, 0.08)',
+              border: '1px solid rgba(56, 189, 248, 0.25)',
+              fontSize: 12,
+              color: '#94a3b8',
+              lineHeight: 1.4
+            }}>
+              <span style={{ color: '#38bdf8', fontWeight: 800, display: 'block', marginBottom: 2 }}>
+                💡 Tips Pengguna Touchpad Laptop:
+              </span>
+              Jika touchpad laptop Anda sulit ditekan sambil digeser, gunakan tombol keyboard <strong style={{ color: '#f8fafc' }}>[ F ]</strong> untuk Menembak dan <strong style={{ color: '#f8fafc' }}>[ E ]</strong> untuk Membidik (Scope) tanpa perlu menekan touchpad!
+            </div>
           </div>
 
           {/* Touch Controls (Mobile) */}

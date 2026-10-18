@@ -157,6 +157,9 @@ export class InputManager {
     }
   }
 
+  private isMouseDown: boolean = false
+  private isKeyShooting: boolean = false
+
   private onMouseDown(e: MouseEvent) {
     // If clicking during gameplay on desktop, request pointer lock
     if (useGameStore.getState().gameStatus === 'PLAYING') {
@@ -166,6 +169,7 @@ export class InputManager {
     }
 
     if (e.button === 0) {
+      this.isMouseDown = true
       this.isShooting = true
     } else if (e.button === 2) {
       this.isAiming = !this.isAiming
@@ -175,7 +179,8 @@ export class InputManager {
 
   private onMouseUp(e: MouseEvent) {
     if (e.button === 0) {
-      this.isShooting = false
+      this.isMouseDown = false
+      this.isShooting = this.isKeyShooting
     }
   }
 
@@ -201,6 +206,20 @@ export class InputManager {
     if (e.code === 'Digit1') this.requestedSlot = 1
     if (e.code === 'Digit2') this.requestedSlot = 2
     if (e.code === 'Digit3') this.requestedSlot = 3
+
+    // Laptop-friendly Shoot & Aim keyboard shortcuts (F or J to shoot, E or K to scope)
+    if (e.code === 'KeyF' || e.code === 'KeyJ') {
+      this.isKeyShooting = true
+      this.isShooting = true
+      if (useGameStore.getState().gameStatus === 'PLAYING' && !this.isPointerLocked) {
+        this.requestPointerLock()
+      }
+    }
+
+    if (e.code === 'KeyE' || e.code === 'KeyK') {
+      this.isAiming = !this.isAiming
+      useGameStore.getState().setIsAiming(this.isAiming)
+    }
   }
 
   private onKeyUp(e: KeyboardEvent) {
@@ -218,6 +237,11 @@ export class InputManager {
     if (e.code === 'Space') this.isJumping = false
     if (e.code === 'ControlLeft' || e.code === 'KeyC') this.isCrouching = false
     if (e.code === 'ShiftLeft') this.isSprinting = false
+
+    if (e.code === 'KeyF' || e.code === 'KeyJ') {
+      this.isKeyShooting = false
+      this.isShooting = this.isMouseDown
+    }
   }
 
   // --- Mobile Touch API Methods ---
