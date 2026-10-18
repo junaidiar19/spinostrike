@@ -51,20 +51,38 @@ const defaultRooms: RoomInfo[] = [
     ping: 18
   },
   {
-    id: 'room_warehouse_tdm',
-    name: 'Singapore • Warehouse Close-Quarters',
-    map: 'warehouse',
-    mode: 'Team Deathmatch',
-    playersCount: 6,
+    id: 'room_arctic_sniper',
+    name: 'Tokyo • Arctic Sub-Zero Sniper War',
+    map: 'arctic_outpost',
+    mode: 'Sniper Vantage TDM',
+    playersCount: 5,
     maxPlayers: 10,
-    ping: 24
+    ping: 15
   },
   {
-    id: 'room_competitive_dust',
-    name: 'Jakarta • Tactical Dust Ranked',
-    map: 'dust_arena',
-    mode: 'Competitive TDM',
-    playersCount: 2,
+    id: 'room_italian_piazza',
+    name: 'Rome • Italian Villa Cobblestone Clash',
+    map: 'italian_villa',
+    mode: 'Competitive 5v5',
+    playersCount: 6,
+    maxPlayers: 10,
+    ping: 20
+  },
+  {
+    id: 'room_cargo_gantry',
+    name: 'Singapore • Harbor Crane & Containers',
+    map: 'cargo_harbor',
+    mode: 'High-Altitude TDM',
+    playersCount: 7,
+    maxPlayers: 10,
+    ping: 14
+  },
+  {
+    id: 'room_warehouse_tdm',
+    name: 'Jakarta • Warehouse Close-Quarters',
+    map: 'warehouse',
+    mode: 'Team Deathmatch',
+    playersCount: 3,
     maxPlayers: 10,
     ping: 12
   }

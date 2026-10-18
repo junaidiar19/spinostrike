@@ -325,4 +325,314 @@ export class TextureGenerator {
     texture.repeat.set(2, 10)
     return texture
   }
+
+  // 8. Arctic Outpost - High-Visibility Snow Ground Texture
+  public static createSnowGround(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')!
+
+    // Bright crisp snow base with icy tint
+    ctx.fillStyle = '#f1f5f9'
+    ctx.fillRect(0, 0, 512, 512)
+
+    // Subtle ice crystalline glitter & terrain mounds
+    for (let i = 0; i < 3000; i++) {
+      const x = Math.random() * 512
+      const y = Math.random() * 512
+      const size = Math.random() * 2.5
+      ctx.fillStyle = Math.random() > 0.5 ? 'rgba(255, 255, 255, 0.8)' : 'rgba(203, 213, 225, 0.5)'
+      ctx.fillRect(x, y, size, size)
+    }
+
+    // Subtle tactical boot and tire track grooves
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)'
+    ctx.lineWidth = 6
+    ctx.beginPath()
+    ctx.moveTo(60, 0)
+    ctx.lineTo(80, 512)
+    ctx.moveTo(420, 0)
+    ctx.lineTo(440, 512)
+    ctx.stroke()
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(16, 16)
+    return texture
+  }
+
+  // 9. Arctic Outpost - Insulated Frost Steel Bunker Wall
+  public static createIceBunkerWall(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')!
+
+    // Arctic white-steel base
+    ctx.fillStyle = '#94a3b8'
+    ctx.fillRect(0, 0, 512, 512)
+
+    // Modular steel panels with frost seams
+    const panelW = 256
+    const panelH = 128
+    for (let y = 0; y < 512; y += panelH) {
+      for (let x = 0; x < 512; x += panelW) {
+        ctx.fillStyle = ((x / panelW + y / panelH) % 2 === 0) ? '#cbd5e1' : '#e2e8f0'
+        ctx.fillRect(x + 2, y + 2, panelW - 4, panelH - 4)
+
+        // Seam border
+        ctx.strokeStyle = '#64748b'
+        ctx.lineWidth = 3
+        ctx.strokeRect(x + 1, y + 1, panelW - 2, panelH - 2)
+
+        // Rivets in corners
+        ctx.fillStyle = '#475569'
+        const rSize = 6
+        ctx.fillRect(x + 10, y + 10, rSize, rSize)
+        ctx.fillRect(x + panelW - 16, y + 10, rSize, rSize)
+        ctx.fillRect(x + 10, y + panelH - 16, rSize, rSize)
+        ctx.fillRect(x + panelW - 16, y + panelH - 16, rSize, rSize)
+      }
+    }
+
+    // Ice frost gradients from top/bottom
+    const grad = ctx.createLinearGradient(0, 0, 0, 80)
+    grad.addColorStop(0, 'rgba(255, 255, 255, 0.6)')
+    grad.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, 512, 80)
+
+    // Arctic Military Stencil
+    ctx.font = 'bold 22px Rajdhani, monospace'
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.65)'
+    ctx.textAlign = 'center'
+    ctx.fillText('SUB-ZERO RESEARCH // SECTOR-04', 256, 190)
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(4, 3)
+    return texture
+  }
+
+  // 10. Italian Villa - Classical European Cobblestone Street
+  public static createCobblestoneStreet(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')!
+
+    // Warm earth mortar base
+    ctx.fillStyle = '#78716c'
+    ctx.fillRect(0, 0, 512, 512)
+
+    // Hand-laid cobblestone stones
+    const stoneW = 32
+    const stoneH = 24
+    let row = 0
+    for (let y = 0; y < 512; y += stoneH) {
+      const offsetX = (row % 2) * (stoneW / 2)
+      for (let x = -stoneW; x < 512 + stoneW; x += stoneW) {
+        const shade = Math.floor(Math.random() * 30) - 15
+        ctx.fillStyle = `rgb(${168 + shade}, ${162 + shade}, ${158 + shade})`
+        ctx.beginPath()
+        ctx.roundRect(x + offsetX + 2, y + 2, stoneW - 4, stoneH - 4, 6)
+        ctx.fill()
+
+        ctx.strokeStyle = '#57534e'
+        ctx.lineWidth = 2
+        ctx.stroke()
+      }
+      row++
+    }
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(12, 12)
+    return texture
+  }
+
+  // 11. Italian Villa - Weathered Mediterranean Terracotta Stucco Wall
+  public static createTerracottaWall(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')!
+
+    // Warm Tuscan terracotta stucco
+    ctx.fillStyle = '#ea580c'
+    ctx.fillRect(0, 0, 512, 512)
+
+    // Stucco plaster texturing
+    for (let i = 0; i < 4000; i++) {
+      const x = Math.random() * 512
+      const y = Math.random() * 512
+      const size = Math.random() * 3
+      ctx.fillStyle = Math.random() > 0.5 ? 'rgba(251, 146, 60, 0.45)' : 'rgba(194, 65, 12, 0.45)'
+      ctx.fillRect(x, y, size, size)
+    }
+
+    // Exposed antique red brick patches
+    const drawBrickPatch = (bx: number, by: number, bw: number, bh: number) => {
+      ctx.fillStyle = '#991b1b'
+      ctx.fillRect(bx, by, bw, bh)
+      for (let py = by; py < by + bh; py += 16) {
+        ctx.strokeStyle = '#7f1d1d'
+        ctx.lineWidth = 2
+        ctx.strokeRect(bx, py, bw, 16)
+      }
+    }
+    drawBrickPatch(80, 240, 110, 64)
+    drawBrickPatch(320, 120, 140, 80)
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(4, 3)
+    return texture
+  }
+
+  // 12. Italian Villa - Red Terracotta Roof Tiles
+  public static createRoofTileTexture(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 256
+    canvas.height = 256
+    const ctx = canvas.getContext('2d')!
+
+    ctx.fillStyle = '#b91c1c'
+    ctx.fillRect(0, 0, 256, 256)
+
+    // Curved barrel tile rows
+    const tileH = 32
+    for (let y = 0; y < 256; y += tileH) {
+      const grad = ctx.createLinearGradient(0, y, 0, y + tileH)
+      grad.addColorStop(0, '#ef4444')
+      grad.addColorStop(0.5, '#dc2626')
+      grad.addColorStop(1, '#991b1b')
+      ctx.fillStyle = grad
+      ctx.fillRect(0, y, 256, tileH - 3)
+
+      ctx.fillStyle = '#7f1d1d'
+      ctx.fillRect(0, y + tileH - 3, 256, 3)
+    }
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(6, 6)
+    return texture
+  }
+
+  // 13. Italian Villa - Polished White Marble (Fountain & Steps)
+  public static createMarbleTexture(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 256
+    canvas.height = 256
+    const ctx = canvas.getContext('2d')!
+
+    ctx.fillStyle = '#f8fafc'
+    ctx.fillRect(0, 0, 256, 256)
+
+    // Veins of soft grey and amber
+    ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)'
+    ctx.lineWidth = 3
+    ctx.beginPath()
+    ctx.moveTo(0, 40)
+    ctx.bezierCurveTo(80, 120, 160, 60, 256, 180)
+    ctx.stroke()
+
+    ctx.strokeStyle = 'rgba(203, 213, 225, 0.6)'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    ctx.moveTo(40, 256)
+    ctx.bezierCurveTo(100, 160, 180, 220, 256, 80)
+    ctx.stroke()
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(4, 4)
+    return texture
+  }
+
+  // 14. Cargo Harbor - Heavy Maritime Pier Concrete
+  public static createHarborPierFloor(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')!
+
+    // Salt-weathered industrial dock slab
+    ctx.fillStyle = '#475569'
+    ctx.fillRect(0, 0, 512, 512)
+
+    // Pier slab expansion joints
+    ctx.strokeStyle = '#1e293b'
+    ctx.lineWidth = 4
+    ctx.strokeRect(0, 0, 256, 256)
+    ctx.strokeRect(256, 0, 256, 256)
+    ctx.strokeRect(0, 256, 256, 256)
+    ctx.strokeRect(256, 256, 256, 256)
+
+    // Yellow hazard boundary stripes
+    const hazardW = 28
+    ctx.fillStyle = '#eab308'
+    ctx.fillRect(0, 0, 512, hazardW)
+    for (let x = -50; x < 550; x += 40) {
+      ctx.fillStyle = '#0f172a'
+      ctx.beginPath()
+      ctx.moveTo(x, 0)
+      ctx.lineTo(x + 20, 0)
+      ctx.lineTo(x + 36, hazardW)
+      ctx.lineTo(x + 16, hazardW)
+      ctx.fill()
+    }
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(12, 12)
+    return texture
+  }
+
+  // 15. Cargo Harbor - Yellow Heavy Industrial Crane Girder Steel
+  public static createCraneGirderTexture(): THREE.CanvasTexture {
+    const canvas = document.createElement('canvas')
+    canvas.width = 256
+    canvas.height = 256
+    const ctx = canvas.getContext('2d')!
+
+    ctx.fillStyle = '#eab308' // High-vis industrial yellow
+    ctx.fillRect(0, 0, 256, 256)
+
+    // Lattice truss cutout look
+    ctx.strokeStyle = '#ca8a04'
+    ctx.lineWidth = 8
+    ctx.strokeRect(4, 4, 248, 248)
+
+    // X-truss cross bracing
+    ctx.lineWidth = 14
+    ctx.beginPath()
+    ctx.moveTo(10, 10)
+    ctx.lineTo(246, 246)
+    ctx.moveTo(246, 10)
+    ctx.lineTo(10, 246)
+    ctx.stroke()
+
+    // Rivets
+    ctx.fillStyle = '#713f12'
+    ctx.fillRect(16, 16, 8, 8)
+    ctx.fillRect(232, 16, 8, 8)
+    ctx.fillRect(16, 232, 8, 8)
+    ctx.fillRect(232, 232, 8, 8)
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.wrapS = THREE.RepeatWrapping
+    texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(2, 6)
+    return texture
+  }
 }

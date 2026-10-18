@@ -53,7 +53,12 @@ export type GameStatus = 'MENU' | 'PLAYING' | 'PAUSED' | 'MAP_SELECT' | 'LOADOUT
 
 export type Team = 'CT' | 'T'
 
-export type MapId = 'dust_arena' | 'warehouse'
+export type MapId =
+  | 'dust_arena'
+  | 'warehouse'
+  | 'arctic_outpost'
+  | 'italian_villa'
+  | 'cargo_harbor'
 
 export interface MapMetadata {
   id: MapId

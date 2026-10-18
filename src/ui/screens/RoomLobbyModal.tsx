@@ -223,21 +223,17 @@ export const RoomLobbyModal: React.FC = () => {
 
               <div className="setting-field">
                 <label>Pilih Arena Peta (Map)</label>
-                <div className="map-picker-row">
-                  <button
-                    type="button"
-                    className={`btn-map-choice ${customMap === 'dust_arena' ? 'active' : ''}`}
-                    onClick={() => setCustomMap('dust_arena')}
-                  >
-                    Sandstone Arena (Dust II)
-                  </button>
-                  <button
-                    type="button"
-                    className={`btn-map-choice ${customMap === 'warehouse' ? 'active' : ''}`}
-                    onClick={() => setCustomMap('warehouse')}
-                  >
-                    Tactical Warehouse
-                  </button>
+                <div className="map-picker-row" style={{ flexWrap: 'wrap', gap: 8 }}>
+                  {Object.values(MAP_METADATA).map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      className={`btn-map-choice ${customMap === m.id ? 'active' : ''}`}
+                      onClick={() => setCustomMap(m.id)}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
                 </div>
               </div>
 

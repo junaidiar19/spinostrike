@@ -112,16 +112,43 @@ export class GameEngine {
   public loadMap(mapId: MapId) {
     this.mapManager.loadMap(mapId)
 
-    // Adjust sky / fog based on map theme
+    // Adjust sky / fog / daylight lighting based on map theme (Bright daylight for competitive clarity)
     if (mapId === 'warehouse') {
       this.scene.background = new THREE.Color('#161a22')
       this.scene.fog = new THREE.FogExp2('#161a22', 0.018)
       this.dirLight.intensity = 0.9
       this.ambientLight.intensity = 0.6
+    } else if (mapId === 'arctic_outpost') {
+      // Crisp Sub-Zero Arctic Daylight (High visibility)
+      this.scene.background = new THREE.Color('#b8dcf5')
+      this.scene.fog = new THREE.FogExp2('#b8dcf5', 0.008)
+      this.dirLight.color.setHex(0xffffff)
+      this.dirLight.intensity = 1.5
+      this.ambientLight.color.setHex(0xdbeafe)
+      this.ambientLight.intensity = 0.85
+    } else if (mapId === 'italian_villa') {
+      // Warm Mediterranean Sunny Daylight
+      this.scene.background = new THREE.Color('#7dd3fc')
+      this.scene.fog = new THREE.FogExp2('#7dd3fc', 0.008)
+      this.dirLight.color.setHex(0xfffae8)
+      this.dirLight.intensity = 1.45
+      this.ambientLight.color.setHex(0xfef3c7)
+      this.ambientLight.intensity = 0.8
+    } else if (mapId === 'cargo_harbor') {
+      // Bright Coastal Ocean Maritime Daylight
+      this.scene.background = new THREE.Color('#67e8f9')
+      this.scene.fog = new THREE.FogExp2('#67e8f9', 0.008)
+      this.dirLight.color.setHex(0xfffbeb)
+      this.dirLight.intensity = 1.42
+      this.ambientLight.color.setHex(0xe0f2fe)
+      this.ambientLight.intensity = 0.8
     } else {
+      // Sandstone Arena (Dust II) Desert Sun
       this.scene.background = new THREE.Color('#87b5d8')
       this.scene.fog = new THREE.FogExp2('#87b5d8', 0.012)
+      this.dirLight.color.setHex(0xfffae8)
       this.dirLight.intensity = 1.4
+      this.ambientLight.color.setHex(0xd4e2f5)
       this.ambientLight.intensity = 0.75
     }
 
