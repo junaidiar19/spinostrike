@@ -94,22 +94,37 @@ export class Player {
     const weaponState = gameStore.weaponStates[activeId]
 
     // 1. Check weapon slot change
-    if (input.slot !== null && input.slot >= 1 && input.slot <= 3) {
+    if (input.slot !== null && input.slot >= 1 && input.slot <= 3 && !gameStore.isPlayerDead) {
       gameStore.setCurrentSlot(input.slot as 1 | 2 | 3)
       const newActive = useGameStore.getState().activeWeaponId
       this.initWeapon(newActive)
     }
 
     // 2. Camera Rotations (Mouse / Touch Look)
-    this.yaw -= input.dx
-    this.pitch -= input.dy
-    // Limit pitch to avoid flipping (-88 deg to +88 deg)
-    const maxPitch = (88 * Math.PI) / 180
-    this.pitch = Math.max(-maxPitch, Math.min(maxPitch, this.pitch))
+    if (!gameStore.isPlayerDead) {
+      this.yaw -= input.dx
+      this.pitch -= input.dy
+      // Limit pitch to avoid flipping (-88 deg to +88 deg)
+      const maxPitch = (88 * Math.PI) / 180
+      this.pitch = Math.max(-maxPitch, Math.min(maxPitch, this.pitch))
+    } else {
+      // In elimination / death state: lower camera towards ground
+      this.pitch = Math.min(0.5, this.pitch + dt * 1.5)
+    }
 
+    this.camera.up.set(0, 1, 0)
     this.camera.rotation.order = 'YXZ'
-    this.camera.rotation.y = this.yaw
     this.camera.rotation.x = this.pitch
+    this.camera.rotation.y = this.yaw
+    this.camera.rotation.z = 0 // Prevent any roll or inverted orientation!
+
+    if (gameStore.isPlayerDead) {
+      this.velocity.set(0, 0, 0)
+      if (this.currentWeaponMeshGroup) {
+        this.currentWeaponMeshGroup.position.y = -1.0 // Lower weapon when dead
+      }
+      return
+    }
 
     // 3. Movement Calculations
     this.isCrouching = input.crouch
@@ -344,6 +359,13 @@ export class Player {
     this.velocity.set(0, 0, 0)
     this.yaw = 0
     this.pitch = 0
-    useGameStore.getState().resetPlayerStats()
+    this.camera.up.set(0, 1, 0)
+    this.camera.rotation.order = 'YXZ'
+    this.camera.rotation.set(0, 0, 0)
+    this.camera.quaternion.identity()
+    if (this.currentWeaponMeshGroup) {
+      this.currentWeaponMeshGroup.position.copy(this.weaponOffset)
+    }
+    useGameStore.getState().respawnPlayer()
   }
 }

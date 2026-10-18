@@ -10,6 +10,7 @@ import { KillFeed } from './ui/hud/KillFeed'
 import { SniperScope } from './ui/hud/SniperScope'
 import { Scoreboard } from './ui/hud/Scoreboard'
 import { DamageIndicator } from './ui/hud/DamageIndicator'
+import { MatchNotification } from './ui/hud/MatchNotification'
 import { MobileControls } from './ui/mobile/MobileControls'
 import { MainMenu } from './ui/screens/MainMenu'
 import { MapSelectModal } from './ui/screens/MapSelectModal'
@@ -57,11 +58,17 @@ export const App: React.FC = () => {
     }
   }, [])
 
-  // Handle Desktop Pointer Lock listener (open pause menu on Escape / unlock)
+  const wasPointerLockedRef = useRef(false)
+
+  // Handle Desktop Pointer Lock listener (open pause menu on intentional Escape / unlock)
   useEffect(() => {
     const handlePointerLockChange = () => {
-      if (!isMobile && gameStatus === 'PLAYING') {
-        if (!document.pointerLockElement) {
+      const isLocked = !!document.pointerLockElement
+      if (isLocked) {
+        wasPointerLockedRef.current = true
+      } else {
+        if (wasPointerLockedRef.current && !isMobile && gameStatus === 'PLAYING') {
+          wasPointerLockedRef.current = false
           setGameStatus('PAUSED')
         }
       }
@@ -91,6 +98,7 @@ export const App: React.FC = () => {
           <WeaponSelector />
           <KillFeed />
           <Scoreboard />
+          <MatchNotification />
           {isMobile && <MobileControls />}
         </div>
       )}

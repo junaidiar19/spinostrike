@@ -80,6 +80,21 @@ export class Warehouse {
     this.createWall(-30, 4, 0, 2, 8, 70, physics) // West
     this.createWall(30, 4, 0, 2, 8, 70, physics)  // East
 
+    // 2.5 Fortified Warehouse Loading Bay Hideouts (Tempat Persembunyian Awal)
+    // CT Spawn Hideout: Container barrier in front of ctSpawn (z = 26)
+    this.createContainer(-8, 1.5, 21, 6, 3, 2.5, this.blueContainerMat, physics)
+    this.createContainer(8, 1.5, 21, 6, 3, 2.5, this.redContainerMat, physics)
+    this.createCrate(0, 0.75, 23, 1.5, physics)
+    this.createCrate(-2, 0.75, 24, 1.5, physics)
+    this.createCrate(2, 0.75, 24, 1.5, physics)
+
+    // T Spawn Hideout: Container barrier in front of tSpawn (z = -26)
+    this.createContainer(-8, 1.5, -21, 6, 3, 2.5, this.redContainerMat, physics)
+    this.createContainer(8, 1.5, -21, 6, 3, 2.5, this.blueContainerMat, physics)
+    this.createCrate(0, 0.75, -23, 1.5, physics)
+    this.createCrate(-2, 0.75, -24, 1.5, physics)
+    this.createCrate(2, 0.75, -24, 1.5, physics)
+
     // 3. Central Stacked Containers (Red & Blue)
     this.createContainer(0, 1.5, 0, 3, 3, 8, this.redContainerMat, physics)
     this.createContainer(0, 4.5, 0, 3, 3, 8, this.blueContainerMat, physics) // Stacked!

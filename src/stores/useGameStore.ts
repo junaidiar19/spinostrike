@@ -30,6 +30,11 @@ interface GameStoreState {
   scoreboard: PlayerScore[]
   isMobile: boolean
   isScoreboardOpen: boolean
+  isPlayerDead: boolean
+  killerInfo: { name: string; weapon: string } | null
+  respawnCountdown: number
+  matchGraceTimer: number
+  spawnProtection: number
 
   // Actions
   setGameStatus: (status: GameStatus) => void
@@ -47,6 +52,11 @@ interface GameStoreState {
   setCurrentMap: (map: MapId) => void
   addKillFeed: (item: Omit<KillFeedItem, 'id' | 'timestamp'>) => void
   setScoreboard: (scores: PlayerScore[]) => void
+  recordPlayerKill: (victimBotId: string, victimName: string, victimTeam: 'T' | 'CT', isHeadshot: boolean) => void
+  recordPlayerDeath: (killerBotId: string, killerName: string, killerTeam: 'T' | 'CT', weaponName: string) => void
+  respawnPlayer: () => void
+  setMatchGraceTimer: (seconds: number) => void
+  setSpawnProtection: (seconds: number) => void
   setIsMobile: (isMobile: boolean) => void
   setIsScoreboardOpen: (isOpen: boolean) => void
   resetPlayerStats: () => void
@@ -122,6 +132,11 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   ],
   isMobile: false,
   isScoreboardOpen: false,
+  isPlayerDead: false,
+  killerInfo: null,
+  respawnCountdown: 0,
+  matchGraceTimer: 0,
+  spawnProtection: 0,
 
   setGameStatus: (status) => set({ gameStatus: status }),
 
@@ -210,6 +225,78 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   },
 
   setScoreboard: (scoreboard) => set({ scoreboard }),
+
+  recordPlayerKill: (victimBotId, victimName, victimTeam, isHeadshot) => {
+    const state = get()
+    const activeWeapon = state.activeWeaponId.toUpperCase()
+    state.addKillFeed({
+      killerName: 'Striker (You)',
+      killerTeam: 'CT',
+      victimName,
+      victimTeam,
+      weaponName: activeWeapon,
+      isHeadshot
+    })
+
+    const updatedScores = state.scoreboard.map((p) => {
+      if (p.id === 'player-1') {
+        return { ...p, kills: p.kills + 1, score: p.score + (isHeadshot ? 150 : 100) }
+      }
+      if (p.id === victimBotId) {
+        return { ...p, deaths: p.deaths + 1 }
+      }
+      return p
+    })
+    set({ scoreboard: updatedScores })
+  },
+
+  recordPlayerDeath: (killerBotId, killerName, killerTeam, weaponName) => {
+    const state = get()
+    if (state.isPlayerDead) return // prevent multiple death triggers
+
+    state.addKillFeed({
+      killerName,
+      killerTeam,
+      victimName: 'Striker (You)',
+      victimTeam: 'CT',
+      weaponName,
+      isHeadshot: false
+    })
+
+    const updatedScores = state.scoreboard.map((p) => {
+      if (p.id === killerBotId) {
+        return { ...p, kills: p.kills + 1, score: p.score + 100 }
+      }
+      if (p.id === 'player-1') {
+        return { ...p, deaths: p.deaths + 1 }
+      }
+      return p
+    })
+
+    set({
+      health: 0,
+      isPlayerDead: true,
+      killerInfo: { name: killerName, weapon: weaponName },
+      respawnCountdown: 3,
+      scoreboard: updatedScores
+    })
+  },
+
+  respawnPlayer: () => {
+    set({
+      health: 100,
+      armor: 100,
+      isPlayerDead: false,
+      killerInfo: null,
+      respawnCountdown: 0,
+      spawnProtection: 3.5, // 3.5s of invulnerability & bot ignore upon respawn
+      damageFlash: false
+    })
+  },
+
+  setMatchGraceTimer: (seconds) => set({ matchGraceTimer: seconds }),
+  setSpawnProtection: (seconds) => set({ spawnProtection: seconds }),
+
   setIsMobile: (isMobile) => set({ isMobile }),
   setIsScoreboardOpen: (isScoreboardOpen) => set({ isScoreboardOpen }),
 
@@ -218,6 +305,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       health: 100,
       armor: 100,
       isAiming: false,
+      isPlayerDead: false,
+      killerInfo: null,
+      respawnCountdown: 0,
       damageFlash: false,
       weaponStates: initialWeaponStates
     })

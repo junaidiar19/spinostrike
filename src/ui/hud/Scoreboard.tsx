@@ -16,13 +16,18 @@ export const Scoreboard: React.FC = () => {
   const tScore = tPlayers.reduce((acc, p) => acc + p.kills, 0)
 
   return (
-    <div className="scoreboard-backdrop">
+    <div
+      className="scoreboard-backdrop"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) setIsScoreboardOpen(false)
+      }}
+    >
       <div className="scoreboard-modal">
         {/* Header */}
         <div className="scoreboard-header">
           <div className="header-match-info">
             <Trophy size={20} className="trophy-gold" />
-            <h2>TEAM DEATHMATCH</h2>
+            <h2>TABEL SKOR TAKTIS</h2>
           </div>
           <button
             type="button"
@@ -108,7 +113,7 @@ export const Scoreboard: React.FC = () => {
         </div>
 
         <div className="scoreboard-footer">
-          <span>Press [TAB] or close to dismiss</span>
+          <span>Tekan [TAB] atau klik di luar untuk menutup tabel</span>
         </div>
       </div>
     </div>

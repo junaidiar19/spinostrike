@@ -93,8 +93,10 @@ export class Bot {
 
     const distToPlayer = this.position.distanceTo(this.targetPlayer.position)
 
-    // Check Line of Sight to player
-    const hasLOS = this.checkLineOfSight(this.targetPlayer.position, collidableMeshes)
+    // Check Line of Sight to player (only targetable if alive, past grace period, and no spawn shield)
+    const gameStore = useGameStore.getState()
+    const isPlayerTargetable = !gameStore.isPlayerDead && gameStore.spawnProtection <= 0 && gameStore.matchGraceTimer <= 0
+    const hasLOS = isPlayerTargetable && this.checkLineOfSight(this.targetPlayer.position, collidableMeshes)
 
     if (hasLOS && distToPlayer < 35) {
       this.state = 'COMBAT'
@@ -189,11 +191,15 @@ export class Bot {
       }
 
       // 4. Damage player with realistic hit probability based on distance
+      const gameStore = useGameStore.getState()
+      if (gameStore.isPlayerDead || gameStore.spawnProtection > 0 || gameStore.matchGraceTimer > 0) {
+        return
+      }
+
       const hitChance = Math.max(0.18, 0.65 - distToPlayer / 45)
       if (Math.random() < hitChance) {
-        const gameStore = useGameStore.getState()
         const currentHp = gameStore.health
-        const damage = 10 + Math.floor(Math.random() * 8)
+        const damage = 12 + Math.floor(Math.random() * 8)
         const newHp = Math.max(0, currentHp - damage)
         gameStore.setHealth(newHp)
 
@@ -204,19 +210,7 @@ export class Bot {
         gameStore.triggerDirectionalDamage(screenAngle)
 
         if (newHp <= 0) {
-          gameStore.addKillFeed({
-            killerName: this.name,
-            killerTeam: this.team,
-            victimName: 'Striker (You)',
-            victimTeam: 'CT',
-            weaponName: 'AK-47',
-            isHeadshot: Math.random() < 0.25
-          })
-          setTimeout(() => {
-            gameStore.setHealth(100)
-            gameStore.setArmor(100)
-            gameEngine.player.respawn(gameEngine.mapManager.ctSpawn)
-          }, 3000)
+          gameStore.recordPlayerDeath(this.id, this.name, this.team, 'AK-47')
         }
       }
 
@@ -283,26 +277,7 @@ export class Bot {
 
     // Update Game Store: Killfeed & Scoreboard
     const store = useGameStore.getState()
-    store.addKillFeed({
-      killerName: 'Striker (You)',
-      killerTeam: 'CT',
-      victimName: this.name,
-      victimTeam: this.team,
-      weaponName: store.activeWeaponId.toUpperCase(),
-      isHeadshot
-    })
-
-    // Update scoreboard
-    const updatedScores = store.scoreboard.map((p) => {
-      if (p.id === 'player-1') {
-        return { ...p, kills: p.kills + 1, score: p.score + (isHeadshot ? 150 : 100) }
-      }
-      if (p.id === this.id) {
-        return { ...p, deaths: p.deaths + 1 }
-      }
-      return p
-    })
-    store.setScoreboard(updatedScores)
+    store.recordPlayerKill(this.id, this.name, this.team, isHeadshot)
   }
 
   private respawn() {

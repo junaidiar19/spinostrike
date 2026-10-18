@@ -28,6 +28,8 @@ export class InputManager {
   private mobileMoveY: number = 0
 
   private domElement: HTMLElement | null = null
+  private lastMouseX: number | null = null
+  private lastMouseY: number | null = null
 
   // Bound listeners
   private onKeyDownBound = this.onKeyDown.bind(this)
@@ -36,6 +38,7 @@ export class InputManager {
   private onMouseDownBound = this.onMouseDown.bind(this)
   private onMouseUpBound = this.onMouseUp.bind(this)
   private onPointerLockChangeBound = this.onPointerLockChange.bind(this)
+  private onPointerLockErrorBound = this.onPointerLockError.bind(this)
   // Gyroscope & Haptic state
   private onDeviceOrientationBound = this.onDeviceOrientation.bind(this)
   private lastGamma: number | null = null
@@ -44,18 +47,20 @@ export class InputManager {
   public init(element: HTMLElement) {
     this.domElement = element
 
-    // Detect mobile
+    // Detect mobile device (strictly small touch screen)
     const isMobileDevice =
-      'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth <= 840
+      ('ontouchstart' in window || navigator.maxTouchPoints > 2) &&
+      window.innerWidth <= 840
     useGameStore.getState().setIsMobile(isMobileDevice)
 
-    // Listeners
+    // Listeners on window & document for reliable desktop input
     window.addEventListener('keydown', this.onKeyDownBound)
     window.addEventListener('keyup', this.onKeyUpBound)
     window.addEventListener('mousemove', this.onMouseMoveBound)
     window.addEventListener('mousedown', this.onMouseDownBound)
     window.addEventListener('mouseup', this.onMouseUpBound)
     document.addEventListener('pointerlockchange', this.onPointerLockChangeBound)
+    document.addEventListener('pointerlockerror', this.onPointerLockErrorBound)
 
     // Gyroscope listener for mobile aim
     if (window.DeviceOrientationEvent) {
@@ -64,6 +69,10 @@ export class InputManager {
 
     // Prevent context menu (right click zoom)
     element.addEventListener('contextmenu', (e) => e.preventDefault())
+  }
+
+  private onPointerLockError() {
+    // Graceful fallback if browser rejects pointer lock
   }
 
   private onDeviceOrientation(e: DeviceOrientationEvent) {
@@ -92,12 +101,14 @@ export class InputManager {
   }
 
   public requestPointerLock() {
-    if (!this.domElement || this.isPointerLocked) return
+    if (this.isPointerLocked) return
+    const target = this.domElement?.querySelector('canvas') || this.domElement || document.body
+    if (!target) return
     try {
-      const p = this.domElement.requestPointerLock() as unknown as Promise<void> | undefined
+      const p = target.requestPointerLock() as unknown as Promise<void> | undefined
       if (p && typeof p.catch === 'function') {
         p.catch(() => {
-          // Browser pointer lock cooldown, ignore
+          // Browser pointer lock cooldown or rejection, ignore
         })
       }
     } catch {
@@ -112,20 +123,48 @@ export class InputManager {
   }
 
   private onPointerLockChange() {
-    this.isPointerLocked = document.pointerLockElement === this.domElement
+    // As long as ANY element is pointer locked, pointer lock is active!
+    this.isPointerLocked = !!document.pointerLockElement
   }
 
   private onMouseMove(e: MouseEvent) {
-    if (!this.isPointerLocked) return
     const { mouseSensitivity, invertY } = useSettingsStore.getState()
-    const factor = 0.0014 * mouseSensitivity
+    const factor = 0.0016 * mouseSensitivity
 
-    this.lookDeltaX += e.movementX * factor
-    this.lookDeltaY += (invertY ? -1 : 1) * e.movementY * factor
+    let dx = 0
+    let dy = 0
+
+    if (this.isPointerLocked) {
+      dx = e.movementX
+      dy = e.movementY
+      this.lastMouseX = e.clientX
+      this.lastMouseY = e.clientY
+    } else {
+      // Touchpad/mousepad fallback when pointer is not yet locked:
+      // Computes delta from client coordinates so touchpad aiming works immediately!
+      if (this.lastMouseX !== null && this.lastMouseY !== null) {
+        dx = e.clientX - this.lastMouseX
+        dy = e.clientY - this.lastMouseY
+      }
+      this.lastMouseX = e.clientX
+      this.lastMouseY = e.clientY
+    }
+
+    // Ignore abnormal cursor warp jumps (e.g. upon pointer lock engage)
+    if (Math.abs(dx) < 300 && Math.abs(dy) < 300) {
+      this.lookDeltaX += dx * factor
+      this.lookDeltaY += (invertY ? -1 : 1) * dy * factor
+    }
   }
 
   private onMouseDown(e: MouseEvent) {
-    if (!this.isPointerLocked) return
+    // If clicking during gameplay on desktop, request pointer lock
+    if (useGameStore.getState().gameStatus === 'PLAYING') {
+      if (!this.isPointerLocked) {
+        this.requestPointerLock()
+      }
+    }
+
     if (e.button === 0) {
       this.isShooting = true
     } else if (e.button === 2) {
@@ -263,5 +302,6 @@ export class InputManager {
     window.removeEventListener('mousedown', this.onMouseDownBound)
     window.removeEventListener('mouseup', this.onMouseUpBound)
     document.removeEventListener('pointerlockchange', this.onPointerLockChangeBound)
+    document.removeEventListener('pointerlockerror', this.onPointerLockErrorBound)
   }
 }

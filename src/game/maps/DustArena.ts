@@ -71,6 +71,22 @@ export class DustArena {
     this.createWall(-40, 3, 0, 2, 6, 80, physics) // West
     this.createWall(40, 3, 0, 2, 6, 80, physics)  // East
 
+    // 2.5 Fortified Spawn Shelters / Hideouts (Tempat Persembunyian Awal)
+    // CT Spawn Hideout: Solid blast wall & supply crates at z = 24 in front of ctSpawn (z = 30)
+    this.createWall(-7, 2.5, 24, 12, 5, 1.5, physics) // Left bunker blast wall
+    this.createWall(7, 2.5, 24, 12, 5, 1.5, physics)  // Right bunker blast wall
+    // High sandbags and supply crates right in front of spawn point (z = 26)
+    this.createCrate(0, 1, 26, 3.5, 2, 1.5, physics)
+    this.createCrate(-3.5, 1, 28, 2, 2, 2, physics)
+    this.createCrate(3.5, 1, 28, 2, 2, 2, physics)
+
+    // T Spawn Hideout: Solid blast wall & crates at z = -24 in front of tSpawn (z = -30)
+    this.createWall(-7, 2.5, -24, 12, 5, 1.5, physics)
+    this.createWall(7, 2.5, -24, 12, 5, 1.5, physics)
+    this.createCrate(0, 1, -26, 3.5, 2, 1.5, physics)
+    this.createCrate(-3.5, 1, -28, 2, 2, 2, physics)
+    this.createCrate(3.5, 1, -28, 2, 2, 2, physics)
+
     // 3. Central Courtyard / Mid Walls
     this.createWall(-12, 3, 0, 16, 6, 2, physics)
     this.createWall(12, 3, 0, 16, 6, 2, physics)

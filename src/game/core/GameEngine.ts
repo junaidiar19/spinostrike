@@ -140,11 +140,20 @@ export class GameEngine {
   }
 
   public startMatch() {
+    this.camera.up.set(0, 1, 0)
+    this.camera.rotation.order = 'YXZ'
+    this.camera.rotation.set(0, 0, 0)
+    this.camera.quaternion.identity()
+
     this.player.respawn(this.mapManager.ctSpawn)
     const activeWeapon = useGameStore.getState().activeWeaponId
     this.player.initWeapon(activeWeapon)
-    useGameStore.getState().setHealth(100)
-    useGameStore.getState().setArmor(100)
+
+    const store = useGameStore.getState()
+    store.setHealth(100)
+    store.setArmor(100)
+    store.setMatchGraceTimer(5) // 5-second tactical preparation in spawn hideout
+    store.setSpawnProtection(5)
 
     // Respawn bots fresh at ground level
     this.botManager.spawnBots(
@@ -197,6 +206,25 @@ export class GameEngine {
 
     // 1. Step Physics
     this.physics.step(dt)
+
+    // Manage Tactical Timers (Grace Period, Spawn Protection & Respawn)
+    const store = useGameStore.getState()
+    if (store.matchGraceTimer > 0) {
+      store.setMatchGraceTimer(Math.max(0, store.matchGraceTimer - dt))
+    }
+    if (store.spawnProtection > 0) {
+      store.setSpawnProtection(Math.max(0, store.spawnProtection - dt))
+    }
+    if (store.isPlayerDead) {
+      if (store.respawnCountdown > 0) {
+        const nextCd = store.respawnCountdown - dt
+        if (nextCd <= 0) {
+          this.player.respawn(this.mapManager.ctSpawn)
+        } else {
+          useGameStore.setState({ respawnCountdown: nextCd })
+        }
+      }
+    }
 
     // 2. Poll Input
     const frameInput = this.inputManager.consumeFrameDeltas()
