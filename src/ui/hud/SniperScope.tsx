@@ -5,7 +5,9 @@ export const SniperScope: React.FC = () => {
   const activeWeaponId = useGameStore((state) => state.activeWeaponId)
   const isAiming = useGameStore((state) => state.isAiming)
 
-  if (activeWeaponId !== 'awp' || !isAiming) {
+  const isSniper = activeWeaponId === 'awp' || activeWeaponId === 'ssg08'
+
+  if (!isSniper || !isAiming) {
     return null
   }
 
@@ -26,8 +28,8 @@ export const SniperScope: React.FC = () => {
 
         {/* Tactical Rangefinder Text */}
         <div className="scope-hud-text">
-          <span>MAG: 10X</span>
-          <span>CAL: .338 LAPUA</span>
+          <span>MAG: {activeWeaponId === 'awp' ? '10X HIGH POWER' : '6X TACTICAL SCOUT'}</span>
+          <span>CAL: {activeWeaponId === 'awp' ? '.338 MAGNUM' : '7.62x51mm NATO'}</span>
         </div>
       </div>
     </div>

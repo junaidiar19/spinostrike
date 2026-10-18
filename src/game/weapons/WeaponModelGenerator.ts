@@ -67,6 +67,9 @@ export class WeaponModelGenerator {
       case 'awp':
         muzzlePos = this.buildAWP(root)
         break
+      case 'ssg08':
+        muzzlePos = this.buildSSG08(root)
+        break
       case 'deagle':
         muzzlePos = this.buildDeagle(root)
         break
@@ -232,6 +235,52 @@ export class WeaponModelGenerator {
     root.add(mag)
 
     return new THREE.Vector3(0, 0.035, -0.96)
+  }
+
+  private static buildSSG08(root: THREE.Group): THREE.Vector3 {
+    // Lightweight Matte Black Tactical Chassis
+    const chassis = new THREE.Mesh(new THREE.BoxGeometry(0.065, 0.09, 0.58), this.darkPolymerMat)
+    chassis.position.set(0, 0, 0.05)
+    root.add(chassis)
+
+    // Skeletal Stock
+    const stock = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.11, 0.32), this.darkPolymerMat)
+    stock.position.set(0, -0.01, 0.42)
+    root.add(stock)
+
+    // Fluted Chrome/Steel Barrel
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.58, 8), this.steelMat)
+    barrel.rotation.x = Math.PI / 2
+    barrel.position.set(0, 0.03, -0.48)
+    root.add(barrel)
+
+    // Compact Muzzle Brake
+    const brake = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.035, 0.08), this.steelMat)
+    brake.position.set(0, 0.03, -0.8)
+    root.add(brake)
+
+    // Tactical Scout Scope
+    const scopeTube = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.32, 12), this.darkPolymerMat)
+    scopeTube.rotation.x = Math.PI / 2
+    scopeTube.position.set(0, 0.095, -0.06)
+    root.add(scopeTube)
+
+    const scopeLens = new THREE.Mesh(new THREE.CylinderGeometry(0.028, 0.022, 0.07, 12), this.steelMat)
+    scopeLens.rotation.x = Math.PI / 2
+    scopeLens.position.set(0, 0.095, -0.23)
+    root.add(scopeLens)
+
+    // Scope Mount Rings
+    const mount = new THREE.Mesh(new THREE.BoxGeometry(0.028, 0.045, 0.2), this.steelMat)
+    mount.position.set(0, 0.06, -0.06)
+    root.add(mount)
+
+    // Compact 10-round Magazine
+    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, 0.09), this.steelMat)
+    mag.position.set(0, -0.08, -0.06)
+    root.add(mag)
+
+    return new THREE.Vector3(0, 0.03, -0.86)
   }
 
   private static buildDeagle(root: THREE.Group): THREE.Vector3 {

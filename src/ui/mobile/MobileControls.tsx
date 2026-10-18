@@ -15,6 +15,7 @@ import type { WeaponSlot } from '../../types/game.types'
 
 export const MobileControls: React.FC = () => {
   const isAiming = useGameStore((state) => state.isAiming)
+  const activeWeaponId = useGameStore((state) => state.activeWeaponId)
   const currentSlot = useGameStore((state) => state.currentSlot)
   const setIsScoreboardOpen = useGameStore((state) => state.setIsScoreboardOpen)
   const setGameStatus = useGameStore((state) => state.setGameStatus)
@@ -256,7 +257,9 @@ export const MobileControls: React.FC = () => {
           onTouchStart={handleAim}
         >
           <Target size={24} />
-          <span className="btn-label">AIM</span>
+          <span className="btn-label">
+            {activeWeaponId === 'awp' || activeWeaponId === 'ssg08' ? 'SCOPE' : 'AIM'}
+          </span>
         </button>
 
         {/* Reload Button */}

@@ -1,9 +1,21 @@
 import * as THREE from 'three'
 import type { Team } from '../../types/game.types'
 
+export interface OperatorLimbs {
+  headGroup: THREE.Group
+  torsoGroup: THREE.Group
+  leftArmGroup: THREE.Group
+  rightArmGroup: THREE.Group
+  leftLegGroup: THREE.Group
+  rightLegGroup: THREE.Group
+  gunGroup: THREE.Group
+  muzzleFlash: THREE.Mesh
+}
+
 export interface OperatorModelResult {
   root: THREE.Group
   hitboxes: THREE.Object3D[]
+  limbs: OperatorLimbs
 }
 
 export class OperatorModelGenerator {
@@ -194,9 +206,11 @@ export class OperatorModelGenerator {
     // ==========================================
     // 3. ARMS & TACTICAL GLOVES
     // ==========================================
-    // Left Arm
+    // Left Arm (Holding Front Handguard)
     const leftArmGroup = new THREE.Group()
-    leftArmGroup.position.set(-0.31, 1.25, 0)
+    leftArmGroup.position.set(-0.28, 1.25, 0)
+    leftArmGroup.rotation.x = -0.55
+    leftArmGroup.rotation.y = 0.35
     root.add(leftArmGroup)
 
     const leftUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.32, 0.14), uniformMat)
@@ -211,15 +225,17 @@ export class OperatorModelGenerator {
     leftPatch.position.set(-0.065, -0.08, 0)
     leftArmGroup.add(leftPatch)
 
-    // Left Forearm & Glove
+    // Left Forearm & Glove reaching to gun
     const leftGlove = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.24, 0.12), this.gearDarkMat)
-    leftGlove.position.set(0, -0.34, 0.06)
-    leftGlove.rotation.x = -0.35
+    leftGlove.position.set(0.06, -0.3, 0.08)
+    leftGlove.rotation.x = -0.3
     leftArmGroup.add(leftGlove)
 
-    // Right Arm (Holding Weapon)
+    // Right Arm (Aiming & Holding Weapon Grip)
     const rightArmGroup = new THREE.Group()
-    rightArmGroup.position.set(0.31, 1.25, 0)
+    rightArmGroup.position.set(0.28, 1.25, 0)
+    rightArmGroup.rotation.x = -0.5
+    rightArmGroup.rotation.y = -0.1
     root.add(rightArmGroup)
 
     const rightUpperArm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.32, 0.14), uniformMat)
@@ -227,17 +243,45 @@ export class OperatorModelGenerator {
     rightArmGroup.add(rightUpperArm)
 
     const rightGlove = new THREE.Mesh(new THREE.BoxGeometry(0.11, 0.24, 0.12), this.gearDarkMat)
-    rightGlove.position.set(0, -0.32, 0.14)
-    rightGlove.rotation.x = -0.5
+    rightGlove.position.set(0, -0.3, 0.1)
+    rightGlove.rotation.x = -0.3
     rightArmGroup.add(rightGlove)
 
-    // Operator Weapon in Hands
-    const gun = new THREE.Mesh(
-      new THREE.BoxGeometry(0.07, 0.12, 0.65),
-      new THREE.MeshStandardMaterial({ color: 0x18181b, metalness: 0.85, roughness: 0.25 })
-    )
-    gun.position.set(0.2, 1.02, 0.35)
-    root.add(gun)
+    // Tactical Assault Rifle attached to right hand
+    const gunGroup = new THREE.Group()
+    gunGroup.position.set(-0.08, -0.3, 0.15)
+    rightArmGroup.add(gunGroup)
+
+    // Rifle Receiver & Stock
+    const rifleMat = new THREE.MeshStandardMaterial({ color: 0x181a20, metalness: 0.8, roughness: 0.3 })
+    const gunBody = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.1, 0.42), rifleMat)
+    gunBody.position.set(0, 0, 0.1)
+    gunGroup.add(gunBody)
+
+    // Barrel
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.32, 8), rifleMat)
+    barrel.rotation.x = Math.PI / 2
+    barrel.position.set(0, 0.02, 0.42)
+    gunGroup.add(barrel)
+
+    // Curved Magazine
+    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.16, 0.09), this.gearDarkMat)
+    mag.position.set(0, -0.1, 0.14)
+    mag.rotation.x = 0.2
+    gunGroup.add(mag)
+
+    // Optical Sight / Scope
+    const scope = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.05, 0.14), this.metalHardwareMat)
+    scope.position.set(0, 0.08, 0.1)
+    gunGroup.add(scope)
+
+    // Muzzle Flash
+    const muzzleFlashGeom = new THREE.OctahedronGeometry(0.09, 0)
+    const muzzleFlashMat = new THREE.MeshBasicMaterial({ color: 0xffe066 })
+    const muzzleFlash = new THREE.Mesh(muzzleFlashGeom, muzzleFlashMat)
+    muzzleFlash.position.set(0, 0.02, 0.6)
+    muzzleFlash.visible = false
+    gunGroup.add(muzzleFlash)
 
     // ==========================================
     // 4. LEGS, KNEE PADS & COMBAT BOOTS
@@ -284,6 +328,17 @@ export class OperatorModelGenerator {
     rightLegGroup.add(rightBoot)
     attachHitbox(rightBoot, 'leg')
 
-    return { root, hitboxes }
+    const limbs: OperatorLimbs = {
+      headGroup,
+      torsoGroup,
+      leftArmGroup,
+      rightArmGroup,
+      leftLegGroup,
+      rightLegGroup,
+      gunGroup,
+      muzzleFlash
+    }
+
+    return { root, hitboxes, limbs }
   }
 }

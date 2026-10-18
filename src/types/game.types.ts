@@ -1,4 +1,4 @@
-export type WeaponId = 'ak47' | 'm4a1' | 'awp' | 'deagle' | 'knife'
+export type WeaponId = 'ak47' | 'm4a1' | 'awp' | 'ssg08' | 'deagle' | 'knife'
 
 export type WeaponSlot = 1 | 2 | 3 // 1: Primary, 2: Secondary, 3: Melee
 

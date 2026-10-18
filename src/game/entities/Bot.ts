@@ -1,8 +1,10 @@
 import * as THREE from 'three'
 import { audioManager } from '../core/AudioManager'
 import { useGameStore } from '../../stores/useGameStore'
-import { OperatorModelGenerator } from './OperatorModelGenerator'
+import { OperatorModelGenerator, type OperatorLimbs } from './OperatorModelGenerator'
 import type { Team } from '../../types/game.types'
+import { gameEngine } from '../core/GameEngine'
+import type { BulletManager } from '../weapons/BulletManager'
 
 export type BotState = 'PATROL' | 'COMBAT' | 'DEAD'
 
@@ -17,32 +19,46 @@ export class Bot {
 
   public state: BotState = 'PATROL'
   public hitboxes: THREE.Object3D[] = []
+  public limbs: OperatorLimbs | null = null
 
-  // AI navigation
+  // AI navigation & Animation
   private waypoints: THREE.Vector3[] = []
   private currentWaypointIndex = 0
-  private moveSpeed = 4.2
+  private moveSpeed = 4.0
   private targetPlayer: { position: THREE.Vector3 } | null = null
+  private bulletManager: BulletManager | null = null
+
+  private walkTimer = Math.random() * 10
+  private isMoving = false
 
   // Combat parameters
   private fireCooldown = 0
   private burstCount = 0
   private maxBurst = 3
-  private burstInterval = 0.12
-  private reactionDelay = 0.3
+  private burstInterval = 0.14
+  private reactionDelay = 0.5
   private alertTimer = 0
 
   // Respawn
   private respawnTimer = 0
   private spawnPoint = new THREE.Vector3()
 
-  constructor(id: string, name: string, team: Team, initialPos: THREE.Vector3, waypoints: THREE.Vector3[]) {
+  constructor(
+    id: string,
+    name: string,
+    team: Team,
+    initialPos: THREE.Vector3,
+    waypoints: THREE.Vector3[],
+    bulletManager?: BulletManager
+  ) {
     this.id = id
     this.name = name
     this.team = team
     this.spawnPoint.copy(initialPos)
-    this.position.copy(initialPos)
+    this.spawnPoint.y = 0 // Ground floor level - no floating!
+    this.position.copy(this.spawnPoint)
     this.waypoints = waypoints
+    this.bulletManager = bulletManager || null
 
     this.buildBotModel()
     this.mesh.position.copy(this.position)
@@ -50,13 +66,14 @@ export class Bot {
 
   private buildBotModel() {
     this.mesh.name = `bot_${this.id}`
-    const { root, hitboxes } = OperatorModelGenerator.buildOperator(
+    const { root, hitboxes, limbs } = OperatorModelGenerator.buildOperator(
       this.team,
       this.name,
       this.onTakeDamage.bind(this)
     )
     this.mesh.add(root)
     this.hitboxes = hitboxes
+    this.limbs = limbs
   }
 
   public setTargetPlayer(player: { position: THREE.Vector3 }) {
@@ -81,6 +98,7 @@ export class Bot {
 
     if (hasLOS && distToPlayer < 35) {
       this.state = 'COMBAT'
+      this.isMoving = false
       this.alertTimer += dt
 
       // Face the player smoothly
@@ -92,7 +110,7 @@ export class Bot {
       const targetAngle = Math.atan2(targetDir.x, targetDir.z)
       this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, targetAngle, dt * 8)
 
-      // Shoot in bursts
+      // Shoot in bursts after alert reaction delay
       if (this.alertTimer >= this.reactionDelay) {
         this.combatShooting(dt, distToPlayer)
       }
@@ -102,11 +120,33 @@ export class Bot {
       this.patrol(dt)
     }
 
+    // Dynamic soldier limb animations (walking & combat stance)
+    if (this.limbs) {
+      if (this.isMoving) {
+        this.walkTimer += dt * 9
+        this.limbs.leftLegGroup.rotation.x = Math.sin(this.walkTimer) * 0.55
+        this.limbs.rightLegGroup.rotation.x = -Math.sin(this.walkTimer) * 0.55
+        this.limbs.leftArmGroup.rotation.x = -0.55 - Math.sin(this.walkTimer) * 0.25
+        this.limbs.torsoGroup.position.y = 1.05 + Math.abs(Math.sin(this.walkTimer * 2)) * 0.03
+      } else {
+        // Combat ready stance (standing firmly)
+        this.limbs.leftLegGroup.rotation.x = THREE.MathUtils.lerp(this.limbs.leftLegGroup.rotation.x, 0, dt * 8)
+        this.limbs.rightLegGroup.rotation.x = THREE.MathUtils.lerp(this.limbs.rightLegGroup.rotation.x, 0, dt * 8)
+        this.limbs.leftArmGroup.rotation.x = THREE.MathUtils.lerp(this.limbs.leftArmGroup.rotation.x, -0.55, dt * 8)
+        this.limbs.torsoGroup.position.y = 1.05 + Math.sin(performance.now() * 0.003) * 0.01
+      }
+
+      // Recover gun recoil smoothly
+      this.limbs.rightArmGroup.rotation.x = THREE.MathUtils.lerp(this.limbs.rightArmGroup.rotation.x, -0.5, dt * 10)
+      this.limbs.gunGroup.position.z = THREE.MathUtils.lerp(this.limbs.gunGroup.position.z, 0.15, dt * 10)
+    }
+
+    this.position.y = 0 // Ground floor level clamp
     this.mesh.position.copy(this.position)
   }
 
   private checkLineOfSight(targetPos: THREE.Vector3, collidableMeshes: THREE.Object3D[]): boolean {
-    const origin = this.position.clone().add(new THREE.Vector3(0, 1.5, 0))
+    const origin = this.position.clone().add(new THREE.Vector3(0, 1.45, 0))
     const eyeTarget = targetPos.clone().add(new THREE.Vector3(0, 1.2, 0))
     const dir = new THREE.Vector3().subVectors(eyeTarget, origin).normalize()
     const dist = origin.distanceTo(eyeTarget)
@@ -118,18 +158,50 @@ export class Bot {
 
   private combatShooting(dt: number, distToPlayer: number) {
     this.fireCooldown -= dt
-    if (this.fireCooldown <= 0) {
-      // Bot shoots!
+    if (this.fireCooldown <= 0 && this.targetPlayer) {
+      // 1. Bot Gunshot Audio
       audioManager.playGunshot('ak47')
 
-      // Damage player if in range (accuracy drops with distance)
-      const hitChance = Math.max(0.2, 1.0 - distToPlayer / 40)
+      // 2. Muzzle Flash on Bot
+      if (this.limbs) {
+        this.limbs.muzzleFlash.visible = true
+        this.limbs.rightArmGroup.rotation.x = -0.68
+        this.limbs.gunGroup.position.z = 0.11
+        setTimeout(() => {
+          if (this.limbs) this.limbs.muzzleFlash.visible = false
+        }, 50)
+      }
+
+      // 3. Fire real visible bullet tracer from bot to player
+      const botMuzzle = this.position.clone().add(new THREE.Vector3(0, 1.2, 0))
+      const rightVec = new THREE.Vector3(0.2, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.mesh.rotation.y)
+      botMuzzle.add(rightVec)
+
+      const targetChest = this.targetPlayer.position.clone().add(new THREE.Vector3(0, 1.1, 0))
+      const spread = (Math.random() - 0.5) * 0.035
+      const shootDir = new THREE.Vector3().subVectors(targetChest, botMuzzle).normalize()
+      shootDir.x += spread
+      shootDir.y += (Math.random() - 0.5) * 0.025
+      shootDir.normalize()
+
+      if (this.bulletManager) {
+        this.bulletManager.fireBullet(botMuzzle, shootDir, 'ak47', [])
+      }
+
+      // 4. Damage player with realistic hit probability based on distance
+      const hitChance = Math.max(0.18, 0.65 - distToPlayer / 45)
       if (Math.random() < hitChance) {
         const gameStore = useGameStore.getState()
         const currentHp = gameStore.health
-        const newHp = currentHp - (12 + Math.floor(Math.random() * 8))
+        const damage = 10 + Math.floor(Math.random() * 8)
+        const newHp = Math.max(0, currentHp - damage)
         gameStore.setHealth(newHp)
-        gameStore.triggerDamageFlash()
+
+        // Calculate Directional Hit Angle relative to Player Camera
+        const toBot = new THREE.Vector3().subVectors(this.position, gameEngine.player.camera.position)
+        const localDir = toBot.applyQuaternion(gameEngine.player.camera.quaternion.clone().invert())
+        const screenAngle = Math.atan2(localDir.x, -localDir.z)
+        gameStore.triggerDirectionalDamage(screenAngle)
 
         if (newHp <= 0) {
           gameStore.addKillFeed({
@@ -140,10 +212,10 @@ export class Bot {
             weaponName: 'AK-47',
             isHeadshot: Math.random() < 0.25
           })
-          // Respawn player
           setTimeout(() => {
             gameStore.setHealth(100)
             gameStore.setArmor(100)
+            gameEngine.player.respawn(gameEngine.mapManager.ctSpawn)
           }, 3000)
         }
       }
@@ -151,7 +223,7 @@ export class Bot {
       this.burstCount++
       if (this.burstCount >= this.maxBurst) {
         this.burstCount = 0
-        this.fireCooldown = 1.2 + Math.random() * 0.8 // pause between bursts
+        this.fireCooldown = 1.3 + Math.random() * 0.7 // pause between bursts
       } else {
         this.fireCooldown = this.burstInterval
       }
@@ -159,16 +231,21 @@ export class Bot {
   }
 
   private patrol(dt: number) {
-    if (this.waypoints.length === 0) return
+    if (this.waypoints.length === 0) {
+      this.isMoving = false
+      return
+    }
 
     const targetWaypoint = this.waypoints[this.currentWaypointIndex]
     const dir = new THREE.Vector3().subVectors(targetWaypoint, this.position).setY(0)
     const dist = dir.length()
 
     if (dist < 1.2) {
+      this.isMoving = false
       // Pick random next waypoint
       this.currentWaypointIndex = Math.floor(Math.random() * this.waypoints.length)
     } else {
+      this.isMoving = true
       dir.normalize()
       this.position.addScaledVector(dir, this.moveSpeed * dt)
 
@@ -233,6 +310,7 @@ export class Bot {
     this.health = 100
     this.state = 'PATROL'
     this.position.copy(this.spawnPoint)
+    this.position.y = 0
     this.mesh.position.copy(this.position)
     this.mesh.rotation.set(0, 0, 0)
     this.currentWaypointIndex = Math.floor(Math.random() * this.waypoints.length)

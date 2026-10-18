@@ -7,8 +7,8 @@ export const Crosshair: React.FC = () => {
   const activeWeaponId = useGameStore((state) => state.activeWeaponId)
   const hitmarker = useGameStore((state) => state.hitmarker)
 
-  // Hide crosshair when scoped in with AWP
-  if (activeWeaponId === 'awp' && isAiming) {
+  // Hide crosshair when scoped in with Sniper rifles
+  if ((activeWeaponId === 'awp' || activeWeaponId === 'ssg08') && isAiming) {
     return null
   }
 

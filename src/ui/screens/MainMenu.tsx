@@ -18,6 +18,7 @@ import { gameEngine } from '../../game/core/GameEngine'
 import { MAP_METADATA } from '../../game/maps/MapManager'
 import { WEAPON_DEFINITIONS } from '../../game/weapons/definitions/weapons'
 import { audioManager } from '../../game/core/AudioManager'
+import type { WeaponId } from '../../types/game.types'
 
 interface Props {
   onOpenMapSelect: () => void
@@ -96,6 +97,7 @@ export const MainMenu: React.FC<Props> = ({
   const handleStartGame = () => {
     audioManager.init()
     audioManager.resume()
+    gameEngine.startMatch()
     setGameStatus('PLAYING')
     // On desktop, request pointer lock
     gameEngine.inputManager.requestPointerLock()
@@ -136,6 +138,29 @@ export const MainMenu: React.FC<Props> = ({
               <span className="briefing-val">{currentWeaponMeta.name}</span>
             </div>
           </div>
+        </div>
+
+        {/* Quick Weapon Selector Pills (Fast Sniper & Rifle Equip) */}
+        <div className="quick-weapon-pills">
+          <span className="quick-weapon-label">PILIH SENJATA CEPAT:</span>
+          {(['ak47', 'm4a1', 'awp', 'ssg08'] as WeaponId[]).map((id) => {
+            const w = WEAPON_DEFINITIONS[id]
+            const isEquipped = selectedPrimary === id
+            return (
+              <button
+                key={id}
+                type="button"
+                className={`btn-quick-weapon ${isEquipped ? 'active' : ''}`}
+                onClick={() => {
+                  useGameStore.getState().setSelectedPrimary(id)
+                  gameEngine.player.initWeapon(id)
+                }}
+              >
+                {w.type === 'sniper' ? '🎯 ' : '⚡ '}
+                {id === 'awp' ? 'AWP SNIPER' : id === 'ssg08' ? 'SCOUT SNIPER' : w.name.split(' ')[0]}
+              </button>
+            )
+          })}
         </div>
 
         {/* Main Action Buttons */}

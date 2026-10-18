@@ -130,11 +130,28 @@ export class GameEngine {
     const activeWeapon = useGameStore.getState().activeWeaponId
     this.player.initWeapon(activeWeapon)
 
-    // Spawn Bots
+    // Spawn Bots at ground level with bullet manager
     this.botManager.spawnBots(
       this.mapManager.botWaypoints,
       this.mapManager.tSpawn,
-      this.mapManager.ctSpawn
+      this.mapManager.ctSpawn,
+      this.bulletManager
+    )
+  }
+
+  public startMatch() {
+    this.player.respawn(this.mapManager.ctSpawn)
+    const activeWeapon = useGameStore.getState().activeWeaponId
+    this.player.initWeapon(activeWeapon)
+    useGameStore.getState().setHealth(100)
+    useGameStore.getState().setArmor(100)
+
+    // Respawn bots fresh at ground level
+    this.botManager.spawnBots(
+      this.mapManager.botWaypoints,
+      this.mapManager.tSpawn,
+      this.mapManager.ctSpawn,
+      this.bulletManager
     )
   }
 
@@ -158,6 +175,25 @@ export class GameEngine {
 
     const dt = Math.min((currentTime - this.lastTime) / 1000, 0.05)
     this.lastTime = currentTime
+
+    const gameStatus = useGameStore.getState().gameStatus
+
+    // When in MENU or other non-playing states, do NOT run combat, bot shooting, or player damage!
+    if (gameStatus !== 'PLAYING') {
+      if (gameStatus === 'MENU') {
+        // Smooth cinematic ambient camera pan over the tactical arena
+        const time = currentTime * 0.00018
+        this.camera.position.x = Math.sin(time) * 20
+        this.camera.position.z = Math.cos(time) * 20 + 2
+        this.camera.position.y = 10
+        this.camera.lookAt(0, 1.2, 0)
+      }
+
+      this.bulletManager.update(dt)
+      this.renderer.render(this.scene, this.camera)
+      this.animationFrameId = requestAnimationFrame(this.gameLoop)
+      return
+    }
 
     // 1. Step Physics
     this.physics.step(dt)
@@ -183,7 +219,7 @@ export class GameEngine {
     // 4. Update Bullet Tracers & Sparks
     this.bulletManager.update(dt)
 
-    // 5. Update Bot AI
+    // 5. Update Bot AI (only during ACTIVE combat)
     this.botManager.update(dt, this.player, this.mapManager.collidableMeshes)
 
     // 6. Update Multiplayer Remote Players

@@ -298,8 +298,8 @@ export class Player {
   ) {
     if (!this.currentWeaponMeshGroup) return
 
-    // Hide weapon model when zoomed in with AWP sniper scope
-    if (activeId === 'awp' && input.aim) {
+    // Hide weapon model when zoomed in with sniper scope
+    if ((activeId === 'awp' || activeId === 'ssg08') && input.aim) {
       this.currentWeaponMeshGroup.visible = false
       return
     } else {

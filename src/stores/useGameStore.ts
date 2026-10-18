@@ -24,6 +24,7 @@ interface GameStoreState {
   crosshairSpread: number
   hitmarker: HitmarkerState
   damageFlash: boolean
+  damageAngle: number | null
   currentMap: MapId
   killfeed: KillFeedItem[]
   scoreboard: PlayerScore[]
@@ -42,6 +43,7 @@ interface GameStoreState {
   setCrosshairSpread: (spread: number) => void
   triggerHitmarker: (isHeadshot: boolean) => void
   triggerDamageFlash: () => void
+  triggerDirectionalDamage: (angle?: number) => void
   setCurrentMap: (map: MapId) => void
   addKillFeed: (item: Omit<KillFeedItem, 'id' | 'timestamp'>) => void
   setScoreboard: (scores: PlayerScore[]) => void
@@ -69,6 +71,13 @@ const initialWeaponStates: Record<WeaponId, WeaponState> = {
     id: 'awp',
     clip: WEAPON_DEFINITIONS.awp.clipSize,
     reserve: WEAPON_DEFINITIONS.awp.maxReserve,
+    isReloading: false,
+    reloadProgress: 0
+  },
+  ssg08: {
+    id: 'ssg08',
+    clip: WEAPON_DEFINITIONS.ssg08.clipSize,
+    reserve: WEAPON_DEFINITIONS.ssg08.maxReserve,
     isReloading: false,
     reloadProgress: 0
   },
@@ -101,6 +110,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   crosshairSpread: 1.0,
   hitmarker: { active: false, isHeadshot: false, timestamp: 0 },
   damageFlash: false,
+  damageAngle: null,
   currentMap: 'dust_arena',
   killfeed: [],
   scoreboard: [
@@ -174,6 +184,16 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   triggerDamageFlash: () => {
     set({ damageFlash: true })
     setTimeout(() => set({ damageFlash: false }), 250)
+  },
+
+  triggerDirectionalDamage: (angle?: number) => {
+    set({
+      damageFlash: true,
+      damageAngle: typeof angle === 'number' ? angle : null
+    })
+    setTimeout(() => {
+      set({ damageFlash: false, damageAngle: null })
+    }, 450)
   },
 
   setCurrentMap: (currentMap) => set({ currentMap }),

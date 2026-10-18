@@ -9,6 +9,7 @@ import { WeaponSelector } from './ui/hud/WeaponSelector'
 import { KillFeed } from './ui/hud/KillFeed'
 import { SniperScope } from './ui/hud/SniperScope'
 import { Scoreboard } from './ui/hud/Scoreboard'
+import { DamageIndicator } from './ui/hud/DamageIndicator'
 import { MobileControls } from './ui/mobile/MobileControls'
 import { MainMenu } from './ui/screens/MainMenu'
 import { MapSelectModal } from './ui/screens/MapSelectModal'
@@ -22,7 +23,6 @@ import './index.css'
 export const App: React.FC = () => {
   const canvasRef = useRef<HTMLDivElement>(null)
   const gameStatus = useGameStore((state) => state.gameStatus)
-  const damageFlash = useGameStore((state) => state.damageFlash)
   const isMobile = useGameStore((state) => state.isMobile)
   const setGameStatus = useGameStore((state) => state.setGameStatus)
   const initSession = useAuthStore((state) => state.initSession)
@@ -78,8 +78,8 @@ export const App: React.FC = () => {
       {/* 3D Canvas Mount Point */}
       <div ref={canvasRef} className="game-canvas-container" />
 
-      {/* Red Damage Flash Screen Vignette */}
-      {damageFlash && <div className="damage-flash-overlay" />}
+      {/* Red Damage Flash Screen Vignette & Directional Hit Indicator */}
+      <DamageIndicator />
 
       {/* IN-GAME HUD (Visible during gameplay) */}
       {gameStatus === 'PLAYING' && isEngineReady && (

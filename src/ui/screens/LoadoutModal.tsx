@@ -1,5 +1,5 @@
-import React from 'react'
-import { Crosshair, X, Check } from 'lucide-react'
+import React, { useState } from 'react'
+import { Crosshair, X, Check, Target, Zap } from 'lucide-react'
 import { useGameStore } from '../../stores/useGameStore'
 import { WEAPON_DEFINITIONS } from '../../game/weapons/definitions/weapons'
 import { gameEngine } from '../../game/core/GameEngine'
@@ -13,8 +13,14 @@ export const LoadoutModal: React.FC<Props> = ({ onClose }) => {
   const selectedPrimary = useGameStore((state) => state.selectedPrimary)
   const setSelectedPrimary = useGameStore((state) => state.setSelectedPrimary)
   const currentSlot = useGameStore((state) => state.currentSlot)
+  const [activeCategory, setActiveCategory] = useState<'all' | 'rifle' | 'sniper'>('all')
 
-  const primaryOptions: WeaponId[] = ['ak47', 'm4a1', 'awp']
+  const primaryOptions: WeaponId[] = ['ak47', 'm4a1', 'awp', 'ssg08']
+
+  const filteredOptions = primaryOptions.filter((id) => {
+    if (activeCategory === 'all') return true
+    return WEAPON_DEFINITIONS[id].type === activeCategory
+  })
 
   const handlePickPrimary = (id: WeaponId) => {
     setSelectedPrimary(id)
@@ -36,10 +42,37 @@ export const LoadoutModal: React.FC<Props> = ({ onClose }) => {
           </button>
         </div>
 
+        {/* Category Filter Tabs */}
+        <div className="auth-tabs" style={{ marginBottom: 16 }}>
+          <button
+            type="button"
+            className={`auth-tab ${activeCategory === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('all')}
+          >
+            ALL WEAPONS
+          </button>
+          <button
+            type="button"
+            className={`auth-tab ${activeCategory === 'rifle' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('rifle')}
+          >
+            <Zap size={14} style={{ display: 'inline', marginRight: 4 }} />
+            ASSAULT RIFLES
+          </button>
+          <button
+            type="button"
+            className={`auth-tab ${activeCategory === 'sniper' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('sniper')}
+          >
+            <Target size={14} style={{ display: 'inline', marginRight: 4 }} />
+            SNIPER RIFLES
+          </button>
+        </div>
+
         <div className="loadout-section">
           <h3 className="section-label">SELECT PRIMARY WEAPON</h3>
           <div className="loadout-grid">
-            {primaryOptions.map((id) => {
+            {filteredOptions.map((id) => {
               const weapon = WEAPON_DEFINITIONS[id]
               const isSelected = selectedPrimary === id
 
@@ -50,7 +83,19 @@ export const LoadoutModal: React.FC<Props> = ({ onClose }) => {
                   onClick={() => handlePickPrimary(id)}
                 >
                   <div className="weapon-card-header">
-                    <h4>{weapon.name}</h4>
+                    <div>
+                      <h4>{weapon.name}</h4>
+                      <span
+                        style={{
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: weapon.type === 'sniper' ? '#38bdf8' : '#f59e0b',
+                          letterSpacing: '0.5px'
+                        }}
+                      >
+                        {weapon.type === 'sniper' ? '🎯 OPTICAL SNIPER' : '⚡ ASSAULT RIFLE'}
+                      </span>
+                    </div>
                     {isSelected && (
                       <span className="equipped-badge">
                         <Check size={14} /> EQUIPPED

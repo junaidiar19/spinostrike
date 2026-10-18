@@ -55,6 +55,24 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
     zoomFov: 18, // High-powered optical sniper scope
     description: 'Sniper rifle berdaya hancur dahsyat dengan zoom optik presisi tinggi. 1 peluru, 1 korban.'
   },
+  ssg08: {
+    id: 'ssg08',
+    name: 'SSG-08 Scout Sniper',
+    slot: 1,
+    type: 'sniper',
+    damage: 88,
+    headshotMultiplier: 4.0, // 352 damage 1-shot headshot kill!
+    legMultiplier: 0.75,
+    fireRate: 1.25,
+    clipSize: 10,
+    maxReserve: 50,
+    reloadTime: 2.8,
+    recoilVertical: 0.08,
+    recoilHorizontal: 0.02,
+    spread: 0.003,
+    zoomFov: 24,
+    description: 'Senapan runduk ringan berkecepatan tinggi dengan magasin 10 peluru dan akurasi lompat mematikan.'
+  },
   deagle: {
     id: 'deagle',
     name: 'Desert Eagle .50',

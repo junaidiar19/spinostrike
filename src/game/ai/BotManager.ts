@@ -14,7 +14,8 @@ export class BotManager {
   public spawnBots(
     waypoints: THREE.Vector3[],
     tSpawn: THREE.Vector3,
-    ctSpawn: THREE.Vector3
+    ctSpawn: THREE.Vector3,
+    bulletManager?: any
   ) {
     this.cleanup()
 
@@ -26,7 +27,8 @@ export class BotManager {
     ]
 
     botProfiles.forEach((profile) => {
-      const bot = new Bot(profile.id, profile.name, profile.team, profile.spawn, waypoints)
+      profile.spawn.y = 0 // Ground floor level - no more floating!
+      const bot = new Bot(profile.id, profile.name, profile.team, profile.spawn, waypoints, bulletManager)
       this.bots.push(bot)
       this.scene.add(bot.mesh)
       this.allHitboxes.push(...bot.hitboxes)

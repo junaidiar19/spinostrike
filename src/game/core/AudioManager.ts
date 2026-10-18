@@ -53,6 +53,9 @@ class AudioManager {
       case 'awp':
         this.playAWPSound(now)
         break
+      case 'ssg08':
+        this.playSSG08Sound(now)
+        break
       case 'deagle':
         this.playDeagleSound(now)
         break
@@ -168,6 +171,42 @@ class AudioManager {
     sub.stop(now + 0.5)
     noiseNode.start(now)
     noiseNode.stop(now + 0.65)
+  }
+
+  private playSSG08Sound(now: number) {
+    if (!this.ctx || !this.sfxGain) return
+    // Sharp high crack
+    const osc = this.ctx.createOscillator()
+    const oscGain = this.ctx.createGain()
+    osc.type = 'triangle'
+    osc.frequency.setValueAtTime(280, now)
+    osc.frequency.exponentialRampToValueAtTime(45, now + 0.2)
+    oscGain.gain.setValueAtTime(0.85, now)
+    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.22)
+
+    // Sonic boom whip
+    const noise = this.createNoiseBuffer(0.35)
+    const noiseNode = this.ctx.createBufferSource()
+    noiseNode.buffer = noise
+    const filter = this.ctx.createBiquadFilter()
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(2200, now)
+    filter.Q.value = 1.8
+
+    const noiseGain = this.ctx.createGain()
+    noiseGain.gain.setValueAtTime(0.8, now)
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.35)
+
+    osc.connect(oscGain)
+    oscGain.connect(this.sfxGain)
+    noiseNode.connect(filter)
+    filter.connect(noiseGain)
+    noiseGain.connect(this.sfxGain)
+
+    osc.start(now)
+    osc.stop(now + 0.22)
+    noiseNode.start(now)
+    noiseNode.stop(now + 0.38)
   }
 
   private playDeagleSound(now: number) {
