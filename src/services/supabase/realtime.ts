@@ -96,10 +96,14 @@ export class RealtimeManager {
         newPresences.forEach((p) => {
           const player = p as unknown as RoomPlayerPresence
           if (player.id !== this.localPlayerId) {
-            this.getOrCreateRemotePlayer(player.id, player.name, player.team)
+            let cleanName = player.name || 'Striker'
+            if (cleanName.toLowerCase().startsWith('operative_')) {
+              cleanName = 'Striker_' + player.id.slice(-4)
+            }
+            this.getOrCreateRemotePlayer(player.id, cleanName, player.team)
             useGameStore.getState().addOrUpdatePlayerScore({
               id: player.id,
-              name: player.name,
+              name: cleanName,
               team: player.team,
               kills: player.kills || 0,
               deaths: player.deaths || 0,
@@ -342,10 +346,14 @@ export class RealtimeManager {
       presences.forEach((p) => {
         activeIds.add(p.id)
         if (p.id !== this.localPlayerId) {
-          this.getOrCreateRemotePlayer(p.id, p.name, p.team)
+          let cleanName = p.name || 'Striker'
+          if (cleanName.toLowerCase().startsWith('operative_')) {
+            cleanName = 'Striker_' + p.id.slice(-4)
+          }
+          this.getOrCreateRemotePlayer(p.id, cleanName, p.team)
           store.addOrUpdatePlayerScore({
             id: p.id,
-            name: p.name,
+            name: cleanName,
             team: p.team,
             kills: p.kills || 0,
             deaths: p.deaths || 0,

@@ -29,6 +29,7 @@ interface AuthStoreState {
   logout: () => Promise<void>
   openAuthModal: () => void
   closeAuthModal: () => void
+  updateNickname: (newNickname: string) => Promise<boolean>
   updateProfileLoadout: (primary: WeaponId, secondary: WeaponId) => Promise<void>
   recordMatchEnd: (kills: number, deaths: number, headshots: number) => Promise<void>
 }
@@ -49,11 +50,15 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       if (authData?.session?.user) {
         const user = authData.session.user
         const profile = await getProfile(user.id)
-        const nickname =
+        let nickname =
           profile?.nickname ||
           (user.user_metadata?.nickname as string) ||
           user.email?.split('@')[0] ||
           'Striker'
+
+        if (nickname.toLowerCase().startsWith('operative_')) {
+          nickname = user.email?.split('@')[0] || 'Striker'
+        }
 
         const authSession: UserSession = {
           id: user.id,
@@ -96,6 +101,10 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
       if (savedAuth) {
         const parsed: UserSession = JSON.parse(savedAuth)
         if (parsed && parsed.nickname && !parsed.isGuest) {
+          if (parsed.nickname.toLowerCase().startsWith('operative_')) {
+            parsed.nickname = parsed.email?.split('@')[0] || 'Striker'
+            localStorage.setItem(AUTH_USER_KEY, JSON.stringify(parsed))
+          }
           const profile = await getProfile(parsed.id)
           set({
             session: parsed,
@@ -218,6 +227,60 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
 
   openAuthModal: () => set({ isAuthModalOpen: true, authError: null }),
   closeAuthModal: () => set({ isAuthModalOpen: false, authError: null }),
+
+  updateNickname: async (newNickname: string) => {
+    const clean = newNickname.trim().substring(0, 16)
+    if (!clean) return false
+
+    const { session, profile } = get()
+    if (!session) return false
+
+    const updatedSession: UserSession = {
+      ...session,
+      nickname: clean
+    }
+
+    const updatedProfile: PlayerProfile = profile
+      ? { ...profile, nickname: clean }
+      : {
+          id: session.id,
+          nickname: clean,
+          kills: 0,
+          deaths: 0,
+          headshots: 0,
+          matches_played: 0,
+          selected_primary: 'ak47',
+          selected_secondary: 'deagle'
+        }
+
+    set({ session: updatedSession, profile: updatedProfile })
+
+    // Persist to localStorage
+    if (session.isGuest) {
+      localStorage.setItem('spinostrike_guest_session', JSON.stringify(updatedSession))
+    } else {
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(updatedSession))
+    }
+    localStorage.setItem('spinostrike_playerName', JSON.stringify(clean))
+
+    // Sync GameStore and SettingsStore
+    useGameStore.getState().updatePlayerName(clean)
+    useSettingsStore.setState({ playerName: clean })
+
+    // Sync to Supabase
+    try {
+      await upsertProfile({
+        id: session.id,
+        nickname: clean,
+        selected_primary: updatedProfile.selected_primary || 'ak47',
+        selected_secondary: updatedProfile.selected_secondary || 'deagle'
+      })
+    } catch {
+      // offline fallback
+    }
+
+    return true
+  },
 
   updateProfileLoadout: async (primary: WeaponId, secondary: WeaponId) => {
     const { session, profile } = get()

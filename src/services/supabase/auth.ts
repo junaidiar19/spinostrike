@@ -18,9 +18,10 @@ export const getStoredGuestSession = (): UserSession => {
     if (data) {
       const parsed = JSON.parse(data)
       // If nickname was the old robotic Operative_ prefix, clean it up to Striker or settings name
-      if (parsed.nickname && parsed.nickname.startsWith('Operative_')) {
+      if (parsed.nickname && parsed.nickname.toLowerCase().startsWith('operative_')) {
         const customName = localStorage.getItem('spinostrike_playerName')
-        parsed.nickname = (customName && JSON.parse(customName)) || 'Striker'
+        const clean = customName ? JSON.parse(customName) : null
+        parsed.nickname = (clean && typeof clean === 'string' && !clean.toLowerCase().startsWith('operative_')) ? clean : 'Striker'
         localStorage.setItem(GUEST_KEY, JSON.stringify(parsed))
       }
       return parsed

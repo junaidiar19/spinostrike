@@ -40,7 +40,7 @@ const saveStored = (key: string, val: unknown) => {
 
 const getCleanPlayerName = (): string => {
   const stored = getStored<string>('playerName', 'Striker')
-  if (stored && typeof stored === 'string' && stored.startsWith('Operative_')) {
+  if (stored && typeof stored === 'string' && stored.toLowerCase().startsWith('operative_')) {
     saveStored('playerName', 'Striker')
     return 'Striker'
   }
@@ -58,13 +58,20 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   touchControlsOpacity: getStored('touchControlsOpacity', 0.85),
 
   setPlayerName: (playerName) => {
-    saveStored('playerName', playerName)
-    set({ playerName })
+    const clean = playerName.trim().substring(0, 16) || 'Striker'
+    saveStored('playerName', clean)
+    set({ playerName: clean })
     try {
-      useGameStore.getState().updatePlayerName(playerName)
+      useGameStore.getState().updatePlayerName(clean)
     } catch {
       // ignore
     }
+    // Sync to Auth Store for multiplayer room presence
+    import('./useAuthStore').then(({ useAuthStore }) => {
+      useAuthStore.getState().updateNickname(clean)
+    }).catch(() => {
+      // ignore
+    })
   },
   setMouseSensitivity: (mouseSensitivity) => {
     saveStored('mouseSensitivity', mouseSensitivity)

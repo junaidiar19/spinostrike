@@ -3,9 +3,11 @@ import { Users, Wifi, Shield, Skull, X, Plus, RotateCw, Radio, Sparkles } from '
 import { useRoomStore } from '../../stores/useRoomStore'
 import { lobbyRealtimeManager } from '../../services/supabase/lobbyRealtime'
 import { MAP_METADATA } from '../../game/maps/MapManager'
+import { useAuthStore } from '../../stores/useAuthStore'
 import type { MapId } from '../../types/game.types'
 
 export const RoomLobbyModal: React.FC = () => {
+  const { session, openAuthModal } = useAuthStore()
   const {
     isRoomLobbyOpen,
     closeRoomLobby,
@@ -78,6 +80,25 @@ export const RoomLobbyModal: React.FC = () => {
               <span>TERRORISTS</span>
             </button>
           </div>
+        </div>
+
+        {/* Callsign / Nickname Bar in Lobby */}
+        <div className="lobby-user-bar">
+          <div className="lobby-user-info">
+            <span className="lobby-user-lbl">CALLSIGN ANDA:</span>
+            <span className="lobby-user-name">{session?.nickname || 'Striker'}</span>
+            <span className="lobby-user-team-badge" style={{ color: myTeam === 'CT' ? '#38bdf8' : '#ef4444' }}>
+              • {myTeam === 'CT' ? 'COUNTER-TERRORISTS' : 'TERRORISTS'}
+            </span>
+          </div>
+          <button
+            type="button"
+            className="btn-lobby-rename"
+            onClick={openAuthModal}
+            title="Ganti Callsign / Nickname Anda"
+          >
+            ✏️ GANTI NAMA
+          </button>
         </div>
 
         {/* Main Content: Room List or Create Form */}

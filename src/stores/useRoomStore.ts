@@ -127,7 +127,14 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   createOnlineRoom: async (roomName: string, mapId: MapId) => {
     set({ isJoining: true })
     const { session } = useAuthStore.getState()
-    const hostName = session?.nickname || 'Striker'
+    let hostName = session?.nickname || 'Striker'
+    if (hostName.toLowerCase().startsWith('operative_')) {
+      const customName = localStorage.getItem('spinostrike_playerName')
+      const cleanCustom = customName ? JSON.parse(customName) : null
+      hostName = (cleanCustom && typeof cleanCustom === 'string' && !cleanCustom.toLowerCase().startsWith('operative_'))
+        ? cleanCustom
+        : 'Striker'
+    }
     const slug = roomName.trim().replace(/[^a-zA-Z0-9]/g, '_').toLowerCase().slice(0, 16) || 'room'
     const newRoomId = `room_${slug}_${Math.random().toString(36).substring(2, 7)}`
 
@@ -176,9 +183,18 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
     const { session } = useAuthStore.getState()
     const { myTeam } = get()
 
+    let playerName = session?.nickname || ''
+    if (!playerName || playerName.toLowerCase().startsWith('operative_')) {
+      const customName = localStorage.getItem('spinostrike_playerName')
+      const cleanCustom = customName ? JSON.parse(customName) : null
+      playerName = (cleanCustom && typeof cleanCustom === 'string' && !cleanCustom.toLowerCase().startsWith('operative_'))
+        ? cleanCustom
+        : 'Striker'
+    }
+
     const playerInfo = {
       id: session?.id || `guest_${Math.random().toString(36).substring(2, 8)}`,
-      name: session?.nickname || 'Striker',
+      name: playerName,
       team: myTeam
     }
 

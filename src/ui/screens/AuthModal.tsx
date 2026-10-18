@@ -9,30 +9,42 @@ export const AuthModal: React.FC = () => {
     authError,
     isLoading,
     isAuthModalOpen,
-    loginAsGuest,
     loginWithEmail,
     registerWithEmail,
     logout,
     closeAuthModal
   } = useAuthStore()
 
-  const [activeTab, setActiveTab] = useState<'guest' | 'login' | 'register'>('guest')
-  const [nickname, setNickname] = useState(session?.nickname || '')
+  const isMember = session && !session.isGuest
+  const [activeTab, setActiveTab] = useState<'profile' | 'guest' | 'login' | 'register'>('guest')
+  const [nickname, setNickname] = useState(
+    session?.nickname && !session.nickname.toLowerCase().startsWith('operative_')
+      ? session.nickname
+      : ''
+  )
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   React.useEffect(() => {
     if (session?.nickname) {
-      setNickname(session.nickname)
+      if (session.nickname.toLowerCase().startsWith('operative_')) {
+        setNickname('')
+      } else {
+        setNickname(session.nickname)
+      }
     }
-  }, [session?.nickname])
+    if (session && !session.isGuest) {
+      setActiveTab('profile')
+    }
+  }, [session?.nickname, session?.isGuest])
 
   if (!isAuthModalOpen) return null
 
-  const handleGuestSubmit = async (e: React.FormEvent) => {
+  const handleUpdateNickname = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!nickname.trim()) return
-    await loginAsGuest(nickname.trim())
+    await useAuthStore.getState().updateNickname(nickname.trim())
+    closeAuthModal()
   }
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -92,33 +104,71 @@ export const AuthModal: React.FC = () => {
 
         {/* Tab Selector */}
         <div className="auth-tabs">
-          <button
-            type="button"
-            className={`auth-tab ${activeTab === 'guest' ? 'active' : ''}`}
-            onClick={() => setActiveTab('guest')}
-          >
-            GUEST PLAY
-          </button>
-          <button
-            type="button"
-            className={`auth-tab ${activeTab === 'login' ? 'active' : ''}`}
-            onClick={() => setActiveTab('login')}
-          >
-            SIGN IN
-          </button>
-          <button
-            type="button"
-            className={`auth-tab ${activeTab === 'register' ? 'active' : ''}`}
-            onClick={() => setActiveTab('register')}
-          >
-            CREATE ACCOUNT
-          </button>
+          {isMember ? (
+            <button
+              type="button"
+              className={`auth-tab ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => setActiveTab('profile')}
+            >
+              PROFIL MEMBER
+            </button>
+          ) : (
+            <button
+              type="button"
+              className={`auth-tab ${activeTab === 'guest' ? 'active' : ''}`}
+              onClick={() => setActiveTab('guest')}
+            >
+              GUEST PLAY
+            </button>
+          )}
+          {!isMember && (
+            <>
+              <button
+                type="button"
+                className={`auth-tab ${activeTab === 'login' ? 'active' : ''}`}
+                onClick={() => setActiveTab('login')}
+              >
+                SIGN IN
+              </button>
+              <button
+                type="button"
+                className={`auth-tab ${activeTab === 'register' ? 'active' : ''}`}
+                onClick={() => setActiveTab('register')}
+              >
+                CREATE ACCOUNT
+              </button>
+            </>
+          )}
         </div>
 
         {/* Tab Content */}
         <div className="auth-tab-body">
+          {activeTab === 'profile' && (
+            <form onSubmit={handleUpdateNickname} className="auth-form">
+              <p className="auth-desc">
+                Akun Member: <strong>{session?.email}</strong>. Anda dapat mengganti Nickname / Callsign yang tampil di arena dan room multiplayer kapan saja.
+              </p>
+              <div className="setting-field">
+                <label htmlFor="member-nickname">Callsign / Nickname Akun</label>
+                <input
+                  id="member-nickname"
+                  type="text"
+                  className="setting-text-input"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value.substring(0, 16))}
+                  placeholder="Striker"
+                  maxLength={16}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-auth-submit" disabled={isLoading}>
+                {isLoading ? 'MENYIMPAN...' : 'SIMPAN PERUBAHAN NICKNAME'}
+              </button>
+            </form>
+          )}
+
           {activeTab === 'guest' && (
-            <form onSubmit={handleGuestSubmit} className="auth-form">
+            <form onSubmit={handleUpdateNickname} className="auth-form">
               <p className="auth-desc">
                 Bermain langsung tanpa akun! Statistik dan senjata Anda tersimpan otomatis di profil ini.
               </p>
@@ -130,7 +180,9 @@ export const AuthModal: React.FC = () => {
                   className="setting-text-input"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value.substring(0, 16))}
-                  placeholder="Striker_01"
+                  placeholder="Striker"
+                  maxLength={16}
+                  required
                 />
               </div>
               <button type="submit" className="btn-auth-submit" disabled={isLoading}>
