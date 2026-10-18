@@ -34,9 +34,9 @@ export class Bot {
   // Combat parameters
   private fireCooldown = 0
   private burstCount = 0
-  private maxBurst = 3
-  private burstInterval = 0.14
-  private reactionDelay = 0.5
+  private maxBurst = 2
+  private burstInterval = 0.26
+  private reactionDelay = 1.4
   private alertTimer = 0
 
   // Respawn
@@ -187,11 +187,12 @@ export class Bot {
       shootDir.normalize()
 
       // Check if bullet trajectory hits any solid obstacle before reaching the player!
-      const raycaster = new THREE.Raycaster(botMuzzle, shootDir, 0.1, distToPlayer + 2)
+      const distToChest = botMuzzle.distanceTo(targetChest)
+      const raycaster = new THREE.Raycaster(botMuzzle, shootDir, 0.1, distToChest + 2)
       const obstacleHits = raycaster.intersectObjects(collidableMeshes, true)
 
       let hitObstacle = false
-      if (obstacleHits.length > 0 && obstacleHits[0].distance < distToPlayer - 0.4) {
+      if (obstacleHits.length > 0 && obstacleHits[0].distance < distToChest - 0.15) {
         // Bullet hit a solid obstacle (wall, crate, bunker) before reaching the player!
         hitObstacle = true
       }
@@ -203,6 +204,13 @@ export class Bot {
 
       // If bullet hit an obstacle, DO NOT DAMAGE THE PLAYER!
       if (hitObstacle) {
+        this.burstCount++
+        if (this.burstCount >= this.maxBurst) {
+          this.burstCount = 0
+          this.fireCooldown = 2.2 + Math.random() * 0.8
+        } else {
+          this.fireCooldown = this.burstInterval
+        }
         return
       }
 
@@ -212,28 +220,23 @@ export class Bot {
         return
       }
 
-      const hitChance = Math.max(0.18, 0.65 - distToPlayer / 45)
+      const hitChance = Math.max(0.12, 0.40 - distToPlayer / 50)
       if (Math.random() < hitChance) {
-        const currentHp = gameStore.health
-        const damage = 12 + Math.floor(Math.random() * 8)
-        const newHp = Math.max(0, currentHp - damage)
-        gameStore.setHealth(newHp)
+        const damage = 10 + Math.floor(Math.random() * 6)
 
         // Calculate Directional Hit Angle relative to Player Camera
         const toBot = new THREE.Vector3().subVectors(this.position, gameEngine.player.camera.position)
         const localDir = toBot.applyQuaternion(gameEngine.player.camera.quaternion.clone().invert())
         const screenAngle = Math.atan2(localDir.x, -localDir.z)
-        gameStore.triggerDirectionalDamage(screenAngle)
 
-        if (newHp <= 0) {
-          gameStore.recordPlayerDeath(this.id, this.name, this.team, 'AK-47')
-        }
+        // Apply damage absorbing through Kevlar armor
+        gameStore.applyDamageToPlayer(damage, this.id, this.name, this.team, 'AK-47', screenAngle)
       }
 
       this.burstCount++
       if (this.burstCount >= this.maxBurst) {
         this.burstCount = 0
-        this.fireCooldown = 1.3 + Math.random() * 0.7 // pause between bursts
+        this.fireCooldown = 2.2 + Math.random() * 0.8 // generous pause between bursts
       } else {
         this.fireCooldown = this.burstInterval
       }

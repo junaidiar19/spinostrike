@@ -24,43 +24,50 @@ export class Warehouse {
   private floorMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createWarehouseFloor(),
     roughness: 0.4,
-    metalness: 0.25
+    metalness: 0.25,
+    side: THREE.DoubleSide
   })
 
   private wallMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createWarehouseWall(),
     roughness: 0.5,
-    metalness: 0.45
+    metalness: 0.45,
+    side: THREE.DoubleSide
   })
 
   private redContainerMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createContainerTexture('#b91c1c'),
     roughness: 0.55,
-    metalness: 0.35
+    metalness: 0.35,
+    side: THREE.DoubleSide
   })
 
   private blueContainerMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createContainerTexture('#1d4ed8'),
     roughness: 0.55,
-    metalness: 0.35
+    metalness: 0.35,
+    side: THREE.DoubleSide
   })
 
   private catwalkMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createMetalCatwalk(),
     roughness: 0.5,
-    metalness: 0.6
+    metalness: 0.6,
+    side: THREE.DoubleSide
   })
 
   private crateMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createTacticalCrate(),
     roughness: 0.7,
-    metalness: 0.1
+    metalness: 0.1,
+    side: THREE.DoubleSide
   })
 
   private girderMat = new THREE.MeshStandardMaterial({
     color: 0xeab308, // Hazard yellow
     roughness: 0.3,
-    metalness: 0.7
+    metalness: 0.7,
+    side: THREE.DoubleSide
   })
 
   public build(physics: PhysicsWorld) {

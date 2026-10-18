@@ -22,35 +22,40 @@ export class DustArena {
     new THREE.Vector3(6, 1, 0)       // Mid Doors Right
   ]
 
-  // Realistic Procedural Materials
+  // Realistic Procedural Materials with DoubleSide for 100% raycast hit reliability
   private sandMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createSandstonePavement(),
     roughness: 0.82,
-    metalness: 0.05
+    metalness: 0.05,
+    side: THREE.DoubleSide
   })
 
   private wallMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createSandstoneWall(),
     roughness: 0.85,
-    metalness: 0.05
+    metalness: 0.05,
+    side: THREE.DoubleSide
   })
 
   private crateMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createTacticalCrate(),
     roughness: 0.65,
-    metalness: 0.1
+    metalness: 0.1,
+    side: THREE.DoubleSide
   })
 
   private metalMat = new THREE.MeshStandardMaterial({
     map: TextureGenerator.createContainerTexture('#1d4ed8'),
     roughness: 0.45,
-    metalness: 0.55
+    metalness: 0.55,
+    side: THREE.DoubleSide
   })
 
   private barrelMat = new THREE.MeshStandardMaterial({
     color: 0xdc2626, // Hazard Red
     roughness: 0.3,
-    metalness: 0.65
+    metalness: 0.65,
+    side: THREE.DoubleSide
   })
 
   public build(physics: PhysicsWorld) {

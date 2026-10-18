@@ -109,118 +109,124 @@ export const MainMenu: React.FC<Props> = ({
       <div className="menu-scanlines" />
 
       <div className="menu-container">
-        {/* Title & Branding */}
-        <div className="menu-branding">
-          <div className="menu-badge">
-            <ShieldAlert size={16} />
-            <span>PERTEMPURAN TAKTIS • MULTIPLAYER ONLINE</span>
-          </div>
-          <h1 className="game-title">
-            SPINO<span>STRIKE</span>
-          </h1>
-          <p className="game-tagline">AKSI TEMBAK TAKTIS • LAPTOP & SMARTPHONE</p>
-        </div>
+        <div className="menu-grid-wrapper">
+          <div className="menu-left-pane">
+            {/* Title & Branding */}
+            <div className="menu-branding">
+              <div className="menu-badge">
+                <ShieldAlert size={16} />
+                <span>PERTEMPURAN TAKTIS • MULTIPLAYER ONLINE</span>
+              </div>
+              <h1 className="game-title">
+                SPINO<span>STRIKE</span>
+              </h1>
+              <p className="game-tagline">AKSI TEMBAK TAKTIS • LAPTOP & SMARTPHONE</p>
+            </div>
 
-        {/* Current Match Briefing Bar */}
-        <div className="match-briefing-strip">
-          <div className="briefing-item" onClick={onOpenMapSelect}>
-            <MapPin size={18} className="briefing-icon" />
-            <div className="briefing-text">
-              <span className="briefing-label">DEPLOYMENT MAP</span>
-              <span className="briefing-val">{currentMapMeta.name}</span>
+            {/* Current Match Briefing Bar */}
+            <div className="match-briefing-strip">
+              <div className="briefing-item" onClick={onOpenMapSelect}>
+                <MapPin size={18} className="briefing-icon" />
+                <div className="briefing-text">
+                  <span className="briefing-label">DEPLOYMENT MAP</span>
+                  <span className="briefing-val">{currentMapMeta.name}</span>
+                </div>
+              </div>
+
+              <div className="briefing-item" onClick={onOpenLoadout}>
+                <Crosshair size={18} className="briefing-icon" />
+                <div className="briefing-text">
+                  <span className="briefing-label">PRIMARY WEAPON</span>
+                  <span className="briefing-val">{currentWeaponMeta.name}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Weapon Selector Pills (Fast Sniper & Rifle Equip) */}
+            <div className="quick-weapon-pills">
+              <span className="quick-weapon-label">PILIH SENJATA CEPAT:</span>
+              {(['ak47', 'm4a1', 'awp', 'ssg08'] as WeaponId[]).map((id) => {
+                const w = WEAPON_DEFINITIONS[id]
+                const isEquipped = selectedPrimary === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    className={`btn-quick-weapon ${isEquipped ? 'active' : ''}`}
+                    onClick={() => {
+                      useGameStore.getState().setSelectedPrimary(id)
+                      gameEngine.player.initWeapon(id)
+                    }}
+                  >
+                    {w.type === 'sniper' ? '🎯 ' : '⚡ '}
+                    {id === 'awp' ? 'AWP SNIPER' : id === 'ssg08' ? 'SCOUT SNIPER' : w.name.split(' ')[0]}
+                  </button>
+                )
+              })}
             </div>
           </div>
 
-          <div className="briefing-item" onClick={onOpenLoadout}>
-            <Crosshair size={18} className="briefing-icon" />
-            <div className="briefing-text">
-              <span className="briefing-label">PRIMARY WEAPON</span>
-              <span className="briefing-val">{currentWeaponMeta.name}</span>
+          <div className="menu-right-pane">
+            {/* Main Action Buttons */}
+            <div className="menu-actions-stack">
+              <div className="menu-primary-actions">
+                <button type="button" className="btn-main btn-deploy" onClick={handleStartGame}>
+                  <Play size={24} className="btn-icon-pulse" />
+                  <div className="btn-deploy-text">
+                    <span className="btn-title">PLAY OFFLINE VS BOTS</span>
+                    <span className="btn-sub">PRACTICE & WARMUP</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-main btn-multiplayer"
+                  onClick={() => useRoomStore.getState().openRoomLobby()}
+                >
+                  <Users size={24} />
+                  <div className="btn-deploy-text">
+                    <span className="btn-title">ONLINE MULTIPLAYER</span>
+                    <span className="btn-sub">GABUNG KE SERVER BATTLE</span>
+                  </div>
+                </button>
+              </div>
+
+              <div className="menu-secondary-grid">
+                <button type="button" className="btn-secondary" onClick={onOpenMapSelect}>
+                  <MapPin size={18} />
+                  <span>MAPS</span>
+                </button>
+
+                <button type="button" className="btn-secondary" onClick={onOpenLoadout}>
+                  <Crosshair size={18} />
+                  <span>LOADOUT</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => useAuthStore.getState().openAuthModal()}
+                >
+                  <User size={18} />
+                  <span>ACCOUNT</span>
+                </button>
+
+                <button type="button" className="btn-secondary" onClick={onOpenSettings}>
+                  <Settings size={18} />
+                  <span>SETTINGS</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`btn-secondary btn-install-app`}
+                  onClick={handleInstallClick}
+                  title={isAppInstalled ? 'Game telah terpasang' : 'Pasang SpinoStrike ke Layar Utama'}
+                >
+                  <Download size={18} />
+                  <span>{isAppInstalled ? 'TERPASANG' : 'PASANG APP'}</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-
-        {/* Quick Weapon Selector Pills (Fast Sniper & Rifle Equip) */}
-        <div className="quick-weapon-pills">
-          <span className="quick-weapon-label">PILIH SENJATA CEPAT:</span>
-          {(['ak47', 'm4a1', 'awp', 'ssg08'] as WeaponId[]).map((id) => {
-            const w = WEAPON_DEFINITIONS[id]
-            const isEquipped = selectedPrimary === id
-            return (
-              <button
-                key={id}
-                type="button"
-                className={`btn-quick-weapon ${isEquipped ? 'active' : ''}`}
-                onClick={() => {
-                  useGameStore.getState().setSelectedPrimary(id)
-                  gameEngine.player.initWeapon(id)
-                }}
-              >
-                {w.type === 'sniper' ? '🎯 ' : '⚡ '}
-                {id === 'awp' ? 'AWP SNIPER' : id === 'ssg08' ? 'SCOUT SNIPER' : w.name.split(' ')[0]}
-              </button>
-            )
-          })}
-        </div>
-
-        {/* Main Action Buttons */}
-        <div className="menu-actions-stack">
-          <div className="menu-primary-actions">
-            <button type="button" className="btn-main btn-deploy" onClick={handleStartGame}>
-              <Play size={24} className="btn-icon-pulse" />
-              <div className="btn-deploy-text">
-                <span className="btn-title">PLAY OFFLINE VS BOTS</span>
-                <span className="btn-sub">PRACTICE & WARMUP</span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              className="btn-main btn-multiplayer"
-              onClick={() => useRoomStore.getState().openRoomLobby()}
-            >
-              <Users size={24} />
-              <div className="btn-deploy-text">
-                <span className="btn-title">ONLINE MULTIPLAYER</span>
-                <span className="btn-sub">GABUNG KE SERVER BATTLE</span>
-              </div>
-            </button>
-          </div>
-
-          <div className="menu-secondary-grid">
-            <button type="button" className="btn-secondary" onClick={onOpenMapSelect}>
-              <MapPin size={18} />
-              <span>MAPS</span>
-            </button>
-
-            <button type="button" className="btn-secondary" onClick={onOpenLoadout}>
-              <Crosshair size={18} />
-              <span>LOADOUT</span>
-            </button>
-
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => useAuthStore.getState().openAuthModal()}
-            >
-              <User size={18} />
-              <span>ACCOUNT</span>
-            </button>
-
-            <button type="button" className="btn-secondary" onClick={onOpenSettings}>
-              <Settings size={18} />
-              <span>SETTINGS</span>
-            </button>
-
-            <button
-              type="button"
-              className={`btn-secondary btn-install-app`}
-              onClick={handleInstallClick}
-              title={isAppInstalled ? 'Game telah terpasang' : 'Pasang SpinoStrike ke Layar Utama'}
-            >
-              <Download size={18} />
-              <span>{isAppInstalled ? 'TERPASANG' : 'PASANG APP'}</span>
-            </button>
           </div>
         </div>
 

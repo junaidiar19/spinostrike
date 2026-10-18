@@ -250,47 +250,55 @@ export const MobileControls: React.FC = () => {
 
       {/* Right Side Tactical Action Cluster */}
       <div className="mobile-action-cluster">
-        {/* Aim / Scope Button */}
-        <button
-          type="button"
-          className={`mobile-action-btn btn-aim ${isAiming ? 'aim-active' : ''}`}
-          onTouchStart={handleAim}
-        >
-          <Target size={24} />
-          <span className="btn-label">
-            {activeWeaponId === 'awp' || activeWeaponId === 'ssg08' ? 'SCOPE' : 'AIM'}
-          </span>
-        </button>
+        <div className="mobile-action-secondary-group">
+          <div className="mobile-action-row">
+            {/* Aim / Scope Button */}
+            <button
+              type="button"
+              className={`mobile-action-btn btn-aim ${isAiming ? 'aim-active' : ''}`}
+              onTouchStart={handleAim}
+            >
+              <Target size={20} />
+              <span className="btn-label">
+                {activeWeaponId === 'awp' || activeWeaponId === 'ssg08' ? 'SCOPE' : 'AIM'}
+              </span>
+            </button>
 
-        {/* Reload Button */}
-        <button
-          type="button"
-          className="mobile-action-btn btn-reload"
-          onTouchStart={handleReload}
-        >
-          <RotateCcw size={22} />
-          <span className="btn-label">RELOAD</span>
-        </button>
+            {/* Reload Button */}
+            <button
+              type="button"
+              className="mobile-action-btn btn-reload"
+              onTouchStart={handleReload}
+            >
+              <RotateCcw size={18} />
+              <span className="btn-label">RELOAD</span>
+            </button>
+          </div>
 
-        {/* Crouch Button */}
-        <button
-          type="button"
-          className="mobile-action-btn btn-crouch"
-          onTouchStart={handleCrouchStart}
-          onTouchEnd={handleCrouchEnd}
-        >
-          <ChevronsDown size={24} />
-        </button>
+          <div className="mobile-action-row">
+            {/* Crouch Button */}
+            <button
+              type="button"
+              className="mobile-action-btn btn-crouch"
+              onTouchStart={handleCrouchStart}
+              onTouchEnd={handleCrouchEnd}
+            >
+              <ChevronsDown size={20} />
+              <span className="btn-label">DUCK</span>
+            </button>
 
-        {/* Jump Button */}
-        <button
-          type="button"
-          className="mobile-action-btn btn-jump"
-          onTouchStart={handleJumpStart}
-          onTouchEnd={handleJumpEnd}
-        >
-          <ChevronsUp size={24} />
-        </button>
+            {/* Jump Button */}
+            <button
+              type="button"
+              className="mobile-action-btn btn-jump"
+              onTouchStart={handleJumpStart}
+              onTouchEnd={handleJumpEnd}
+            >
+              <ChevronsUp size={20} />
+              <span className="btn-label">JUMP</span>
+            </button>
+          </div>
+        </div>
 
         {/* Large Primary Fire Button */}
         <button
@@ -299,7 +307,7 @@ export const MobileControls: React.FC = () => {
           onTouchStart={handleShootStart}
           onTouchEnd={handleShootEnd}
         >
-          <Crosshair size={36} />
+          <Crosshair size={32} />
           <span className="fire-label">FIRE</span>
         </button>
       </div>

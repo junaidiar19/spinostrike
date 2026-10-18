@@ -660,33 +660,51 @@ body,
 /* Mobile Action Cluster */
 .mobile-action-cluster {
   position: absolute;
-  bottom: calc(24px + var(--safe-bottom));
-  right: calc(24px + var(--safe-right));
+  bottom: calc(18px + var(--safe-bottom));
+  right: calc(18px + var(--safe-right));
   display: flex;
-  align-items: center;
-  gap: 14px;
+  align-items: flex-end;
+  gap: 12px;
   pointer-events: auto;
+  z-index: 25;
+}
+
+.mobile-action-secondary-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobile-action-row {
+  display: flex;
+  gap: 8px;
 }
 
 .mobile-action-btn {
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  background: rgba(15, 23, 42, 0.88);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
   color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
   touch-action: none;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+.mobile-action-btn:active {
+  transform: scale(0.92);
+  background: rgba(30, 41, 59, 0.95);
 }
 
 .mobile-action-btn .btn-label {
-  font-size: 8px;
-  font-weight: 700;
+  font-size: 7.5px;
+  font-weight: 800;
   letter-spacing: 0.5px;
   margin-top: 1px;
 }
@@ -695,27 +713,34 @@ body,
   background: #38bdf8;
   color: #090d16;
   border-color: #38bdf8;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.8);
 }
 
 .mobile-fire-btn {
-  width: 78px;
-  height: 78px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ef4444, #dc2626);
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border: 2.5px solid rgba(255, 255, 255, 0.65);
   color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+  box-shadow: 0 0 24px rgba(239, 68, 68, 0.65);
   touch-action: none;
+  transition: transform 0.1s ease;
+}
+
+.mobile-fire-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 32px rgba(239, 68, 68, 0.9);
 }
 
 .mobile-fire-btn .fire-label {
   font-family: var(--font-display);
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 1px;
 }
@@ -812,6 +837,22 @@ body,
   align-items: center;
   text-align: center;
   gap: 20px;
+}
+
+.menu-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.menu-left-pane,
+.menu-right-pane {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .menu-branding .menu-badge {
@@ -1807,7 +1848,7 @@ body,
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN (MOBILE & TABLET ADJUSTMENTS)
+   RESPONSIVE DESIGN (MOBILE PORTRAIT & LANDSCAPE ORIENTATION)
    ========================================================================== */
 
 @media (max-width: 640px) {
@@ -1847,6 +1888,397 @@ body,
 
   .menu-secondary-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Horizontal / Landscape Orientation Optimization (Screen height <= 520px) */
+@media (max-height: 520px), (orientation: landscape) and (max-height: 560px) {
+  .main-menu-overlay {
+    padding: calc(6px + var(--safe-top)) calc(12px + var(--safe-right)) calc(6px + var(--safe-bottom)) calc(12px + var(--safe-left));
+    align-items: center;
+    overflow-y: auto;
+  }
+
+  .menu-container {
+    max-width: 920px;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .menu-grid-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 16px;
+    align-items: center;
+    text-align: left;
+    width: 100%;
+  }
+
+  .menu-left-pane {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .menu-right-pane {
+    align-items: stretch;
+  }
+
+  .menu-branding {
+    text-align: left;
+    margin-bottom: 2px;
+  }
+
+  .menu-branding .menu-badge {
+    font-size: 9px;
+    padding: 2px 8px;
+    margin-bottom: 2px;
+  }
+
+  .game-title {
+    font-size: clamp(26px, 5.5vw, 38px);
+    letter-spacing: 2px;
+  }
+
+  .game-tagline {
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-top: 1px;
+  }
+
+  .match-briefing-strip {
+    max-width: 100%;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .briefing-item {
+    padding: 6px 10px;
+    gap: 8px;
+    border-radius: 8px;
+  }
+
+  .briefing-label {
+    font-size: 8px;
+  }
+
+  .briefing-val {
+    font-size: 11px;
+  }
+
+  .quick-weapon-pills {
+    margin: 4px 0 0 0;
+    gap: 4px;
+    justify-content: flex-start;
+  }
+
+  .quick-weapon-label {
+    font-size: 9px;
+  }
+
+  .btn-quick-weapon {
+    padding: 3px 8px;
+    font-size: 10px;
+    border-radius: 6px;
+  }
+
+  .menu-actions-stack {
+    max-width: 100%;
+    gap: 6px;
+  }
+
+  .menu-primary-actions {
+    gap: 6px;
+  }
+
+  .btn-main {
+    border-radius: 10px;
+    gap: 10px;
+  }
+
+  .btn-deploy {
+    padding: 10px 14px;
+  }
+
+  .btn-multiplayer {
+    padding: 10px 14px;
+  }
+
+  .btn-deploy-text .btn-title {
+    font-size: 15px;
+    letter-spacing: 1px;
+  }
+
+  .btn-deploy-text .btn-sub {
+    font-size: 9px;
+  }
+
+  .menu-secondary-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .btn-secondary {
+    padding: 6px 4px;
+    font-size: 10px;
+    border-radius: 8px;
+    gap: 3px;
+  }
+
+  .controls-guide-box {
+    max-width: 100%;
+    margin-top: 2px;
+  }
+
+  .guide-tab-btn {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  .guide-tab-content {
+    padding: 6px 10px;
+  }
+
+  .mobile-guide-item {
+    padding: 4px 8px;
+  }
+
+  .mobile-guide-item p {
+    font-size: 9px;
+  }
+
+  /* Modals in Horizontal / Landscape */
+  .modal-backdrop,
+  .scoreboard-backdrop,
+  .pause-modal-backdrop {
+    padding: 6px;
+  }
+
+  .modal-dialog {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+
+  .modal-header {
+    padding: 8px 14px;
+  }
+
+  .modal-header h2 {
+    font-size: 15px;
+  }
+
+  .modal-footer {
+    padding: 6px 14px;
+  }
+
+  .map-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 10px 14px;
+    gap: 8px;
+    max-height: 64vh;
+    overflow-y: auto;
+  }
+
+  .map-card-banner {
+    height: 48px;
+  }
+
+  .map-card-body {
+    padding: 6px 8px;
+  }
+
+  .map-card-name {
+    font-size: 13px;
+  }
+
+  .loadout-section {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 8px 14px;
+  }
+
+  .loadout-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .weapon-card {
+    padding: 8px 10px;
+  }
+
+  .auth-card-body,
+  .settings-body,
+  .lobby-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 8px 14px;
+  }
+
+  /* In-Game HUD in Landscape Mobile */
+  .hud-bottom-left {
+    bottom: calc(8px + var(--safe-bottom));
+    left: calc(10px + var(--safe-left));
+    padding: 5px 8px;
+    gap: 8px;
+    border-radius: 10px;
+  }
+
+  .status-icon-box {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+  }
+
+  .status-info {
+    width: 60px;
+  }
+
+  .status-value {
+    font-size: 15px;
+  }
+
+  .status-bar-bg {
+    height: 4px;
+  }
+
+  /* Position Ammo above the fire/aim cluster so thumbs never block it */
+  .hud-bottom-right {
+    bottom: calc(128px + var(--safe-bottom));
+    right: calc(14px + var(--safe-right));
+    min-width: auto;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.8);
+  }
+
+  .ammo-clip {
+    font-size: 22px;
+  }
+
+  .ammo-reserve {
+    font-size: 12px;
+  }
+
+  .ammo-weapon-name {
+    font-size: 9px;
+  }
+
+  /* Mobile Controls Layout in Landscape */
+  .mobile-action-cluster {
+    bottom: calc(8px + var(--safe-bottom));
+    right: calc(12px + var(--safe-right));
+    gap: 8px;
+  }
+
+  .mobile-action-secondary-group {
+    gap: 5px;
+  }
+
+  .mobile-action-row {
+    gap: 5px;
+  }
+
+  .mobile-action-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mobile-action-btn .btn-label {
+    font-size: 7px;
+  }
+
+  .mobile-fire-btn {
+    width: 66px;
+    height: 66px;
+  }
+
+  .mobile-fire-btn .fire-label {
+    font-size: 8px;
+  }
+
+  .mobile-top-bar {
+    top: calc(8px + var(--safe-top));
+    left: calc(10px + var(--safe-left));
+    gap: 6px;
+  }
+
+  .mobile-round-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .mobile-slot-bar {
+    top: calc(8px + var(--safe-top));
+    gap: 6px;
+  }
+
+  .slot-touch-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 11px;
+  }
+
+  /* Elimination Card in Landscape */
+  .elimination-card {
+    padding: 12px 18px;
+    gap: 6px;
+    max-width: 360px;
+    border-radius: 12px;
+  }
+
+  .skull-container {
+    width: 38px;
+    height: 38px;
+  }
+
+  .skull-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .elimination-title {
+    font-size: 18px;
+  }
+
+  .elimination-details {
+    font-size: 11px;
+  }
+
+  .respawn-countdown-pill {
+    padding: 4px 12px;
+    font-size: 10px;
+    margin-top: 2px;
+  }
+
+  /* Scoreboard Modal in Landscape */
+  .scoreboard-modal {
+    max-height: 95vh;
+    padding: 8px 14px;
+  }
+
+  .scoreboard-content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 52vh;
+    overflow-y: auto;
+  }
+
+  .scoreboard-table th,
+  .scoreboard-table td {
+    padding: 3px 5px;
+    font-size: 10px;
+  }
+
+  .score-summary-bar {
+    margin-bottom: 6px;
+    padding: 3px 10px;
+  }
+
+  .team-summary .team-name {
+    font-size: 10px;
+  }
+
+  .team-score-num {
+    font-size: 16px;
   }
 }
 

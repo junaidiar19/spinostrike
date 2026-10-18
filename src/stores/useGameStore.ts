@@ -44,6 +44,14 @@ interface GameStoreState {
   updateWeaponState: (id: WeaponId, state: Partial<WeaponState>) => void
   setHealth: (hp: number) => void
   setArmor: (armor: number) => void
+  applyDamageToPlayer: (
+    rawDamage: number,
+    killerBotId?: string,
+    killerName?: string,
+    killerTeam?: 'T' | 'CT',
+    weaponName?: string,
+    hitAngle?: number
+  ) => void
   setIsAiming: (isAiming: boolean) => void
   setCrosshairSpread: (spread: number) => void
   triggerHitmarker: (isHeadshot: boolean) => void
@@ -175,6 +183,40 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
 
   setHealth: (hp) => set({ health: Math.max(0, Math.min(100, hp)) }),
   setArmor: (armor) => set({ armor: Math.max(0, Math.min(100, armor)) }),
+  applyDamageToPlayer: (rawDamage, killerBotId, killerName, killerTeam, weaponName, hitAngle) => {
+    const state = get()
+    if (state.isPlayerDead || state.spawnProtection > 0 || state.matchGraceTimer > 0) return
+
+    const currentHp = state.health
+    let currentArmor = state.armor
+
+    // Tactical Shooter Kevlar Armor Mechanic:
+    // Armor absorbs 60% of incoming damage, remaining 40% goes to HP.
+    let hpDamage = rawDamage
+    if (currentArmor > 0) {
+      const absorbed = Math.min(currentArmor, Math.round(rawDamage * 0.6))
+      currentArmor = Math.max(0, currentArmor - absorbed)
+      hpDamage = Math.max(1, rawDamage - absorbed)
+    }
+
+    const newHp = Math.max(0, currentHp - hpDamage)
+    set({
+      health: newHp,
+      armor: currentArmor
+    })
+
+    // Directional damage indicator & screen flash
+    state.triggerDirectionalDamage(hitAngle)
+
+    if (newHp <= 0 && !state.isPlayerDead) {
+      state.recordPlayerDeath(
+        killerBotId || 'bot-enemy',
+        killerName || 'Bot',
+        killerTeam || 'T',
+        weaponName || 'AK-47'
+      )
+    }
+  },
   setIsAiming: (isAiming) => set({ isAiming }),
   setCrosshairSpread: (crosshairSpread) => set({ crosshairSpread }),
 

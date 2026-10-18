@@ -160,30 +160,32 @@ export class Player {
     }
 
     // Collision parameters
-    const playerRadius = 0.42
+    const playerRadius = 0.44
     const eyeHeight = this.isCrouching ? 1.15 : 1.65
-    const playerFeetY = this.position.y - eyeHeight
+    const currentFeetY = this.position.y - eyeHeight
 
-    // 1. Vertical Physics & Elevated Surface Floor Detection
+    // 1. Vertical Physics & Surface Height
     const nextY = this.position.y + this.velocity.y * dt
     let floorY = 0
 
     // Check elevated obstacle floors (e.g. A-Site platform, catwalks, tops of crates)
     for (const mesh of collidableMeshes) {
       if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
-      const box = new THREE.Box3().setFromObject(mesh)
+      const box: THREE.Box3 = mesh.userData.box3 || (mesh.userData.box3 = new THREE.Box3().setFromObject(mesh))
       if (box.max.y <= 0.05) continue // skip ground
 
-      // If player is horizontally within the bounds of this obstacle
-      if (
-        this.position.x + playerRadius * 0.5 > box.min.x &&
-        this.position.x - playerRadius * 0.5 < box.max.x &&
-        this.position.z + playerRadius * 0.5 > box.min.z &&
-        this.position.z - playerRadius * 0.5 < box.max.z
-      ) {
-        // Can stand on top if feet are at or above obstacle top (with small step tolerance)
-        if (box.max.y <= playerFeetY + 0.35 && box.max.y > floorY) {
-          floorY = box.max.y
+      // Only treat as floor if player's feet are ALREADY at or above the top surface!
+      // (Step-up tolerance max 0.25m, preventing walking up walls or tall crates)
+      if (currentFeetY >= box.max.y - 0.25) {
+        if (
+          this.position.x + playerRadius * 0.4 > box.min.x &&
+          this.position.x - playerRadius * 0.4 < box.max.x &&
+          this.position.z + playerRadius * 0.4 > box.min.z &&
+          this.position.z - playerRadius * 0.4 < box.max.z
+        ) {
+          if (box.max.y > floorY) {
+            floorY = box.max.y
+          }
         }
       }
     }
@@ -198,68 +200,58 @@ export class Player {
       this.isGrounded = false
     }
 
-    // 2. Horizontal Movement Collision & Wall Sliding (X Axis)
-    const nextX = this.position.x + this.velocity.x * dt
-    let blockedX = false
-    const bodyBottom = this.position.y - eyeHeight + 0.2
-    const bodyTop = this.position.y + 0.1
+    // 2. Horizontal Movement Candidate
+    let targetX = this.position.x + this.velocity.x * dt
+    let targetZ = this.position.z + this.velocity.z * dt
 
-    for (const mesh of collidableMeshes) {
-      if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
-      const box = new THREE.Box3().setFromObject(mesh)
-      if (box.max.y <= 0.05) continue // skip ground
+    const playerBottom = this.position.y - eyeHeight + 0.15
+    const playerTop = this.position.y + 0.15
 
-      // Only collide if obstacle overlaps vertically with player's torso/legs
-      if (box.max.y > bodyBottom && box.min.y < bodyTop) {
-        if (
-          nextX + playerRadius > box.min.x &&
-          nextX - playerRadius < box.max.x &&
-          this.position.z + playerRadius > box.min.z &&
-          this.position.z - playerRadius < box.max.z
-        ) {
-          blockedX = true
-          break
+    // Multi-pass Circle-AABB Minimum Translation Vector (MTV) Penetration Resolution
+    for (let pass = 0; pass < 3; pass++) {
+      for (const mesh of collidableMeshes) {
+        if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
+        const box: THREE.Box3 = mesh.userData.box3 || (mesh.userData.box3 = new THREE.Box3().setFromObject(mesh))
+        if (box.max.y <= 0.05) continue // skip ground
+
+        // Check if player body vertically overlaps with obstacle
+        // If player is on top of obstacle, skip horizontal collision
+        if (playerBottom < box.max.y && playerTop > box.min.y) {
+          // Find closest point on obstacle box to player (targetX, targetZ)
+          const closestX = Math.max(box.min.x, Math.min(box.max.x, targetX))
+          const closestZ = Math.max(box.min.z, Math.min(box.max.z, targetZ))
+
+          const diffX = targetX - closestX
+          const diffZ = targetZ - closestZ
+          const distSq = diffX * diffX + diffZ * diffZ
+
+          if (distSq < playerRadius * playerRadius) {
+            if (distSq > 0.0001) {
+              const dist = Math.sqrt(distSq)
+              const overlap = playerRadius - dist
+              targetX += (diffX / dist) * overlap
+              targetZ += (diffZ / dist) * overlap
+            } else {
+              // Player center is inside box: push out along shortest axis
+              const dLeft = targetX - box.min.x
+              const dRight = box.max.x - targetX
+              const dFront = targetZ - box.min.z
+              const dBack = box.max.z - targetZ
+              const minPen = Math.min(dLeft, dRight, dFront, dBack)
+
+              if (minPen === dLeft) targetX = box.min.x - playerRadius
+              else if (minPen === dRight) targetX = box.max.x + playerRadius
+              else if (minPen === dFront) targetZ = box.min.z - playerRadius
+              else targetZ = box.max.z + playerRadius
+            }
+          }
         }
       }
-    }
-
-    if (!blockedX) {
-      this.position.x = nextX
-    } else {
-      this.velocity.x = 0 // slide along wall
-    }
-
-    // 3. Horizontal Movement Collision & Wall Sliding (Z Axis)
-    const nextZ = this.position.z + this.velocity.z * dt
-    let blockedZ = false
-
-    for (const mesh of collidableMeshes) {
-      if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
-      const box = new THREE.Box3().setFromObject(mesh)
-      if (box.max.y <= 0.05) continue
-
-      if (box.max.y > bodyBottom && box.min.y < bodyTop) {
-        if (
-          this.position.x + playerRadius > box.min.x &&
-          this.position.x - playerRadius < box.max.x &&
-          nextZ + playerRadius > box.min.z &&
-          nextZ - playerRadius < box.max.z
-        ) {
-          blockedZ = true
-          break
-        }
-      }
-    }
-
-    if (!blockedZ) {
-      this.position.z = nextZ
-    } else {
-      this.velocity.z = 0 // slide along wall
     }
 
     // Map outer perimeter boundary clamp
-    this.position.x = Math.max(-38, Math.min(38, this.position.x))
-    this.position.z = Math.max(-38, Math.min(38, this.position.z))
+    this.position.x = Math.max(-38, Math.min(38, targetX))
+    this.position.z = Math.max(-38, Math.min(38, targetZ))
 
     // Update camera position
     this.camera.position.copy(this.position)
