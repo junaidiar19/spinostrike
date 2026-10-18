@@ -3,6 +3,7 @@ import { RealtimeChannel } from '@supabase/supabase-js'
 import { supabase } from './client'
 import { audioManager } from '../../game/core/AudioManager'
 import { useGameStore } from '../../stores/useGameStore'
+import { useRoomStore } from '../../stores/useRoomStore'
 import { gameEngine } from '../../game/core/GameEngine'
 import { RemotePlayer } from '../../game/entities/RemotePlayer'
 import type { Team, WeaponId } from '../../types/game.types'
@@ -26,6 +27,18 @@ export interface PlayerMovePayload {
   yaw: number
   pitch: number
   weaponId: WeaponId
+  isCrouching?: boolean
+}
+
+export interface PlayerKillPayload {
+  killerId: string
+  killerName: string
+  killerTeam: Team
+  victimId: string
+  victimName: string
+  victimTeam: Team
+  weaponName: string
+  isHeadshot: boolean
 }
 
 export interface PlayerShootPayload {
@@ -84,6 +97,16 @@ export class RealtimeManager {
           const player = p as unknown as RoomPlayerPresence
           if (player.id !== this.localPlayerId) {
             this.getOrCreateRemotePlayer(player.id, player.name, player.team)
+            useGameStore.getState().addOrUpdatePlayerScore({
+              id: player.id,
+              name: player.name,
+              team: player.team,
+              kills: player.kills || 0,
+              deaths: player.deaths || 0,
+              score: player.score || 0,
+              ping: Math.floor(15 + Math.random() * 15),
+              isBot: false
+            })
           }
         })
       })
@@ -91,6 +114,7 @@ export class RealtimeManager {
         leftPresences.forEach((p) => {
           const player = p as unknown as RoomPlayerPresence
           this.removeRemotePlayer(player.id)
+          useGameStore.getState().removePlayerScore(player.id)
         })
       })
 
@@ -104,6 +128,9 @@ export class RealtimeManager {
       })
       .on('broadcast', { event: 'player_damaged' }, ({ payload }) => {
         this.handleRemoteDamage(payload as PlayerDamagePayload)
+      })
+      .on('broadcast', { event: 'player_killed' }, ({ payload }) => {
+        this.handleRemoteKill(payload as PlayerKillPayload)
       })
 
     // 3. Subscribe & Track
@@ -147,7 +174,8 @@ export class RealtimeManager {
         z: Number(pos.z.toFixed(3)),
         yaw: Number(gameEngine.player.yaw.toFixed(3)),
         pitch: Number(gameEngine.player.pitch.toFixed(3)),
-        weaponId: store.activeWeaponId
+        weaponId: store.activeWeaponId,
+        isCrouching: gameEngine.player.isCrouching
       }
 
       this.channel.send({
@@ -212,7 +240,10 @@ export class RealtimeManager {
     if (data.id === this.localPlayerId) return
     const remote = this.remotePlayers.get(data.id)
     if (remote) {
-      remote.targetPosition.set(data.x, data.y, data.z)
+      // Offset eye height (1.65 standing / 1.0 crouching) so boots are firmly planted on the ground (y = 0)
+      const eyeHeight = data.isCrouching ? 1.0 : 1.65
+      const groundY = Math.max(0, data.y - eyeHeight)
+      remote.targetPosition.set(data.x, groundY, data.z)
       remote.targetYaw = data.yaw
       remote.targetPitch = data.pitch
       remote.activeWeapon = data.weaponId
@@ -235,17 +266,32 @@ export class RealtimeManager {
   private handleRemoteDamage(data: PlayerDamagePayload) {
     // If local player is the target of damage
     if (data.targetId === this.localPlayerId) {
+      const myTeam = useRoomStore.getState().myTeam
+      // Friendly fire protection: No damage from teammates!
+      if (data.killerTeam === myTeam) return
+
       const store = useGameStore.getState()
+      if (store.isPlayerDead || store.spawnProtection > 0 || store.matchGraceTimer > 0) return
+
       const newHp = Math.max(0, store.health - data.damage)
       store.setHealth(newHp)
       store.triggerDamageFlash()
 
-      if (newHp <= 0) {
-        store.addKillFeed({
+      if (newHp <= 0 && !store.isPlayerDead) {
+        store.recordPlayerDeath(
+          data.killerId,
+          data.killerName,
+          data.killerTeam,
+          data.weaponName
+        )
+        const myName = store.scoreboard.find((p) => p.id === 'player-1')?.name?.replace(' (You)', '') || 'Striker'
+        this.broadcastKill({
+          killerId: data.killerId,
           killerName: data.killerName,
           killerTeam: data.killerTeam,
-          victimName: 'Striker (You)',
-          victimTeam: 'CT',
+          victimId: this.localPlayerId,
+          victimName: myName,
+          victimTeam: myTeam,
           weaponName: data.weaponName,
           isHeadshot: data.isHeadshot
         })
@@ -253,14 +299,60 @@ export class RealtimeManager {
     }
   }
 
+  public broadcastKill(payload: PlayerKillPayload) {
+    if (!this.channel) return
+    this.channel.send({
+      type: 'broadcast',
+      event: 'player_killed',
+      payload
+    })
+  }
+
+  private handleRemoteKill(data: PlayerKillPayload) {
+    const store = useGameStore.getState()
+    // If neither killer nor victim is the local player (local player already recorded their own event)
+    if (data.killerId !== this.localPlayerId && data.victimId !== this.localPlayerId) {
+      store.addKillFeed({
+        killerName: data.killerName,
+        killerTeam: data.killerTeam,
+        victimName: data.victimName,
+        victimTeam: data.victimTeam,
+        weaponName: data.weaponName,
+        isHeadshot: data.isHeadshot
+      })
+
+      const updated = store.scoreboard.map((p) => {
+        if (p.id === data.killerId) {
+          return { ...p, kills: p.kills + 1, score: p.score + (data.isHeadshot ? 150 : 100) }
+        }
+        if (p.id === data.victimId) {
+          return { ...p, deaths: p.deaths + 1 }
+        }
+        return p
+      })
+      store.setScoreboard(updated)
+    }
+  }
+
   private handlePresenceSync(state: Record<string, RoomPlayerPresence[]>) {
     const activeIds = new Set<string>()
+    const store = useGameStore.getState()
 
     Object.values(state).forEach((presences) => {
       presences.forEach((p) => {
         activeIds.add(p.id)
         if (p.id !== this.localPlayerId) {
           this.getOrCreateRemotePlayer(p.id, p.name, p.team)
+          store.addOrUpdatePlayerScore({
+            id: p.id,
+            name: p.name,
+            team: p.team,
+            kills: p.kills || 0,
+            deaths: p.deaths || 0,
+            score: p.score || 0,
+            ping: Math.floor(15 + Math.random() * 15),
+            isBot: false
+          })
         }
       })
     })
@@ -269,6 +361,7 @@ export class RealtimeManager {
     this.remotePlayers.forEach((_, id) => {
       if (!activeIds.has(id)) {
         this.removeRemotePlayer(id)
+        store.removePlayerScore(id)
       }
     })
   }
@@ -310,9 +403,10 @@ export class RealtimeManager {
       this.channel = null
     }
 
-    this.remotePlayers.forEach((remote) => {
+    this.remotePlayers.forEach((remote, id) => {
       gameEngine.scene.remove(remote.mesh)
       remote.destroy()
+      useGameStore.getState().removePlayerScore(id)
     })
     this.remotePlayers.clear()
     this.currentRoomId = null

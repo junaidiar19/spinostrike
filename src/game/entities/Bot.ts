@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { audioManager } from '../core/AudioManager'
 import { useGameStore } from '../../stores/useGameStore'
+import { useRoomStore } from '../../stores/useRoomStore'
 import { OperatorModelGenerator, type OperatorLimbs } from './OperatorModelGenerator'
 import type { Team } from '../../types/game.types'
 import { gameEngine } from '../core/GameEngine'
@@ -93,33 +94,43 @@ export class Bot {
 
     const distToPlayer = this.position.distanceTo(this.targetPlayer.position)
 
-    // Check Line of Sight to player (only targetable if alive, past grace period, and no spawn shield)
+    // Check if player is on the same team as this bot
     const gameStore = useGameStore.getState()
-    const isPlayerTargetable = !gameStore.isPlayerDead && gameStore.spawnProtection <= 0 && gameStore.matchGraceTimer <= 0
-    const hasLOS = isPlayerTargetable && this.checkLineOfSight(this.targetPlayer.position, collidableMeshes)
+    const myTeam = useRoomStore.getState().myTeam
 
-    if (hasLOS && distToPlayer < 35) {
-      this.state = 'COMBAT'
-      this.isMoving = false
-      this.alertTimer += dt
-
-      // Face the player smoothly
-      const targetDir = new THREE.Vector3()
-        .subVectors(this.targetPlayer.position, this.position)
-        .setY(0)
-        .normalize()
-
-      const targetAngle = Math.atan2(targetDir.x, targetDir.z)
-      this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, targetAngle, dt * 8)
-
-      // Shoot in bursts after alert reaction delay
-      if (this.alertTimer >= this.reactionDelay) {
-        this.combatShooting(dt, distToPlayer, collidableMeshes)
-      }
-    } else {
+    if (this.team === myTeam) {
+      // Teammate bot: Never target or shoot players on the same team!
       this.state = 'PATROL'
       this.alertTimer = 0
       this.patrol(dt)
+    } else {
+      // Enemy bot: Check Line of Sight to player (only targetable if alive, past grace period, and no spawn shield)
+      const isPlayerTargetable = !gameStore.isPlayerDead && gameStore.spawnProtection <= 0 && gameStore.matchGraceTimer <= 0
+      const hasLOS = isPlayerTargetable && this.checkLineOfSight(this.targetPlayer.position, collidableMeshes)
+
+      if (hasLOS && distToPlayer < 35) {
+        this.state = 'COMBAT'
+        this.isMoving = false
+        this.alertTimer += dt
+
+        // Face the player smoothly
+        const targetDir = new THREE.Vector3()
+          .subVectors(this.targetPlayer.position, this.position)
+          .setY(0)
+          .normalize()
+
+        const targetAngle = Math.atan2(targetDir.x, targetDir.z)
+        this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, targetAngle, dt * 8)
+
+        // Shoot in bursts after alert reaction delay
+        if (this.alertTimer >= this.reactionDelay) {
+          this.combatShooting(dt, distToPlayer, collidableMeshes)
+        }
+      } else {
+        this.state = 'PATROL'
+        this.alertTimer = 0
+        this.patrol(dt)
+      }
     }
 
     // Dynamic soldier limb animations (walking & combat stance)
@@ -270,6 +281,11 @@ export class Bot {
 
   public onTakeDamage(damage: number, isHeadshot: boolean) {
     if (this.isDead) return
+    const myTeam = useRoomStore.getState().myTeam
+    if (this.team === myTeam) {
+      useGameStore.getState().triggerAmmoNotice(`🛡️ REKAN TIM (${this.name})! Jangan tembak anggota tim sendiri.`)
+      return
+    }
 
     this.health -= damage
 

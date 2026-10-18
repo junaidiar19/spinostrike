@@ -19,41 +19,69 @@ export interface OperatorModelResult {
 }
 
 export class OperatorModelGenerator {
-  // Shared materials for optimal performance & realism
+  // Team CT (Counter-Terrorist / Rekan) Materials - High-vis Blue & Cyan SWAT
   private static ctUniformMat = new THREE.MeshStandardMaterial({
-    color: 0x1e293b, // Modern SWAT / SAS Navy-Charcoal tactical fabric
-    roughness: 0.8,
-    metalness: 0.1,
+    color: 0x1d4ed8, // High-contrast Royal SWAT Blue
+    roughness: 0.75,
+    metalness: 0.15,
     flatShading: true
   })
 
-  private static tUniformMat = new THREE.MeshStandardMaterial({
-    color: 0x4a5320, // Tactical Woodland / Desert Camo Olive
-    roughness: 0.8,
-    metalness: 0.1,
-    flatShading: true
-  })
-
-  private static vestMat = new THREE.MeshStandardMaterial({
-    color: 0x0f172a, // Heavy Kevlar Plate Carrier Charcoal
+  private static ctVestMat = new THREE.MeshStandardMaterial({
+    color: 0x0f172a, // Dark Navy Kevlar plate carrier
     roughness: 0.7,
     metalness: 0.2,
     flatShading: true
   })
 
-  private static helmetMat = new THREE.MeshStandardMaterial({
-    color: 0x1e2430, // Matte Ballistic Composite
+  private static ctHelmetMat = new THREE.MeshStandardMaterial({
+    color: 0x1e3a8a, // Deep Navy SWAT Ballistic Helmet
     roughness: 0.5,
-    metalness: 0.3,
+    metalness: 0.35,
     flatShading: true
   })
 
-  private static visorMat = new THREE.MeshPhysicalMaterial({
-    color: 0x0ea5e9, // Reflective Tactical Eyewear / Polarized Lens
+  private static ctVisorMat = new THREE.MeshPhysicalMaterial({
+    color: 0x38bdf8, // Vibrant Cyan Polarized Goggles
     roughness: 0.1,
     metalness: 0.9,
     clearcoat: 1.0,
-    reflectivity: 0.9,
+    flatShading: true
+  })
+
+  // Team T (Terrorist / Musuh) Materials - Desert Tan & Crimson Red Rebel
+  private static tUniformMat = new THREE.MeshStandardMaterial({
+    color: 0x92400e, // Desert Khaki Tan Camouflage
+    roughness: 0.8,
+    metalness: 0.1,
+    flatShading: true
+  })
+
+  private static tVestMat = new THREE.MeshStandardMaterial({
+    color: 0x991b1b, // Crimson Red Rebel Plate Carrier
+    roughness: 0.75,
+    metalness: 0.15,
+    flatShading: true
+  })
+
+  private static tHelmetMat = new THREE.MeshStandardMaterial({
+    color: 0x451a03, // Desert Brown Camo Helmet
+    roughness: 0.6,
+    metalness: 0.2,
+    flatShading: true
+  })
+
+  private static tVisorMat = new THREE.MeshPhysicalMaterial({
+    color: 0xf97316, // Amber-Orange Polarized Goggles
+    roughness: 0.1,
+    metalness: 0.9,
+    clearcoat: 1.0,
+    flatShading: true
+  })
+
+  private static tBalaclavaMat = new THREE.MeshStandardMaterial({
+    color: 0x7f1d1d, // Red Rebel Bandana / Balaclava
+    roughness: 0.9,
     flatShading: true
   })
 
@@ -94,6 +122,10 @@ export class OperatorModelGenerator {
     const hitboxes: THREE.Object3D[] = []
 
     const uniformMat = team === 'CT' ? this.ctUniformMat : this.tUniformMat
+    const vestMat = team === 'CT' ? this.ctVestMat : this.tVestMat
+    const helmetMat = team === 'CT' ? this.ctHelmetMat : this.tHelmetMat
+    const visorMat = team === 'CT' ? this.ctVisorMat : this.tVisorMat
+    const balaclavaMat = team === 'CT' ? this.balaclavaMat : this.tBalaclavaMat
 
     const attachHitbox = (
       mesh: THREE.Object3D,
@@ -103,6 +135,7 @@ export class OperatorModelGenerator {
         hitboxType: type,
         entityName,
         entityId: remoteEntityId,
+        team,
         onHit: onHitCallback
       }
       hitboxes.push(mesh)
@@ -117,7 +150,7 @@ export class OperatorModelGenerator {
 
     // Balaclava Head Base
     const headGeom = new THREE.BoxGeometry(0.24, 0.28, 0.25)
-    const headMesh = new THREE.Mesh(headGeom, this.balaclavaMat)
+    const headMesh = new THREE.Mesh(headGeom, balaclavaMat)
     headMesh.position.set(0, 0, 0)
     headMesh.castShadow = true
     headGroup.add(headMesh)
@@ -129,18 +162,29 @@ export class OperatorModelGenerator {
     headGroup.add(eyeArea)
 
     // Tactical Polarized Ballistic Goggles
-    const goggles = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.06), this.visorMat)
+    const goggles = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.08, 0.06), visorMat)
     goggles.position.set(0, 0.02, 0.14)
     headGroup.add(goggles)
     attachHitbox(goggles, 'head')
 
     // High-Cut Ballistic Helmet
     const helmetGeom = new THREE.BoxGeometry(0.28, 0.16, 0.28)
-    const helmet = new THREE.Mesh(helmetGeom, this.helmetMat)
+    const helmet = new THREE.Mesh(helmetGeom, helmetMat)
     helmet.position.set(0, 0.12, -0.01)
     helmet.castShadow = true
     headGroup.add(helmet)
     attachHitbox(helmet, 'head')
+
+    // Team Helmet Band (High Visibility Identification)
+    const helmetBandMat = new THREE.MeshStandardMaterial({
+      color: team === 'CT' ? 0x38bdf8 : 0xef4444,
+      emissive: team === 'CT' ? 0x0369a1 : 0x991b1b,
+      emissiveIntensity: 0.5,
+      roughness: 0.4
+    })
+    const helmetBand = new THREE.Mesh(new THREE.BoxGeometry(0.285, 0.04, 0.285), helmetBandMat)
+    helmetBand.position.set(0, 0.08, -0.01)
+    headGroup.add(helmetBand)
 
     // Night Vision Device (NVG) Shroud Mount on Helmet Front
     const nvgMount = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.04), this.metalHardwareMat)
@@ -175,7 +219,7 @@ export class OperatorModelGenerator {
     attachHitbox(torso, 'body')
 
     // Tactical Plate Carrier (Front & Back Armor Plates)
-    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.32), this.vestMat)
+    const vest = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.48, 0.32), vestMat)
     vest.position.set(0, 0.04, 0)
     vest.castShadow = true
     torsoGroup.add(vest)
@@ -199,7 +243,7 @@ export class OperatorModelGenerator {
     torsoGroup.add(antenna)
 
     // Tactical Hydration / Assault Pack on Back
-    const backPack = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.42, 0.12), this.vestMat)
+    const backPack = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.42, 0.12), vestMat)
     backPack.position.set(0, 0.02, -0.2)
     torsoGroup.add(backPack)
 

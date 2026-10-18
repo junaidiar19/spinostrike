@@ -5,6 +5,7 @@ import type {
   KillFeedItem,
   MapId,
   PlayerScore,
+  Team,
   WeaponId,
   WeaponSlot,
   WeaponState
@@ -69,6 +70,9 @@ interface GameStoreState {
   addKillFeed: (item: Omit<KillFeedItem, 'id' | 'timestamp'>) => void
   setScoreboard: (scores: PlayerScore[]) => void
   updatePlayerName: (name: string) => void
+  setPlayerTeam: (team: Team) => void
+  addOrUpdatePlayerScore: (score: PlayerScore) => void
+  removePlayerScore: (id: string) => void
   recordPlayerKill: (victimBotId: string, victimName: string, victimTeam: 'T' | 'CT', isHeadshot: boolean) => void
   recordPlayerDeath: (killerBotId: string, killerName: string, killerTeam: 'T' | 'CT', weaponName: string) => void
   respawnPlayer: () => void
@@ -382,15 +386,42 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     }))
   },
 
+  setPlayerTeam: (team: Team) => {
+    set((state) => ({
+      scoreboard: state.scoreboard.map((p) =>
+        p.id === 'player-1' ? { ...p, team } : p
+      )
+    }))
+  },
+
+  addOrUpdatePlayerScore: (player: PlayerScore) => {
+    set((state) => {
+      const idx = state.scoreboard.findIndex((p) => p.id === player.id)
+      if (idx >= 0) {
+        const copy = [...state.scoreboard]
+        copy[idx] = { ...copy[idx], ...player }
+        return { scoreboard: copy }
+      }
+      return { scoreboard: [...state.scoreboard, player] }
+    })
+  },
+
+  removePlayerScore: (id: string) => {
+    set((state) => ({
+      scoreboard: state.scoreboard.filter((p) => p.id !== id)
+    }))
+  },
+
   recordPlayerKill: (victimBotId, victimName, victimTeam, isHeadshot) => {
     const state = get()
     const activeWeapon = state.activeWeaponId.toUpperCase()
     const myPlayer = state.scoreboard.find((p) => p.id === 'player-1')
     const myName = myPlayer?.name || 'Striker (You)'
+    const myTeam = myPlayer?.team || 'CT'
 
     state.addKillFeed({
       killerName: myName,
-      killerTeam: 'CT',
+      killerTeam: myTeam,
       victimName,
       victimTeam,
       weaponName: activeWeapon,
@@ -415,12 +446,13 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
 
     const myPlayer = state.scoreboard.find((p) => p.id === 'player-1')
     const myName = myPlayer?.name || 'Striker (You)'
+    const myTeam = myPlayer?.team || 'CT'
 
     state.addKillFeed({
       killerName,
       killerTeam,
       victimName: myName,
-      victimTeam: 'CT',
+      victimTeam: myTeam,
       weaponName,
       isHeadshot: false
     })

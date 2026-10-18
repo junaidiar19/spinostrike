@@ -119,7 +119,10 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
   },
 
   closeRoomLobby: () => set({ isRoomLobbyOpen: false }),
-  setMyTeam: (team: Team) => set({ myTeam: team }),
+  setMyTeam: (team: Team) => {
+    set({ myTeam: team })
+    useGameStore.getState().setPlayerTeam(team)
+  },
 
   createOnlineRoom: async (roomName: string, mapId: MapId) => {
     set({ isJoining: true })
@@ -181,6 +184,8 @@ export const useRoomStore = create<RoomStoreState>((set, get) => ({
 
     // Load corresponding map in 3D engine
     useGameStore.getState().setCurrentMap(mapId)
+    useGameStore.getState().setPlayerTeam(myTeam)
+    useGameStore.getState().updatePlayerName(playerInfo.name)
     gameEngine.loadMap(mapId)
 
     // Connect to Supabase Realtime Game Channel

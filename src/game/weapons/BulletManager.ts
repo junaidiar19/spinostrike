@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { audioManager } from '../core/AudioManager'
 import { useGameStore } from '../../stores/useGameStore'
+import { useRoomStore } from '../../stores/useRoomStore'
 import { realtimeManager } from '../../services/supabase/realtime'
 import { WEAPON_DEFINITIONS } from './definitions/weapons'
 import type { WeaponId } from '../../types/game.types'
@@ -68,34 +69,42 @@ export class BulletManager {
         const hitboxType = currentObj.userData.hitboxType
         isHeadshot = hitboxType === 'head'
         targetName = currentObj.userData.entityName || 'Enemy'
+        const targetTeam = currentObj.userData.team
+        const myTeam = useRoomStore.getState().myTeam
+
+        // Friendly Fire Check: Is target on the same team?
+        if (targetTeam && targetTeam === myTeam) {
+          audioManager.playDryFire()
+          useGameStore.getState().triggerAmmoNotice(`🛡️ REKAN SATU TIM (${targetName})! Tembakan ke kawan tidak berlaku.`)
+          this.createTracer(origin, endPoint)
+          return { hit: true, isHeadshot: false, point: endPoint, targetName: `${targetName} (Rekan)` }
+        }
+
+        // Enemy Hit: Calculate damage with weapon multipliers
+        let damage = config.damage
+        if (isHeadshot) damage *= config.headshotMultiplier
+        else if (hitboxType === 'leg') damage *= config.legMultiplier
 
         // Notify bot or target entity
         if (typeof currentObj.userData.onHit === 'function') {
-          let damage = config.damage
-          if (isHeadshot) damage *= config.headshotMultiplier
-          else if (hitboxType === 'leg') damage *= config.legMultiplier
           currentObj.userData.onHit(damage, isHeadshot)
         }
 
         // Multiplayer Remote Player damage broadcast
         const remoteEntityId = currentObj.userData.entityId
         if (remoteEntityId && realtimeManager.currentRoomId) {
-          let damage = config.damage
-          if (isHeadshot) damage *= config.headshotMultiplier
-          else if (hitboxType === 'leg') damage *= config.legMultiplier
-
-          const myName = useGameStore.getState().scoreboard.find((p) => p.id === 'player-1')?.name || 'Striker'
+          const myName = useGameStore.getState().scoreboard.find((p) => p.id === 'player-1')?.name?.replace(' (You)', '') || 'Striker'
           realtimeManager.broadcastDamage(
             remoteEntityId,
             damage,
             isHeadshot,
             myName,
-            'CT',
+            myTeam,
             config.name
           )
         }
 
-        // Trigger hitmarker
+        // Trigger hitmarker for enemy
         audioManager.playHitmarker(isHeadshot)
         useGameStore.getState().triggerHitmarker(isHeadshot)
       } else {

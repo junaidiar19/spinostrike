@@ -15,9 +15,10 @@ export const SniperScope: React.FC = () => {
     <div className="sniper-scope-overlay">
       {/* Outer Black Mask with Circular Opening */}
       <div className="scope-lens-frame">
-        {/* Reticle Lines */}
+        {/* Reticle Lines & Optical Red Dot */}
         <div className="scope-line scope-line-v" />
         <div className="scope-line scope-line-h" />
+        <div className="scope-center-dot" />
 
         {/* Mil-dot indicators */}
         <div className="scope-mil-dots">
