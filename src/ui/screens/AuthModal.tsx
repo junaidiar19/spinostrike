@@ -31,14 +31,17 @@ export const AuthModal: React.FC = () => {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !password) return
-    await loginWithEmail(email, password)
+    const cleanEmail = email.trim().toLowerCase()
+    if (!cleanEmail || !password) return
+    await loginWithEmail(cleanEmail, password)
   }
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email || !password || !nickname) return
-    await registerWithEmail(email, password, nickname)
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanNickname = nickname.trim()
+    if (!cleanEmail || !password || !cleanNickname) return
+    await registerWithEmail(cleanEmail, password, cleanNickname)
   }
 
   return (
@@ -140,7 +143,7 @@ export const AuthModal: React.FC = () => {
                   className="setting-text-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="operative@spinostrike.com"
+                  placeholder="contoh: pemain@gmail.com"
                   required
                 />
               </div>
@@ -184,7 +187,7 @@ export const AuthModal: React.FC = () => {
                   className="setting-text-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="commander@spinostrike.com"
+                  placeholder="contoh: pemain@gmail.com"
                   required
                 />
               </div>

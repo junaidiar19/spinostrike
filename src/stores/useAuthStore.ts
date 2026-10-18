@@ -84,13 +84,30 @@ export const useAuthStore = create<AuthStoreState>((set, get) => ({
 
   registerWithEmail: async (email: string, pass: string, nickname: string) => {
     set({ isLoading: true, authError: null })
-    const { session, error } = await signUpWithEmail(email, pass, nickname)
+    const { session, error, requiresConfirmation } = await signUpWithEmail(email, pass, nickname)
     if (error || !session) {
-      set({ authError: error || 'Registration failed', isLoading: false })
+      set({ authError: error || 'Pendaftaran gagal.', isLoading: false })
       return false
     }
     const profile = await getProfile(session.id)
-    set({ session, profile, isLoading: false, isAuthModalOpen: false })
+    set({
+      session,
+      profile: profile || {
+        id: session.id,
+        nickname: session.nickname,
+        kills: 0,
+        deaths: 0,
+        headshots: 0,
+        matches_played: 0,
+        selected_primary: 'ak47',
+        selected_secondary: 'deagle'
+      },
+      isLoading: false,
+      isAuthModalOpen: requiresConfirmation ? true : false,
+      authError: requiresConfirmation
+        ? 'Pendaftaran berhasil! Tautan konfirmasi telah dikirim ke email Anda. Silakan verifikasi email Anda untuk login penuh, atau gunakan mode Guest Play.'
+        : null
+    })
     return true
   },
 

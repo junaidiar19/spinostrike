@@ -114,7 +114,7 @@ export class Bot {
 
       // Shoot in bursts after alert reaction delay
       if (this.alertTimer >= this.reactionDelay) {
-        this.combatShooting(dt, distToPlayer)
+        this.combatShooting(dt, distToPlayer, collidableMeshes)
       }
     } else {
       this.state = 'PATROL'
@@ -158,7 +158,7 @@ export class Bot {
     return hits.length === 0
   }
 
-  private combatShooting(dt: number, distToPlayer: number) {
+  private combatShooting(dt: number, distToPlayer: number, collidableMeshes: THREE.Object3D[]) {
     this.fireCooldown -= dt
     if (this.fireCooldown <= 0 && this.targetPlayer) {
       // 1. Bot Gunshot Audio
@@ -186,8 +186,24 @@ export class Bot {
       shootDir.y += (Math.random() - 0.5) * 0.025
       shootDir.normalize()
 
+      // Check if bullet trajectory hits any solid obstacle before reaching the player!
+      const raycaster = new THREE.Raycaster(botMuzzle, shootDir, 0.1, distToPlayer + 2)
+      const obstacleHits = raycaster.intersectObjects(collidableMeshes, true)
+
+      let hitObstacle = false
+      if (obstacleHits.length > 0 && obstacleHits[0].distance < distToPlayer - 0.4) {
+        // Bullet hit a solid obstacle (wall, crate, bunker) before reaching the player!
+        hitObstacle = true
+      }
+
       if (this.bulletManager) {
-        this.bulletManager.fireBullet(botMuzzle, shootDir, 'ak47', [])
+        // Pass collidableMeshes so tracer line and sparks stop ON the obstacle surface!
+        this.bulletManager.fireBullet(botMuzzle, shootDir, 'ak47', collidableMeshes)
+      }
+
+      // If bullet hit an obstacle, DO NOT DAMAGE THE PLAYER!
+      if (hitObstacle) {
+        return
       }
 
       // 4. Damage player with realistic hit probability based on distance

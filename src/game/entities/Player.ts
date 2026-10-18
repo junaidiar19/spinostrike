@@ -159,22 +159,105 @@ export class Player {
       this.velocity.y -= this.gravity * dt
     }
 
-    // Apply movement to position
-    this.position.x += this.velocity.x * dt
-    this.position.y += this.velocity.y * dt
-    this.position.z += this.velocity.z * dt
-
-    // Simple floor collision clamp
+    // Collision parameters
+    const playerRadius = 0.42
     const eyeHeight = this.isCrouching ? 1.15 : 1.65
-    if (this.position.y <= eyeHeight) {
-      this.position.y = eyeHeight
+    const playerFeetY = this.position.y - eyeHeight
+
+    // 1. Vertical Physics & Elevated Surface Floor Detection
+    const nextY = this.position.y + this.velocity.y * dt
+    let floorY = 0
+
+    // Check elevated obstacle floors (e.g. A-Site platform, catwalks, tops of crates)
+    for (const mesh of collidableMeshes) {
+      if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
+      const box = new THREE.Box3().setFromObject(mesh)
+      if (box.max.y <= 0.05) continue // skip ground
+
+      // If player is horizontally within the bounds of this obstacle
+      if (
+        this.position.x + playerRadius * 0.5 > box.min.x &&
+        this.position.x - playerRadius * 0.5 < box.max.x &&
+        this.position.z + playerRadius * 0.5 > box.min.z &&
+        this.position.z - playerRadius * 0.5 < box.max.z
+      ) {
+        // Can stand on top if feet are at or above obstacle top (with small step tolerance)
+        if (box.max.y <= playerFeetY + 0.35 && box.max.y > floorY) {
+          floorY = box.max.y
+        }
+      }
+    }
+
+    const currentEyeHeight = floorY + eyeHeight
+    if (nextY <= currentEyeHeight) {
+      this.position.y = currentEyeHeight
       this.isGrounded = true
       this.velocity.y = 0
     } else {
+      this.position.y = nextY
       this.isGrounded = false
     }
 
-    // Map boundary clamp
+    // 2. Horizontal Movement Collision & Wall Sliding (X Axis)
+    const nextX = this.position.x + this.velocity.x * dt
+    let blockedX = false
+    const bodyBottom = this.position.y - eyeHeight + 0.2
+    const bodyTop = this.position.y + 0.1
+
+    for (const mesh of collidableMeshes) {
+      if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
+      const box = new THREE.Box3().setFromObject(mesh)
+      if (box.max.y <= 0.05) continue // skip ground
+
+      // Only collide if obstacle overlaps vertically with player's torso/legs
+      if (box.max.y > bodyBottom && box.min.y < bodyTop) {
+        if (
+          nextX + playerRadius > box.min.x &&
+          nextX - playerRadius < box.max.x &&
+          this.position.z + playerRadius > box.min.z &&
+          this.position.z - playerRadius < box.max.z
+        ) {
+          blockedX = true
+          break
+        }
+      }
+    }
+
+    if (!blockedX) {
+      this.position.x = nextX
+    } else {
+      this.velocity.x = 0 // slide along wall
+    }
+
+    // 3. Horizontal Movement Collision & Wall Sliding (Z Axis)
+    const nextZ = this.position.z + this.velocity.z * dt
+    let blockedZ = false
+
+    for (const mesh of collidableMeshes) {
+      if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
+      const box = new THREE.Box3().setFromObject(mesh)
+      if (box.max.y <= 0.05) continue
+
+      if (box.max.y > bodyBottom && box.min.y < bodyTop) {
+        if (
+          this.position.x + playerRadius > box.min.x &&
+          this.position.x - playerRadius < box.max.x &&
+          nextZ + playerRadius > box.min.z &&
+          nextZ - playerRadius < box.max.z
+        ) {
+          blockedZ = true
+          break
+        }
+      }
+    }
+
+    if (!blockedZ) {
+      this.position.z = nextZ
+    } else {
+      this.velocity.z = 0 // slide along wall
+    }
+
+    // Map outer perimeter boundary clamp
     this.position.x = Math.max(-38, Math.min(38, this.position.x))
     this.position.z = Math.max(-38, Math.min(38, this.position.z))
 
