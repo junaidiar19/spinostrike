@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Play,
   MapPin,
@@ -8,7 +8,8 @@ import {
   Smartphone,
   ShieldAlert,
   Users,
-  User
+  User,
+  Download
 } from 'lucide-react'
 import { useGameStore } from '../../stores/useGameStore'
 import { useRoomStore } from '../../stores/useRoomStore'
@@ -24,6 +25,11 @@ interface Props {
   onOpenSettings: () => void
 }
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
 export const MainMenu: React.FC<Props> = ({
   onOpenMapSelect,
   onOpenLoadout,
@@ -33,6 +39,56 @@ export const MainMenu: React.FC<Props> = ({
   const currentMap = useGameStore((state) => state.currentMap)
   const selectedPrimary = useGameStore((state) => state.selectedPrimary)
   const [activeTab, setActiveTab] = useState<'desktop' | 'mobile'>('desktop')
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
+  const [isAppInstalled, setIsAppInstalled] = useState(false)
+
+  useEffect(() => {
+    // Check if running in standalone display mode (PWA installed)
+    const isStandalone =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      ('standalone' in window.navigator && (window.navigator as unknown as { standalone: boolean }).standalone)
+
+    if (isStandalone) {
+      setIsAppInstalled(true)
+      return
+    }
+
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault()
+      setInstallPrompt(e as BeforeInstallPromptEvent)
+    }
+
+    const handleAppInstalled = () => {
+      setIsAppInstalled(true)
+      setInstallPrompt(null)
+    }
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall)
+    window.addEventListener('appinstalled', handleAppInstalled)
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall)
+      window.removeEventListener('appinstalled', handleAppInstalled)
+    }
+  }, [])
+
+  const handleInstallClick = async () => {
+    if (installPrompt) {
+      await installPrompt.prompt()
+      const { outcome } = await installPrompt.userChoice
+      if (outcome === 'accepted') {
+        setIsAppInstalled(true)
+      }
+      setInstallPrompt(null)
+    } else {
+      alert(
+        'Untuk memasang SpinoStrike di perangkat ini:\n\n' +
+        '📱 HP Android (Chrome): Ketuk menu titik tiga (⋮) di kanan atas, pilih "Pasang aplikasi" / "Tambahkan ke Layar Utama".\n' +
+        '🍎 iPhone/iPad (Safari): Ketuk tombol Bagikan (Share), scroll ke bawah lalu pilih "Tambahkan ke Layar Utama".\n' +
+        '💻 Laptop (Chrome/Edge): Klik ikon instal (komputer dengan panah) di sisi kanan bilah alamat (URL) atas.'
+      )
+    }
+  }
 
   const currentMapMeta = MAP_METADATA[currentMap]
   const currentWeaponMeta = WEAPON_DEFINITIONS[selectedPrimary]
@@ -129,6 +185,16 @@ export const MainMenu: React.FC<Props> = ({
             <button type="button" className="btn-secondary" onClick={onOpenSettings}>
               <Settings size={18} />
               <span>SETTINGS</span>
+            </button>
+
+            <button
+              type="button"
+              className={`btn-secondary btn-install-app`}
+              onClick={handleInstallClick}
+              title={isAppInstalled ? 'Game telah terpasang' : 'Pasang SpinoStrike ke Layar Utama'}
+            >
+              <Download size={18} />
+              <span>{isAppInstalled ? 'TERPASANG' : 'PASANG APP'}</span>
             </button>
           </div>
         </div>

@@ -940,7 +940,7 @@ body,
 
 .menu-secondary-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   gap: 10px;
 }
 
@@ -961,6 +961,17 @@ body,
   gap: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.btn-install-app {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.btn-install-app:hover {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.18);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
 }
 
 .btn-secondary:hover {
