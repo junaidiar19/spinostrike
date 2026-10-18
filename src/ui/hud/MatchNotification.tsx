@@ -1,5 +1,5 @@
 import React from 'react'
-import { Skull, ShieldCheck, Trophy, MousePointer } from 'lucide-react'
+import { Skull, ShieldCheck, Trophy, MousePointer, PackagePlus } from 'lucide-react'
 import { useGameStore } from '../../stores/useGameStore'
 import { gameEngine } from '../../game/core/GameEngine'
 
@@ -12,6 +12,7 @@ export const MatchNotification: React.FC = () => {
   const isMobile = useGameStore((state) => state.isMobile)
   const scoreboard = useGameStore((state) => state.scoreboard)
   const setIsScoreboardOpen = useGameStore((state) => state.setIsScoreboardOpen)
+  const ammoToast = useGameStore((state) => state.ammoToast)
 
   const ctScore = scoreboard
     .filter((p) => p.team === 'CT')
@@ -107,6 +108,14 @@ export const MatchNotification: React.FC = () => {
         >
           <MousePointer size={14} className="pointer-icon" />
           <span>Klik Layar untuk Mengunci Kursor & Membidik Penuh (ESC untuk Jeda)</span>
+        </div>
+      )}
+
+      {/* 6. Ammo Restock / Notice Toast */}
+      {ammoToast && (
+        <div className="ammo-restock-toast" role="alert">
+          <PackagePlus size={18} className="toast-icon-pulse" />
+          <span>{ammoToast}</span>
         </div>
       )}
     </>

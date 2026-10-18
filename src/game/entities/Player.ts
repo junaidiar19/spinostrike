@@ -5,7 +5,7 @@ import { WeaponModelGenerator } from '../weapons/WeaponModelGenerator'
 import { WEAPON_DEFINITIONS } from '../weapons/definitions/weapons'
 import { useGameStore } from '../../stores/useGameStore'
 import { realtimeManager } from '../../services/supabase/realtime'
-import type { WeaponId } from '../../types/game.types'
+import type { WeaponId, WeaponSlot } from '../../types/game.types'
 
 export class Player {
   public camera: THREE.PerspectiveCamera
@@ -94,8 +94,8 @@ export class Player {
     const weaponState = gameStore.weaponStates[activeId]
 
     // 1. Check weapon slot change
-    if (input.slot !== null && input.slot >= 1 && input.slot <= 3 && !gameStore.isPlayerDead) {
-      gameStore.setCurrentSlot(input.slot as 1 | 2 | 3)
+    if (input.slot !== null && input.slot >= 1 && input.slot <= 6 && !gameStore.isPlayerDead) {
+      gameStore.setCurrentSlot(input.slot as WeaponSlot)
       const newActive = useGameStore.getState().activeWeaponId
       this.initWeapon(newActive)
     }
@@ -272,10 +272,15 @@ export class Player {
 
     // 5. Reload Handling
     const now = performance.now() / 1000
-    if (input.reload && !weaponState.isReloading && weaponState.clip < activeConfig.clipSize && weaponState.reserve > 0) {
-      gameStore.updateWeaponState(activeId, { isReloading: true, reloadProgress: 0 })
-      this.reloadStartTime = now
-      audioManager.playReloadSound()
+    if (input.reload && !weaponState.isReloading && weaponState.clip < activeConfig.clipSize) {
+      if (weaponState.reserve > 0) {
+        gameStore.updateWeaponState(activeId, { isReloading: true, reloadProgress: 0 })
+        this.reloadStartTime = now
+        audioManager.playReloadSound()
+      } else if (activeId !== 'knife') {
+        gameStore.refillAmmo(activeId)
+        audioManager.playReloadSound()
+      }
     }
 
     if (weaponState.isReloading) {
@@ -303,8 +308,18 @@ export class Player {
           this.shootWeapon(activeId, activeConfig, collidableMeshes, targetMeshes)
           this.lastShootTime = now
         } else {
-          audioManager.playDryFire()
-          this.lastShootTime = now + 0.1
+          // Auto-reload on empty clip if reserve ammo is available
+          if (weaponState.reserve > 0 && activeId !== 'knife') {
+            gameStore.updateWeaponState(activeId, { isReloading: true, reloadProgress: 0 })
+            this.reloadStartTime = now
+            audioManager.playReloadSound()
+          } else {
+            audioManager.playDryFire()
+            if (activeId !== 'knife') {
+              gameStore.triggerAmmoNotice('PELURU HABIS! Tekan [T] atau klik REFILL untuk isi ulang cadangan.')
+            }
+          }
+          this.lastShootTime = now + 0.25
         }
       }
     }

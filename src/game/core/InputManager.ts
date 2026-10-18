@@ -1,5 +1,6 @@
 import { useGameStore } from '../../stores/useGameStore'
 import { useSettingsStore } from '../../stores/useSettingsStore'
+import { audioManager } from './AudioManager'
 import type { WeaponSlot } from '../../types/game.types'
 
 export class InputManager {
@@ -37,6 +38,7 @@ export class InputManager {
   private onMouseMoveBound = this.onMouseMove.bind(this)
   private onMouseDownBound = this.onMouseDown.bind(this)
   private onMouseUpBound = this.onMouseUp.bind(this)
+  private onWheelBound = this.onWheel.bind(this)
   private onPointerLockChangeBound = this.onPointerLockChange.bind(this)
   private onPointerLockErrorBound = this.onPointerLockError.bind(this)
   // Gyroscope & Haptic state
@@ -59,6 +61,7 @@ export class InputManager {
     window.addEventListener('mousemove', this.onMouseMoveBound)
     window.addEventListener('mousedown', this.onMouseDownBound)
     window.addEventListener('mouseup', this.onMouseUpBound)
+    window.addEventListener('wheel', this.onWheelBound, { passive: true })
     document.addEventListener('pointerlockchange', this.onPointerLockChangeBound)
     document.addEventListener('pointerlockerror', this.onPointerLockErrorBound)
 
@@ -184,6 +187,18 @@ export class InputManager {
     }
   }
 
+  private onWheel(e: WheelEvent) {
+    if (useGameStore.getState().gameStatus !== 'PLAYING') return
+    if (Math.abs(e.deltaY) < 6) return
+    if (e.deltaY > 0) {
+      useGameStore.getState().cycleWeapon('next')
+      this.requestedSlot = useGameStore.getState().currentSlot
+    } else {
+      useGameStore.getState().cycleWeapon('prev')
+      this.requestedSlot = useGameStore.getState().currentSlot
+    }
+  }
+
   private onKeyDown(e: KeyboardEvent) {
     // Scoreboard tab
     if (e.code === 'Tab') {
@@ -201,11 +216,37 @@ export class InputManager {
     if (e.code === 'ControlLeft' || e.code === 'KeyC') this.isCrouching = true
     if (e.code === 'ShiftLeft') this.isSprinting = true
 
-    if (e.code === 'KeyR') this.reloadRequested = true
+    // Reload or refill when out of ammo (Key R)
+    if (e.code === 'KeyR') {
+      const active = useGameStore.getState().activeWeaponId
+      const st = useGameStore.getState().weaponStates[active]
+      if (st && st.reserve === 0 && active !== 'knife') {
+        useGameStore.getState().refillAmmo(active)
+        audioManager.playReloadSound()
+      } else {
+        this.reloadRequested = true
+      }
+    }
 
+    // Refill all ammo (Key T)
+    if (e.code === 'KeyT') {
+      useGameStore.getState().refillAmmo()
+      audioManager.playReloadSound()
+    }
+
+    // Quick Switch to last weapon (Key Q)
+    if (e.code === 'KeyQ') {
+      useGameStore.getState().quickSwitchWeapon()
+      this.requestedSlot = useGameStore.getState().currentSlot
+    }
+
+    // Direct slot access: 1 (AK-47), 2 (M4A1), 3 (AWP), 4 (SSG-08), 5 (DEAGLE), 6 (KNIFE)
     if (e.code === 'Digit1') this.requestedSlot = 1
     if (e.code === 'Digit2') this.requestedSlot = 2
     if (e.code === 'Digit3') this.requestedSlot = 3
+    if (e.code === 'Digit4') this.requestedSlot = 4
+    if (e.code === 'Digit5') this.requestedSlot = 5
+    if (e.code === 'Digit6') this.requestedSlot = 6
 
     // Laptop-friendly Shoot & Aim keyboard shortcuts (F or J to shoot, E or K to scope)
     if (e.code === 'KeyF' || e.code === 'KeyJ') {

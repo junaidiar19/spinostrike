@@ -35,12 +35,20 @@ interface GameStoreState {
   respawnCountdown: number
   matchGraceTimer: number
   spawnProtection: number
+  lastWeaponId: WeaponId
+  ammoToast: string | null
 
   // Actions
   setGameStatus: (status: GameStatus) => void
   setSelectedPrimary: (id: WeaponId) => void
   setSelectedSecondary: (id: WeaponId) => void
   setCurrentSlot: (slot: WeaponSlot) => void
+  setActiveWeapon: (id: WeaponId) => void
+  cycleWeapon: (direction: 'next' | 'prev') => void
+  quickSwitchWeapon: () => void
+  refillAmmo: (weaponId?: WeaponId) => void
+  clearAmmoToast: () => void
+  triggerAmmoNotice: (msg: string) => void
   updateWeaponState: (id: WeaponId, state: Partial<WeaponState>) => void
   setHealth: (hp: number) => void
   setArmor: (armor: number) => void
@@ -146,6 +154,8 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   respawnCountdown: 0,
   matchGraceTimer: 0,
   spawnProtection: 0,
+  lastWeaponId: 'deagle',
+  ammoToast: null,
 
   setGameStatus: (status) => set({ gameStatus: status }),
 
@@ -159,18 +169,112 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   setSelectedSecondary: (id) => {
     set((state) => ({
       selectedSecondary: id,
-      activeWeaponId: state.currentSlot === 2 ? id : state.activeWeaponId
+      activeWeaponId: state.currentSlot === 5 ? id : state.activeWeaponId
     }))
   },
 
   setCurrentSlot: (slot) => {
-    const { selectedPrimary, selectedSecondary } = get()
-    let activeId: WeaponId = 'knife'
-    if (slot === 1) activeId = selectedPrimary
-    else if (slot === 2) activeId = selectedSecondary
-    else activeId = 'knife'
+    const slotToWeapon: Record<WeaponSlot, WeaponId> = {
+      1: 'ak47',
+      2: 'm4a1',
+      3: 'awp',
+      4: 'ssg08',
+      5: 'deagle',
+      6: 'knife'
+    }
+    const targetId = slotToWeapon[slot] || 'ak47'
+    const current = get().activeWeaponId
+    set({
+      currentSlot: slot,
+      activeWeaponId: targetId,
+      lastWeaponId: current !== targetId ? current : get().lastWeaponId,
+      isAiming: false
+    })
+  },
 
-    set({ currentSlot: slot, activeWeaponId: activeId, isAiming: false })
+  setActiveWeapon: (id) => {
+    const weaponToSlot: Record<WeaponId, WeaponSlot> = {
+      ak47: 1,
+      m4a1: 2,
+      awp: 3,
+      ssg08: 4,
+      deagle: 5,
+      knife: 6
+    }
+    const current = get().activeWeaponId
+    set({
+      activeWeaponId: id,
+      currentSlot: weaponToSlot[id] || 1,
+      lastWeaponId: current !== id ? current : get().lastWeaponId,
+      isAiming: false
+    })
+  },
+
+  cycleWeapon: (direction) => {
+    const current = get().currentSlot
+    let next: WeaponSlot = 1
+    if (direction === 'next') {
+      next = (current >= 6 ? 1 : current + 1) as WeaponSlot
+    } else {
+      next = (current <= 1 ? 6 : current - 1) as WeaponSlot
+    }
+    get().setCurrentSlot(next)
+  },
+
+  quickSwitchWeapon: () => {
+    const { lastWeaponId, activeWeaponId } = get()
+    if (lastWeaponId && lastWeaponId !== activeWeaponId) {
+      get().setActiveWeapon(lastWeaponId)
+    }
+  },
+
+  refillAmmo: (weaponId) => {
+    set((state) => {
+      const updated = { ...state.weaponStates }
+      if (weaponId && weaponId !== 'knife') {
+        const cfg = WEAPON_DEFINITIONS[weaponId]
+        if (cfg) {
+          updated[weaponId] = {
+            ...updated[weaponId],
+            clip: cfg.clipSize,
+            reserve: cfg.maxReserve,
+            isReloading: false,
+            reloadProgress: 0
+          }
+        }
+      } else {
+        // Refill ALL firearms
+        for (const id of Object.keys(updated) as WeaponId[]) {
+          if (id === 'knife') continue
+          const cfg = WEAPON_DEFINITIONS[id]
+          if (cfg) {
+            updated[id] = {
+              ...updated[id],
+              clip: cfg.clipSize,
+              reserve: cfg.maxReserve,
+              isReloading: false,
+              reloadProgress: 0
+            }
+          }
+        }
+      }
+      return {
+        weaponStates: updated,
+        ammoToast: 'AMMO RESTOCKED! Peluru cadangan semua senjata terisi penuh.'
+      }
+    })
+    setTimeout(() => {
+      set({ ammoToast: null })
+    }, 2800)
+  },
+
+  clearAmmoToast: () => set({ ammoToast: null }),
+
+  triggerAmmoNotice: (msg: string) => {
+    set({ ammoToast: msg })
+    setTimeout(() => {
+      set({ ammoToast: null })
+    }, 2500)
   },
 
   updateWeaponState: (id, updated) => {
@@ -341,6 +445,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   },
 
   respawnPlayer: () => {
+    get().refillAmmo()
     set({
       health: 100,
       armor: 100,

@@ -1,40 +1,46 @@
 import React from 'react'
 import { useGameStore } from '../../stores/useGameStore'
-import { WEAPON_DEFINITIONS } from '../../game/weapons/definitions/weapons'
 import { gameEngine } from '../../game/core/GameEngine'
-import type { WeaponSlot } from '../../types/game.types'
+import { ALL_ARENA_WEAPONS } from '../../types/game.types'
+import type { WeaponId } from '../../types/game.types'
 
 export const WeaponSelector: React.FC = () => {
   const currentSlot = useGameStore((state) => state.currentSlot)
-  const selectedPrimary = useGameStore((state) => state.selectedPrimary)
-  const selectedSecondary = useGameStore((state) => state.selectedSecondary)
+  const weaponStates = useGameStore((state) => state.weaponStates)
 
-  const slots: { slot: WeaponSlot; name: string; key: string }[] = [
-    { slot: 1, name: WEAPON_DEFINITIONS[selectedPrimary].name.split(' ')[0], key: '1' },
-    { slot: 2, name: WEAPON_DEFINITIONS[selectedSecondary].name.split(' ')[0], key: '2' },
-    { slot: 3, name: 'KNIFE', key: '3' }
-  ]
-
-  const handleSelect = (slot: WeaponSlot) => {
-    gameEngine.inputManager.setRequestedSlot(slot)
+  const handleSelect = (id: WeaponId) => {
+    useGameStore.getState().setActiveWeapon(id)
+    gameEngine.player.initWeapon(id)
   }
 
   return (
-    <div className="weapon-selector-hud">
-      {slots.map((item) => {
-        const isActive = currentSlot === item.slot
-        return (
-          <button
-            key={item.slot}
-            type="button"
-            className={`weapon-slot-pill ${isActive ? 'active' : ''}`}
-            onClick={() => handleSelect(item.slot)}
-          >
-            <span className="key-hint">{item.key}</span>
-            <span className="slot-name">{item.name}</span>
-          </button>
-        )
-      })}
+    <div className="weapon-selector-hud" role="toolbar" aria-label="Tactical Arsenal">
+      <div className="weapon-selector-inner">
+        {ALL_ARENA_WEAPONS.map((item) => {
+          const isActive = currentSlot === item.slot
+          const state = weaponStates[item.id]
+          const isKnife = item.id === 'knife'
+          const ammoLabel = isKnife ? 'MELEE' : `${state?.clip ?? 0}/${state?.reserve ?? 0}`
+
+          return (
+            <button
+              key={item.slot}
+              type="button"
+              className={`weapon-slot-pill ${isActive ? 'active' : ''}`}
+              onClick={() => handleSelect(item.id)}
+              title={`${item.name} (Tekan [${item.key}] atau scroll mouse untuk ganti)`}
+            >
+              <div className="pill-top-row">
+                <span className="key-hint">{item.key}</span>
+                <span className="slot-name">{item.shortName}</span>
+              </div>
+              <span className={`pill-ammo-badge ${!isKnife && state?.clip === 0 ? 'empty' : ''}`}>
+                {ammoLabel}
+              </span>
+            </button>
+          )
+        })}
+      </div>
     </div>
   )
 }

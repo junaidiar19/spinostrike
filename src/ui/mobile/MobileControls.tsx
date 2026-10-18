@@ -6,7 +6,8 @@ import {
   ChevronsDown,
   Target,
   Trophy,
-  Menu
+  Menu,
+  PackagePlus
 } from 'lucide-react'
 import { gameEngine } from '../../game/core/GameEngine'
 import { useGameStore } from '../../stores/useGameStore'
@@ -147,7 +148,19 @@ export const MobileControls: React.FC = () => {
 
   const handleReload = (e: React.TouchEvent) => {
     e.stopPropagation()
-    gameEngine.inputManager.setMobileAction('reload', true)
+    const active = useGameStore.getState().activeWeaponId
+    const st = useGameStore.getState().weaponStates[active]
+    if (st && st.reserve === 0 && active !== 'knife') {
+      useGameStore.getState().refillAmmo(active)
+    } else {
+      gameEngine.inputManager.setMobileAction('reload', true)
+    }
+  }
+
+  const handleRefillAmmo = (e: React.TouchEvent) => {
+    e.stopPropagation()
+    gameEngine.inputManager.triggerHaptic(40)
+    useGameStore.getState().refillAmmo()
   }
 
   const handleAim = (e: React.TouchEvent) => {
@@ -211,6 +224,7 @@ export const MobileControls: React.FC = () => {
           type="button"
           className="mobile-round-btn menu-btn"
           onTouchStart={() => setGameStatus('PAUSED')}
+          title="Menu / Jeda"
         >
           <Menu size={20} />
         </button>
@@ -218,34 +232,39 @@ export const MobileControls: React.FC = () => {
           type="button"
           className="mobile-round-btn score-btn"
           onTouchStart={() => setIsScoreboardOpen(true)}
+          title="Tabel Skor"
         >
           <Trophy size={20} />
         </button>
+        <button
+          type="button"
+          className="mobile-round-btn refill-btn"
+          onTouchStart={handleRefillAmmo}
+          title="Isi Ulang Cadangan Peluru"
+        >
+          <PackagePlus size={20} />
+        </button>
       </div>
 
-      {/* Quick Slot Selector (Right Side Top) */}
+      {/* Quick Slot Selector (Right Side Top) - ALL 6 WEAPONS */}
       <div className="mobile-slot-bar">
-        <button
-          type="button"
-          className={`slot-touch-btn ${currentSlot === 1 ? 'active' : ''}`}
-          onTouchStart={(e) => handleSlot(1, e)}
-        >
-          1
-        </button>
-        <button
-          type="button"
-          className={`slot-touch-btn ${currentSlot === 2 ? 'active' : ''}`}
-          onTouchStart={(e) => handleSlot(2, e)}
-        >
-          2
-        </button>
-        <button
-          type="button"
-          className={`slot-touch-btn ${currentSlot === 3 ? 'active' : ''}`}
-          onTouchStart={(e) => handleSlot(3, e)}
-        >
-          3
-        </button>
+        {[
+          { slot: 1 as WeaponSlot, label: 'AK' },
+          { slot: 2 as WeaponSlot, label: 'M4' },
+          { slot: 3 as WeaponSlot, label: 'AWP' },
+          { slot: 4 as WeaponSlot, label: 'SSG' },
+          { slot: 5 as WeaponSlot, label: 'DGL' },
+          { slot: 6 as WeaponSlot, label: 'KNIF' }
+        ].map((item) => (
+          <button
+            key={item.slot}
+            type="button"
+            className={`slot-touch-btn ${currentSlot === item.slot ? 'active' : ''}`}
+            onTouchStart={(e) => handleSlot(item.slot, e)}
+          >
+            {item.label}
+          </button>
+        ))}
       </div>
 
       {/* Right Side Tactical Action Cluster */}

@@ -22,7 +22,7 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
   m4a1: {
     id: 'm4a1',
     name: 'M4A1 Carbine',
-    slot: 1,
+    slot: 2,
     type: 'rifle',
     damage: 32,
     headshotMultiplier: 3.0, // 96 damage (2-tap headshot or 1 head + 1 body)
@@ -40,7 +40,7 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
   awp: {
     id: 'awp',
     name: 'AWP Magnum Sniper',
-    slot: 1,
+    slot: 3,
     type: 'sniper',
     damage: 115, // 1-shot kill to chest and head!
     headshotMultiplier: 4.0,
@@ -58,7 +58,7 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
   ssg08: {
     id: 'ssg08',
     name: 'SSG-08 Scout Sniper',
-    slot: 1,
+    slot: 4,
     type: 'sniper',
     damage: 88,
     headshotMultiplier: 4.0, // 352 damage 1-shot headshot kill!
@@ -76,7 +76,7 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
   deagle: {
     id: 'deagle',
     name: 'Desert Eagle .50',
-    slot: 2,
+    slot: 5,
     type: 'pistol',
     damage: 54,
     headshotMultiplier: 3.2, // 172 headshot!
@@ -94,7 +94,7 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
   knife: {
     id: 'knife',
     name: 'Tactical Knife',
-    slot: 3,
+    slot: 6,
     type: 'melee',
     damage: 55,
     headshotMultiplier: 1.5,
