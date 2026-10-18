@@ -56,6 +56,7 @@ export default defineConfig({
       }
     })
   ],
+  envPrefix: ['VITE_', 'SUPABASE_', 'NEXT_PUBLIC_'],
   optimizeDeps: {
     exclude: ['@dimforge/rapier3d-compat']
   },
