@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { gameEngine } from './game/core/GameEngine'
 import { useGameStore } from './stores/useGameStore'
 import { useAuthStore } from './stores/useAuthStore'
+import { useRoomStore } from './stores/useRoomStore'
 import { Crosshair } from './ui/hud/Crosshair'
 import { HealthBar } from './ui/hud/HealthBar'
 import { AmmoCounter } from './ui/hud/AmmoCounter'
@@ -34,9 +35,10 @@ export const App: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isEngineReady, setIsEngineReady] = useState(false)
 
-  // Initialize Supabase Auth Session
+  // Initialize Supabase Auth Session & Global Room Lobby Realtime
   useEffect(() => {
     initSession()
+    useRoomStore.getState().initLobby()
   }, [initSession])
 
   // Initialize Three.js Game Engine once

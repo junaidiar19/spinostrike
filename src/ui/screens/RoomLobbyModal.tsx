@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Users, Wifi, Shield, Skull, X, Plus } from 'lucide-react'
+import { Users, Wifi, Shield, Skull, X, Plus, RotateCw, Radio, Sparkles } from 'lucide-react'
 import { useRoomStore } from '../../stores/useRoomStore'
+import { lobbyRealtimeManager } from '../../services/supabase/lobbyRealtime'
 import { MAP_METADATA } from '../../game/maps/MapManager'
 import type { MapId } from '../../types/game.types'
 
@@ -11,6 +12,7 @@ export const RoomLobbyModal: React.FC = () => {
     rooms,
     myTeam,
     setMyTeam,
+    createOnlineRoom,
     joinOnlineRoom,
     isJoining
   } = useRoomStore()
@@ -19,6 +21,7 @@ export const RoomLobbyModal: React.FC = () => {
   const [customRoomName, setCustomRoomName] = useState('')
   const [customMap, setCustomMap] = useState<MapId>('dust_arena')
   const [isCreating, setIsCreating] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   if (!isRoomLobbyOpen) return null
 
@@ -30,9 +33,15 @@ export const RoomLobbyModal: React.FC = () => {
 
   const handleCreateAndJoin = async (e: React.FormEvent) => {
     e.preventDefault()
-    const roomIdSuffix = customRoomName.trim().replace(/\s+/g, '_').toLowerCase() || 'custom'
-    const newRoomId = `room_${roomIdSuffix}_${Date.now().toString(36)}`
-    await joinOnlineRoom(newRoomId, customMap)
+    if (!customRoomName.trim()) return
+    await createOnlineRoom(customRoomName, customMap)
+  }
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    lobbyRealtimeManager.requestRoomsSync()
+    await lobbyRealtimeManager.fetchDatabaseRooms()
+    setTimeout(() => setIsRefreshing(false), 600)
   }
 
   return (
@@ -76,20 +85,33 @@ export const RoomLobbyModal: React.FC = () => {
           {!isCreating ? (
             <>
               <div className="lobby-actions-bar">
-                <span className="lobby-section-title">LOBBY MULTIPLAYER ONLINE</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span className="lobby-section-title">LOBBY MULTIPLAYER ONLINE</span>
+                  <button
+                    type="button"
+                    className="btn-refresh-rooms"
+                    onClick={handleRefresh}
+                    title="Sinkronisasi & Perbarui Daftar Room"
+                    disabled={isRefreshing}
+                  >
+                    <RotateCw size={13} className={isRefreshing ? 'spin-icon' : ''} />
+                    <span>{isRefreshing ? 'MEMPERBARUI...' : 'REFRESH'}</span>
+                  </button>
+                </div>
+
                 <button
                   type="button"
                   className="btn-create-toggle"
                   onClick={() => setIsCreating(true)}
                 >
                   <Plus size={16} />
-                  <span>HOST NEW ROOM</span>
+                  <span>BUAT ROOM BARU</span>
                 </button>
               </div>
 
               <div className="room-list-scroll">
                 {rooms.map((room) => {
-                  const mapMeta = MAP_METADATA[room.map]
+                  const mapMeta = MAP_METADATA[room.map] || MAP_METADATA.dust_arena
                   const isSelected = selectedRoomId === room.id
 
                   return (
@@ -107,9 +129,24 @@ export const RoomLobbyModal: React.FC = () => {
                           >
                             {mapMeta.name}
                           </span>
+                          {room.isCustom && (
+                            <span className="room-live-pill">
+                              <Radio size={10} className="pulse-dot" />
+                              LIVE HOST
+                            </span>
+                          )}
+                          {room.isNew && (
+                            <span className="room-new-pill">
+                              <Sparkles size={10} />
+                              BARU
+                            </span>
+                          )}
                         </div>
                         <div className="room-meta-row">
                           <span className="room-mode">{room.mode}</span>
+                          {room.hostName && (
+                            <span className="room-host-tag">Host: {room.hostName}</span>
+                          )}
                           <span className="room-ping">
                             <Wifi size={13} className="ping-icon" />
                             {room.ping}ms
@@ -143,22 +180,28 @@ export const RoomLobbyModal: React.FC = () => {
             </>
           ) : (
             <form onSubmit={handleCreateAndJoin} className="create-room-form">
-              <h3 className="section-label">HOST A NEW MATCH ROOM</h3>
+              <h3 className="section-label">BUAT ROOM MATCH BARU</h3>
+              <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 14 }}>
+                Room yang Anda buat akan langsung muncul di layar lobi semua pemain & guest secara real-time.
+              </p>
+
               <div className="setting-field">
-                <label htmlFor="create-room-name">Room Name / Title</label>
+                <label htmlFor="create-room-name">Nama / Judul Room</label>
                 <input
                   id="create-room-name"
                   type="text"
                   className="setting-text-input"
                   value={customRoomName}
                   onChange={(e) => setCustomRoomName(e.target.value)}
-                  placeholder="Tactical 5v5 Scrim"
+                  placeholder="Contoh: Arena Jakarta 5v5"
+                  maxLength={32}
                   required
+                  autoFocus
                 />
               </div>
 
               <div className="setting-field">
-                <label>Select Deployment Map</label>
+                <label>Pilih Arena Peta (Map)</label>
                 <div className="map-picker-row">
                   <button
                     type="button"
@@ -183,10 +226,10 @@ export const RoomLobbyModal: React.FC = () => {
                   className="btn-back-lobby"
                   onClick={() => setIsCreating(false)}
                 >
-                  CANCEL
+                  BATAL
                 </button>
-                <button type="submit" className="btn-confirm-loadout" disabled={isJoining}>
-                  {isJoining ? 'HOSTING...' : 'CREATE & DEPLOY'}
+                <button type="submit" className="btn-confirm-loadout" disabled={isJoining || !customRoomName.trim()}>
+                  {isJoining ? 'MEMBUAT & MEMBUKA ROOM...' : 'BUAT & MASUK ARENA'}
                 </button>
               </div>
             </form>
@@ -199,9 +242,9 @@ export const RoomLobbyModal: React.FC = () => {
               type="button"
               className="btn-deploy-room"
               onClick={handleJoinSelected}
-              disabled={isJoining}
+              disabled={isJoining || !selectedRoomId}
             >
-              {isJoining ? 'MENYAMBUNGKAN KE ROOM...' : 'DEPLOY TO SELECTED ROOM'}
+              {isJoining ? 'MENYAMBUNGKAN KE ROOM...' : 'GABUNG KE ROOM TERPILIH'}
             </button>
           )}
         </div>

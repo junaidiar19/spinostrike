@@ -38,5 +38,35 @@ CREATE POLICY "Allow individual update access"
   USING (true)
   WITH CHECK (true);
 
--- 4. Enable Supabase Realtime Broadcast & Presence
+-- 4. Create Rooms Table (Persistent Online Rooms)
+CREATE TABLE IF NOT EXISTS public.rooms (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  map TEXT NOT NULL DEFAULT 'dust_arena',
+  mode TEXT NOT NULL DEFAULT 'Team Deathmatch',
+  players_count INTEGER NOT NULL DEFAULT 1,
+  max_players INTEGER NOT NULL DEFAULT 10,
+  host_name TEXT NOT NULL DEFAULT 'Striker',
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 5. Enable Row Level Security (RLS) for Rooms
+ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to rooms"
+  ON public.rooms FOR SELECT
+  USING (true);
+
+CREATE POLICY "Allow public insert access to rooms"
+  ON public.rooms FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Allow public update access to rooms"
+  ON public.rooms FOR UPDATE
+  USING (true)
+  WITH CHECK (true);
+
+-- 6. Enable Supabase Realtime Broadcast & Presence
 -- (Realtime is enabled by default for public channels)
