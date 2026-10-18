@@ -42,7 +42,7 @@ export const SettingsModal: React.FC<Props> = ({ onClose }) => {
         <div className="settings-scrollable-content">
           {/* Player Profile */}
           <div className="settings-group">
-            <h3 className="group-title">OPERATIVE PROFILE</h3>
+            <h3 className="group-title">PROFIL PEMAIN</h3>
             <div className="setting-field">
               <label htmlFor="player-name-input">Callsign / Nickname</label>
               <input

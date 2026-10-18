@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useGameStore } from './useGameStore'
 
 interface SettingsState {
   playerName: string
@@ -37,8 +38,17 @@ const saveStored = (key: string, val: unknown) => {
   }
 }
 
+const getCleanPlayerName = (): string => {
+  const stored = getStored<string>('playerName', 'Striker')
+  if (stored && typeof stored === 'string' && stored.startsWith('Operative_')) {
+    saveStored('playerName', 'Striker')
+    return 'Striker'
+  }
+  return stored || 'Striker'
+}
+
 export const useSettingsStore = create<SettingsState>((set) => ({
-  playerName: getStored('playerName', 'Striker'),
+  playerName: getCleanPlayerName(),
   mouseSensitivity: getStored('mouseSensitivity', 1.8),
   touchSensitivity: getStored('touchSensitivity', 2.2),
   masterVolume: getStored('masterVolume', 0.8),
@@ -50,6 +60,11 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setPlayerName: (playerName) => {
     saveStored('playerName', playerName)
     set({ playerName })
+    try {
+      useGameStore.getState().updatePlayerName(playerName)
+    } catch {
+      // ignore
+    }
   },
   setMouseSensitivity: (mouseSensitivity) => {
     saveStored('mouseSensitivity', mouseSensitivity)

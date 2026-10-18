@@ -21,6 +21,12 @@ export const AuthModal: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  React.useEffect(() => {
+    if (session?.nickname) {
+      setNickname(session.nickname)
+    }
+  }, [session?.nickname])
+
   if (!isAuthModalOpen) return null
 
   const handleGuestSubmit = async (e: React.FormEvent) => {
@@ -65,7 +71,7 @@ export const AuthModal: React.FC = () => {
           <div className="auth-info">
             <span className="auth-name">{session?.nickname || 'Guest Striker'}</span>
             <span className="auth-badge">
-              {session?.isGuest ? 'AKUN TAMU (TERSIMPAN OTOMATIS)' : 'OPERATIF RESMI'}
+              {session?.isGuest ? 'AKUN TAMU (GUEST)' : 'AKUN MEMBER (TERHUBUNG)'}
             </span>
           </div>
           {!session?.isGuest && (
@@ -168,7 +174,7 @@ export const AuthModal: React.FC = () => {
           {activeTab === 'register' && (
             <form onSubmit={handleRegisterSubmit} className="auth-form">
               <div className="setting-field">
-                <label htmlFor="reg-nickname">Operative Nickname</label>
+                <label htmlFor="reg-nickname">Nickname / Nama Akun</label>
                 <input
                   id="reg-nickname"
                   type="text"

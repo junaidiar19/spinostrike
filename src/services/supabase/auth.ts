@@ -10,19 +10,40 @@ export interface UserSession {
 }
 
 const GUEST_KEY = 'spinostrike_guest_session'
+export const AUTH_USER_KEY = 'spinostrike_auth_user'
 
 export const getStoredGuestSession = (): UserSession => {
   try {
     const data = localStorage.getItem(GUEST_KEY)
-    if (data) return JSON.parse(data)
+    if (data) {
+      const parsed = JSON.parse(data)
+      // If nickname was the old robotic Operative_ prefix, clean it up to Striker or settings name
+      if (parsed.nickname && parsed.nickname.startsWith('Operative_')) {
+        const customName = localStorage.getItem('spinostrike_playerName')
+        parsed.nickname = (customName && JSON.parse(customName)) || 'Striker'
+        localStorage.setItem(GUEST_KEY, JSON.stringify(parsed))
+      }
+      return parsed
+    }
   } catch {
     // fallback
+  }
+
+  let defaultName = 'Striker'
+  try {
+    const customName = localStorage.getItem('spinostrike_playerName')
+    if (customName) {
+      const parsed = JSON.parse(customName)
+      if (typeof parsed === 'string' && parsed.trim()) defaultName = parsed.trim()
+    }
+  } catch {
+    // ignore
   }
 
   const guestId = `guest_${Math.random().toString(36).substring(2, 10)}`
   const guestSession: UserSession = {
     id: guestId,
-    nickname: `Operative_${guestId.substring(6, 10).toUpperCase()}`,
+    nickname: defaultName,
     isGuest: true
   }
   localStorage.setItem(GUEST_KEY, JSON.stringify(guestSession))
@@ -78,7 +99,12 @@ export const signUpWithEmail = async (
 
     const { data, error } = await supabase.auth.signUp({
       email: cleanEmail,
-      password: pass
+      password: pass,
+      options: {
+        data: {
+          nickname: cleanNickname
+        }
+      }
     })
 
     if (error) {
@@ -99,9 +125,12 @@ export const signUpWithEmail = async (
     const userSession: UserSession = {
       id: data.user.id,
       email: data.user.email,
-      nickname: cleanNickname || data.user.email?.split('@')[0] || 'Striker',
+      nickname: cleanNickname || data.user.user_metadata?.nickname || data.user.email?.split('@')[0] || 'Striker',
       isGuest: false
     }
+
+    // Persist authenticated user session
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userSession))
 
     try {
       await upsertProfile({
@@ -146,13 +175,19 @@ export const signInWithEmail = async (
     if (!data.user) return { session: null, error: 'Login gagal.' }
 
     const profile = await getProfile(data.user.id)
+    const userMetaNickname = data.user.user_metadata?.nickname
+    const resolvedNickname =
+      profile?.nickname || userMetaNickname || data.user.email?.split('@')[0] || 'Striker'
 
     const userSession: UserSession = {
       id: data.user.id,
       email: data.user.email,
-      nickname: profile?.nickname || data.user.email?.split('@')[0] || 'Striker',
+      nickname: resolvedNickname,
       isGuest: false
     }
+
+    // Persist authenticated user session
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(userSession))
 
     return { session: userSession, error: null }
   } catch (err: unknown) {
@@ -162,6 +197,7 @@ export const signInWithEmail = async (
 }
 
 export const signOutUser = async (): Promise<void> => {
+  localStorage.removeItem(AUTH_USER_KEY)
   try {
     await supabase.auth.signOut()
   } catch {

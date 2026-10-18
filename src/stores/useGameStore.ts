@@ -60,6 +60,7 @@ interface GameStoreState {
   setCurrentMap: (map: MapId) => void
   addKillFeed: (item: Omit<KillFeedItem, 'id' | 'timestamp'>) => void
   setScoreboard: (scores: PlayerScore[]) => void
+  updatePlayerName: (name: string) => void
   recordPlayerKill: (victimBotId: string, victimName: string, victimTeam: 'T' | 'CT', isHeadshot: boolean) => void
   recordPlayerDeath: (killerBotId: string, killerName: string, killerTeam: 'T' | 'CT', weaponName: string) => void
   respawnPlayer: () => void
@@ -268,11 +269,23 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
 
   setScoreboard: (scoreboard) => set({ scoreboard }),
 
+  updatePlayerName: (name: string) => {
+    const formatted = `${name} (You)`
+    set((state) => ({
+      scoreboard: state.scoreboard.map((p) =>
+        p.id === 'player-1' ? { ...p, name: formatted } : p
+      )
+    }))
+  },
+
   recordPlayerKill: (victimBotId, victimName, victimTeam, isHeadshot) => {
     const state = get()
     const activeWeapon = state.activeWeaponId.toUpperCase()
+    const myPlayer = state.scoreboard.find((p) => p.id === 'player-1')
+    const myName = myPlayer?.name || 'Striker (You)'
+
     state.addKillFeed({
-      killerName: 'Striker (You)',
+      killerName: myName,
       killerTeam: 'CT',
       victimName,
       victimTeam,
@@ -296,10 +309,13 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     const state = get()
     if (state.isPlayerDead) return // prevent multiple death triggers
 
+    const myPlayer = state.scoreboard.find((p) => p.id === 'player-1')
+    const myName = myPlayer?.name || 'Striker (You)'
+
     state.addKillFeed({
       killerName,
       killerTeam,
-      victimName: 'Striker (You)',
+      victimName: myName,
       victimTeam: 'CT',
       weaponName,
       isHeadshot: false

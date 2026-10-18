@@ -39,6 +39,7 @@ export const MainMenu: React.FC<Props> = ({
   const setGameStatus = useGameStore((state) => state.setGameStatus)
   const currentMap = useGameStore((state) => state.currentMap)
   const selectedPrimary = useGameStore((state) => state.selectedPrimary)
+  const session = useAuthStore((state) => state.session)
   const [activeTab, setActiveTab] = useState<'desktop' | 'mobile'>('desktop')
   const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null)
   const [isAppInstalled, setIsAppInstalled] = useState(false)
@@ -206,9 +207,12 @@ export const MainMenu: React.FC<Props> = ({
                   type="button"
                   className="btn-secondary"
                   onClick={() => useAuthStore.getState().openAuthModal()}
+                  title={session?.nickname ? `Akun: ${session.nickname} (${session.isGuest ? 'Guest' : 'Member'})` : 'Account'}
                 >
                   <User size={18} />
-                  <span>ACCOUNT</span>
+                  <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {session?.nickname ? session.nickname.toUpperCase() : 'ACCOUNT'}
+                  </span>
                 </button>
 
                 <button type="button" className="btn-secondary" onClick={onOpenSettings}>
