@@ -13,6 +13,7 @@ import { Scoreboard } from './ui/hud/Scoreboard'
 import { DamageIndicator } from './ui/hud/DamageIndicator'
 import { MatchNotification } from './ui/hud/MatchNotification'
 import { MobileControls } from './ui/mobile/MobileControls'
+import { OrientationNotice } from './ui/mobile/OrientationNotice'
 import { MainMenu } from './ui/screens/MainMenu'
 import { MapSelectModal } from './ui/screens/MapSelectModal'
 import { LoadoutModal } from './ui/screens/LoadoutModal'
@@ -97,7 +98,7 @@ export const App: React.FC = () => {
           <SniperScope />
           <HealthBar />
           <AmmoCounter />
-          <WeaponSelector />
+          {!isMobile && <WeaponSelector />}
           <KillFeed />
           <Scoreboard />
           <MatchNotification />
@@ -142,6 +143,9 @@ export const App: React.FC = () => {
 
       {/* SUPABASE AUTH & ACCOUNT MODAL */}
       <AuthModal />
+
+      {/* MOBILE PORTRAIT ORIENTATION NOTICE */}
+      <OrientationNotice />
     </div>
   )
 }

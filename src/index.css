@@ -847,6 +847,38 @@ body,
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.8);
 }
 
+.virtual-joystick-knob.knob-sprint {
+  background: #0ea5e9;
+  box-shadow: 0 0 16px rgba(14, 165, 233, 1), inset 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+.joystick-sprint-badge {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #0284c7, #0ea5e9);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 0 14px rgba(14, 165, 233, 0.75);
+  animation: sprintPulse 0.8s ease-in-out infinite alternate;
+  white-space: nowrap;
+}
+
+@keyframes sprintPulse {
+  0% { transform: translateX(-50%) scale(0.96); box-shadow: 0 0 8px rgba(14, 165, 233, 0.5); }
+  100% { transform: translateX(-50%) scale(1.05); box-shadow: 0 0 18px rgba(14, 165, 233, 0.95); }
+}
+
 /* Mobile Action Cluster */
 .mobile-action-cluster {
   position: absolute;
@@ -980,28 +1012,244 @@ body,
   display: none;
 }
 
-.slot-touch-btn {
-  min-width: 40px;
-  height: 36px;
-  padding: 0 6px;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid var(--color-border);
-  color: #94a3b8;
-  font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.5px;
+/* Mobile Left Fire Button (Dedicated 3-Finger / Claw Grip) */
+.mobile-left-fire-btn {
+  position: absolute;
+  top: calc(76px + var(--safe-top));
+  left: calc(20px + var(--safe-left));
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.28);
+  border: 2px solid rgba(239, 68, 68, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  z-index: 25;
+  touch-action: none;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.45);
+  transition: transform 0.08s ease, background-color 0.08s ease;
+}
+
+.mobile-left-fire-btn:active {
+  transform: scale(0.92);
+  background: rgba(220, 38, 38, 0.65);
+  box-shadow: 0 0 28px rgba(239, 68, 68, 0.85);
+}
+
+.mobile-left-fire-btn .left-fire-text {
+  font-family: var(--font-display);
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.slot-touch-btn {
+  min-width: 44px;
+  height: 38px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.88);
+  border: 1px solid var(--color-border);
+  color: #94a3b8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  touch-action: manipulation;
+  transition: all 0.12s ease;
+}
+
+.slot-touch-btn:active {
+  transform: scale(0.95);
+}
+
+.slot-btn-label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.slot-btn-ammo {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  color: #38bdf8;
+  opacity: 0.9;
+}
+
+.slot-btn-ammo.empty {
+  color: #ef4444;
+  font-weight: 900;
 }
 
 .slot-touch-btn.active {
   background: #38bdf8;
   color: #090d16;
   border-color: #38bdf8;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.7);
+}
+
+.slot-touch-btn.active .slot-btn-ammo {
+  color: #090d16;
+  opacity: 1;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   MOBILE ORIENTATION NOTICE
+   ========================================================================== */
+.orientation-notice-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(5, 7, 12, 0.94);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.orientation-notice-card {
+  position: relative;
+  max-width: 400px;
+  width: 100%;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+  border: 1.5px solid rgba(56, 189, 248, 0.45);
+  border-radius: 18px;
+  padding: 32px 24px 24px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(56, 189, 248, 0.2);
+  animation: modalScaleIn 0.25s ease-out;
+}
+
+.orientation-dismiss-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.orientation-dismiss-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+.orientation-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.orientation-phone-icon {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.8));
+  animation: phoneRotatePrompt 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes phoneRotatePrompt {
+  0%, 15% {
+    transform: rotate(0deg);
+  }
+  50%, 75% {
+    transform: rotate(90deg);
+  }
+  90%, 100% {
+    transform: rotate(0deg);
+  }
+}
+
+.orientation-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #f8fafc;
+  margin-bottom: 12px;
+}
+
+.orientation-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #94a3b8;
+  margin-bottom: 22px;
+}
+
+.orientation-desc strong {
+  color: #38bdf8;
+}
+
+.orientation-btn-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn-orientation-fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  border: 1px solid rgba(56, 189, 248, 0.6);
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.45);
+  transition: transform 0.1s ease, filter 0.15s ease;
+}
+
+.btn-orientation-fullscreen:active {
+  transform: scale(0.98);
+  filter: brightness(1.15);
+}
+
+.btn-orientation-dismiss {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.btn-orientation-dismiss:active {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* ==========================================================================
@@ -2469,10 +2717,17 @@ body,
     gap: 6px;
   }
 
+  .mobile-left-fire-btn {
+    top: calc(52px + var(--safe-top));
+    left: calc(12px + var(--safe-left));
+    width: 50px;
+    height: 50px;
+  }
+
   .slot-touch-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 11px;
+    min-width: 40px;
+    height: 34px;
+    padding: 2px 5px;
   }
 
   /* Elimination Card in Landscape */

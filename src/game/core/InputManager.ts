@@ -41,19 +41,35 @@ export class InputManager {
   private onWheelBound = this.onWheel.bind(this)
   private onPointerLockChangeBound = this.onPointerLockChange.bind(this)
   private onPointerLockErrorBound = this.onPointerLockError.bind(this)
-  // Gyroscope & Haptic state
-  private onDeviceOrientationBound = this.onDeviceOrientation.bind(this)
-  private lastGamma: number | null = null
-  private lastBeta: number | null = null
+
+
+  public isMobileSprinting: boolean = false
+
+  public setMobileSprint(active: boolean) {
+    this.isMobileSprinting = active
+  }
+
+  public checkIsMobile(): boolean {
+    if (typeof window === 'undefined') return false
+    const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    const isCoarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches
+    const isNarrowViewport = Math.min(window.innerWidth, window.innerHeight) <= 768
+    return hasTouch && (isCoarsePointer || isMobileUA || isNarrowViewport)
+  }
 
   public init(element: HTMLElement) {
     this.domElement = element
 
-    // Detect mobile device (strictly small touch screen)
-    const isMobileDevice =
-      ('ontouchstart' in window || navigator.maxTouchPoints > 2) &&
-      window.innerWidth <= 840
+    // Detect mobile device (modern touch detection across portrait & landscape)
+    const isMobileDevice = this.checkIsMobile()
     useGameStore.getState().setIsMobile(isMobileDevice)
+
+    const onResizeOrOrientation = () => {
+      useGameStore.getState().setIsMobile(this.checkIsMobile())
+    }
+    window.addEventListener('resize', onResizeOrOrientation)
+    window.addEventListener('orientationchange', onResizeOrOrientation)
 
     // Listeners on window & document for reliable desktop input
     window.addEventListener('keydown', this.onKeyDownBound)
@@ -65,32 +81,12 @@ export class InputManager {
     document.addEventListener('pointerlockchange', this.onPointerLockChangeBound)
     document.addEventListener('pointerlockerror', this.onPointerLockErrorBound)
 
-    // Gyroscope listener for mobile aim
-    if (window.DeviceOrientationEvent) {
-      window.addEventListener('deviceorientation', this.onDeviceOrientationBound)
-    }
-
     // Prevent context menu (right click zoom)
     element.addEventListener('contextmenu', (e) => e.preventDefault())
   }
 
   private onPointerLockError() {
     // Graceful fallback if browser rejects pointer lock
-  }
-
-  private onDeviceOrientation(e: DeviceOrientationEvent) {
-    if (e.gamma === null || e.beta === null) return
-    if (this.lastGamma !== null && this.lastBeta !== null) {
-      const dg = e.gamma - this.lastGamma
-      const db = e.beta - this.lastBeta
-      // Only apply if small tilt
-      if (Math.abs(dg) < 15 && Math.abs(db) < 15) {
-        this.lookDeltaX += dg * 0.003
-        this.lookDeltaY += db * 0.003
-      }
-    }
-    this.lastGamma = e.gamma
-    this.lastBeta = e.beta
   }
 
   public triggerHaptic(ms: number = 20) {
@@ -352,7 +348,7 @@ export class InputManager {
       rgt,
       jump: this.isJumping,
       crouch: this.isCrouching,
-      sprint: this.isSprinting,
+      sprint: this.isSprinting || this.isMobileSprinting,
       shoot: this.isShooting,
       aim: this.isAiming,
       reload,

@@ -117,6 +117,7 @@ export class Player {
       this.pitch = Math.min(0.5, this.pitch + dt * 1.5)
     }
 
+    // Camera rotation set directly to player pitch and yaw (zero recoil drift, consistent resting aim)
     this.camera.up.set(0, 1, 0)
     this.camera.rotation.order = 'YXZ'
     this.camera.rotation.x = this.pitch
@@ -374,10 +375,8 @@ export class Player {
     this.recoilRotation.x = config.recoilVertical * 1.5
     this.recoilRotation.y = (Math.random() - 0.5) * config.recoilHorizontal * 2.0
 
-    // Add camera pitch recoil
-    this.pitch += config.recoilVertical * 0.4
-    this.yaw += (Math.random() - 0.5) * config.recoilHorizontal * 0.4
-
+    // Zero camera aim shift: Player's resting aim crosshair remains 100% consistent!
+    // Gun recoil kickback animation on viewmodel provides high-impact visual feedback
     // Calculate bullet trajectory with spread
     const spread = (Math.random() - 0.5) * config.spread
     const spreadY = (Math.random() - 0.5) * config.spread
