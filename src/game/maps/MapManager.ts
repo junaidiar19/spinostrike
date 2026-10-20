@@ -11,42 +11,47 @@ export const MAP_METADATA: Record<MapId, MapMetadata> = {
   dust_arena: {
     id: 'dust_arena',
     name: 'Sandstone Arena',
-    subtitle: 'Inspired by de_dust2',
+    subtitle: 'Inspired by de_dust2 (120m x 120m)',
     theme: 'Desert Tactical',
-    description: 'Area gurun terbuka dengan jalur Mid yang intens, titik sniper A-Long, dan lorong sempit B-Tunnels.',
-    accentColor: '#d4b278'
+    description: 'Area gurun 120m x 120m yang diperluas dengan jalur A-Long berkolonade pilar, menara sniper 6.5m, B-Tunnels labirin bawah tanah, pasar bazaar Mid, dan rambu militer Indonesia.',
+    accentColor: '#d4b278',
+    previewImage: '/maps/dust_arena.jpg'
   },
   warehouse: {
     id: 'warehouse',
     name: 'Tactical Warehouse',
-    subtitle: 'Industrial Close-Quarters',
+    subtitle: 'Industrial Close-Quarters (95m x 115m)',
     theme: 'Industrial Hangar',
-    description: 'Gudang logistik tertutup dengan tumpukan kontainer kargo dan catwalk lantai dua untuk baku tembak cepat.',
-    accentColor: '#3a86ff'
+    description: 'Gudang mega 95m x 115m dengan mezzanine catwalk ganda, jembatan penyeberangan langit 60m, kontainer bertingkat 3, dermaga bongkar muat truk, dan rambu K3 keselamatan kerja.',
+    accentColor: '#3a86ff',
+    previewImage: '/maps/warehouse.jpg'
   },
   arctic_outpost: {
     id: 'arctic_outpost',
     name: 'Arctic Outpost',
-    subtitle: 'Sub-Zero High Vantage Base',
+    subtitle: 'Sub-Zero High Vantage Base (120m x 120m)',
     theme: 'Arctic Military',
-    description: 'Pangkalan militer salju terbuka dengan menara observasi sniper 7m, atap bunker riset es, dan jembatan catwalk layang.',
-    accentColor: '#38bdf8'
+    description: 'Pangkalan militer salju 120m x 120m dengan menara sniper 7.5m terhubung jembatan gantung skywalk, landasan helipad militer, stasiun radar kubah, dan depo bahan bakar sub-zero.',
+    accentColor: '#38bdf8',
+    previewImage: '/maps/arctic_outpost.jpg'
   },
   italian_villa: {
     id: 'italian_villa',
     name: 'Italian Villa',
-    subtitle: 'Piazza & Cobblestone Streets',
+    subtitle: 'Piazza & Cobblestone Streets (120m x 120m)',
     theme: 'European Mediterranean',
-    description: 'Kawasan kota klasik Eropa dengan alun-alun piazza marmer, balkon villa 2 lantai untuk duel sniper, dan gang batu bersejarah.',
-    accentColor: '#ea580c'
+    description: 'Kota klasik Eropa 120m x 120m dengan alun-alun piazza marmer, menara lonceng campanile 8.5m, Bistro & Kedai Kopi Nusantara, lorong gudang anggur, dan balkon duel atap villa.',
+    accentColor: '#ea580c',
+    previewImage: '/maps/italian_villa.svg'
   },
   cargo_harbor: {
     id: 'cargo_harbor',
     name: 'Cargo Harbor',
-    subtitle: 'Maritime Gantry Crane & Docks',
+    subtitle: 'Maritime Gantry Crane & Docks (120m x 120m)',
     theme: 'Maritime Industrial',
-    description: 'Dermaga pelabuhan kargo terbuka dengan catwalk derek gantry raksasa 8m, tumpukan kontainer multi-tier, dan garis tembak panjang.',
-    accentColor: '#eab308'
+    description: 'Dermaga pelabuhan samudra 120m x 120m dengan catwalk derek gantry 8.8m, terminal pabean & karantina bea cukai, labirin kontainer 3 tingkat, tepian dermaga kapal, dan rambu maritim.',
+    accentColor: '#eab308',
+    previewImage: '/maps/cargo_harbor.svg'
   }
 }
 
@@ -61,9 +66,10 @@ export class MapManager {
   private cargoHarbor = new CargoHarbor()
 
   public collidableMeshes: THREE.Object3D[] = []
-  public ctSpawn = new THREE.Vector3(0, 1.5, 25)
-  public tSpawn = new THREE.Vector3(0, 1.5, -25)
+  public ctSpawn = new THREE.Vector3(0, 1.5, 48)
+  public tSpawn = new THREE.Vector3(0, 1.5, -48)
   public botWaypoints: THREE.Vector3[] = []
+  public mapBounds = { x: 58, z: 58 }
 
   constructor(scene: THREE.Scene, physics: PhysicsWorld) {
     this.scene = scene
@@ -81,6 +87,7 @@ export class MapManager {
       this.ctSpawn.copy(this.dustArena.ctSpawn)
       this.tSpawn.copy(this.dustArena.tSpawn)
       this.botWaypoints = this.dustArena.botWaypoints
+      this.mapBounds = { x: 58, z: 58 }
     } else if (mapId === 'warehouse') {
       this.warehouse.build(this.physics)
       this.scene.add(this.warehouse.group)
@@ -88,6 +95,7 @@ export class MapManager {
       this.ctSpawn.copy(this.warehouse.ctSpawn)
       this.tSpawn.copy(this.warehouse.tSpawn)
       this.botWaypoints = this.warehouse.botWaypoints
+      this.mapBounds = { x: 46, z: 56 }
     } else if (mapId === 'arctic_outpost') {
       this.arcticOutpost.build(this.physics)
       this.scene.add(this.arcticOutpost.group)
@@ -95,6 +103,7 @@ export class MapManager {
       this.ctSpawn.copy(this.arcticOutpost.ctSpawn)
       this.tSpawn.copy(this.arcticOutpost.tSpawn)
       this.botWaypoints = this.arcticOutpost.botWaypoints
+      this.mapBounds = { x: 58, z: 58 }
     } else if (mapId === 'italian_villa') {
       this.italianVilla.build(this.physics)
       this.scene.add(this.italianVilla.group)
@@ -102,6 +111,7 @@ export class MapManager {
       this.ctSpawn.copy(this.italianVilla.ctSpawn)
       this.tSpawn.copy(this.italianVilla.tSpawn)
       this.botWaypoints = this.italianVilla.botWaypoints
+      this.mapBounds = { x: 58, z: 58 }
     } else if (mapId === 'cargo_harbor') {
       this.cargoHarbor.build(this.physics)
       this.scene.add(this.cargoHarbor.group)
@@ -109,6 +119,7 @@ export class MapManager {
       this.ctSpawn.copy(this.cargoHarbor.ctSpawn)
       this.tSpawn.copy(this.cargoHarbor.tSpawn)
       this.botWaypoints = this.cargoHarbor.botWaypoints
+      this.mapBounds = { x: 58, z: 58 }
     }
   }
 

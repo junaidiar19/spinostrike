@@ -33,6 +33,11 @@ export class Player {
   private currentMuzzlePos = new THREE.Vector3()
   private currentMuzzleFlash: THREE.Mesh | null = null
   private bulletManager: BulletManager
+  public mapBounds = { x: 58, z: 58 }
+
+  public setMapBounds(x: number, z: number) {
+    this.mapBounds = { x, z }
+  }
 
   // Procedural weapon animation offsets
   private weaponOffset = new THREE.Vector3(0.22, -0.2, -0.45)
@@ -249,9 +254,9 @@ export class Player {
       }
     }
 
-    // Map outer perimeter boundary clamp
-    this.position.x = Math.max(-38, Math.min(38, targetX))
-    this.position.z = Math.max(-38, Math.min(38, targetZ))
+    // Map outer perimeter boundary clamp (dynamic based on current map size)
+    this.position.x = Math.max(-this.mapBounds.x, Math.min(this.mapBounds.x, targetX))
+    this.position.z = Math.max(-this.mapBounds.z, Math.min(this.mapBounds.z, targetZ))
 
     // Update camera position
     this.camera.position.copy(this.position)

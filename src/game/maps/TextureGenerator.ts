@@ -635,4 +635,233 @@ export class TextureGenerator {
     texture.repeat.set(2, 6)
     return texture
   }
+
+  // 16. Tactical & Industrial Indonesian Signboard Texture
+  public static createSignTexture(
+    title: string,
+    subtitle: string = '',
+    options: {
+      theme?: 'warning' | 'danger' | 'military' | 'industrial' | 'maritime' | 'vintage' | 'info'
+      arrow?: 'left' | 'right' | 'up' | 'none'
+      code?: string
+      width?: number
+      height?: number
+    } = {}
+  ): THREE.CanvasTexture {
+    const w = options.width || 512
+    const h = options.height || 256
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')!
+
+    const theme = options.theme || 'military'
+    const arrow = options.arrow || 'none'
+    const code = options.code || ''
+
+    // Background & Borders by theme
+    if (theme === 'warning') {
+      // High-visibility hazard yellow with diagonal stripes
+      ctx.fillStyle = '#f59e0b'
+      ctx.fillRect(0, 0, w, h)
+
+      // Hazard stripes top & bottom
+      const stripeH = 24
+      ctx.fillStyle = '#18181b'
+      const drawStripes = (yOffset: number) => {
+        for (let x = -stripeH; x < w + stripeH; x += stripeH * 1.5) {
+          ctx.beginPath()
+          ctx.moveTo(x, yOffset)
+          ctx.lineTo(x + stripeH, yOffset)
+          ctx.lineTo(x, yOffset + stripeH)
+          ctx.closePath()
+          ctx.fill()
+        }
+      }
+      drawStripes(0)
+      drawStripes(h - stripeH)
+
+      // Inner plate border
+      ctx.strokeStyle = '#18181b'
+      ctx.lineWidth = 6
+      ctx.strokeRect(8, 8, w - 16, h - 16)
+    } else if (theme === 'danger') {
+      // Critical Red Alert
+      const grad = ctx.createLinearGradient(0, 0, 0, h)
+      grad.addColorStop(0, '#991b1b')
+      grad.addColorStop(1, '#7f1d1d')
+      ctx.fillStyle = grad
+      ctx.fillRect(0, 0, w, h)
+
+      // Top Alert Header bar
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(10, 10, w - 20, 36)
+      ctx.fillStyle = '#b91c1c'
+      ctx.font = '900 22px "Arial Black", Impact, sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('PERINGATAN KERAS / DANGER', w / 2, 28)
+
+      // Border
+      ctx.strokeStyle = '#ef4444'
+      ctx.lineWidth = 6
+      ctx.strokeRect(6, 6, w - 12, h - 12)
+    } else if (theme === 'industrial') {
+      // Industrial Charcoal Steel with Safety Orange header
+      ctx.fillStyle = '#1e293b'
+      ctx.fillRect(0, 0, w, h)
+
+      ctx.fillStyle = '#ea580c' // Safety Orange
+      ctx.fillRect(10, 10, w - 20, 38)
+      ctx.fillStyle = '#ffffff'
+      ctx.font = '900 20px "Arial Black", sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('RAMBU KESELAMATAN KERJA (K3)', w / 2, 29)
+
+      ctx.strokeStyle = '#ea580c'
+      ctx.lineWidth = 4
+      ctx.strokeRect(8, 8, w - 16, h - 16)
+    } else if (theme === 'maritime') {
+      // Deep Nautical Ocean Blue with White Banner
+      ctx.fillStyle = '#0c4a6e'
+      ctx.fillRect(0, 0, w, h)
+
+      ctx.fillStyle = '#0284c7'
+      ctx.fillRect(10, 10, w - 20, 36)
+      ctx.fillStyle = '#f0f9ff'
+      ctx.font = '900 20px "Arial Black", sans-serif'
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'middle'
+      ctx.fillText('PELABUHAN SAMUDERA NUSANTARA', w / 2, 28)
+
+      ctx.strokeStyle = '#38bdf8'
+      ctx.lineWidth = 4
+      ctx.strokeRect(8, 8, w - 16, h - 16)
+    } else if (theme === 'vintage') {
+      // Aged Mediterranean Stone / Parchment
+      ctx.fillStyle = '#fef3c7'
+      ctx.fillRect(0, 0, w, h)
+
+      ctx.strokeStyle = '#78350f'
+      ctx.lineWidth = 6
+      ctx.strokeRect(10, 10, w - 20, h - 20)
+      ctx.strokeStyle = '#92400e'
+      ctx.lineWidth = 2
+      ctx.strokeRect(16, 16, w - 32, h - 32)
+    } else if (theme === 'info') {
+      // Roadway Highway Blue
+      ctx.fillStyle = '#1d4ed8'
+      ctx.fillRect(0, 0, w, h)
+
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 6
+      ctx.strokeRect(8, 8, w - 16, h - 16)
+    } else {
+      // Military Tactical Camo / Slate
+      ctx.fillStyle = '#0f172a'
+      ctx.fillRect(0, 0, w, h)
+
+      // Corner tactical brackets
+      ctx.strokeStyle = '#f59e0b'
+      ctx.lineWidth = 4
+      const bLen = 28
+      // Top-left
+      ctx.beginPath()
+      ctx.moveTo(12, 12 + bLen); ctx.lineTo(12, 12); ctx.lineTo(12 + bLen, 12)
+      ctx.stroke()
+      // Top-right
+      ctx.beginPath()
+      ctx.moveTo(w - 12 - bLen, 12); ctx.lineTo(w - 12, 12); ctx.lineTo(w - 12, 12 + bLen)
+      ctx.stroke()
+      // Bottom-left
+      ctx.beginPath()
+      ctx.moveTo(12, h - 12 - bLen); ctx.lineTo(12, h - 12); ctx.lineTo(12 + bLen, h - 12)
+      ctx.stroke()
+      // Bottom-right
+      ctx.beginPath()
+      ctx.moveTo(w - 12 - bLen, h - 12); ctx.lineTo(w - 12, h - 12); ctx.lineTo(w - 12, h - 12 - bLen)
+      ctx.stroke()
+    }
+
+    // Code header (e.g. [OPS-SPINO / SEKTOR-01])
+    if (code) {
+      ctx.fillStyle = theme === 'warning' ? '#18181b' : (theme === 'vintage' ? '#78350f' : '#38bdf8')
+      ctx.font = '700 14px monospace'
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'top'
+      ctx.fillText(code, 24, theme === 'danger' || theme === 'industrial' || theme === 'maritime' ? 52 : 24)
+    }
+
+    // Rivets in 4 corners
+    const rivetColor = theme === 'vintage' ? '#92400e' : '#94a3b8'
+    const drawRivet = (rx: number, ry: number) => {
+      ctx.fillStyle = rivetColor
+      ctx.beginPath()
+      ctx.arc(rx, ry, 5, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.fillStyle = '#1e293b'
+      ctx.fillRect(rx - 3, ry - 1, 6, 2)
+    }
+    drawRivet(16, 16)
+    drawRivet(w - 16, 16)
+    drawRivet(16, h - 16)
+    drawRivet(w - 16, h - 16)
+
+    // Main Text Rendering
+    let textY = h / 2
+    if (theme === 'danger' || theme === 'industrial' || theme === 'maritime') {
+      textY = (h + 36) / 2
+    }
+
+    // Arrow Prefix/Suffix
+    let fullTitle = title
+    if (arrow === 'left') fullTitle = '◀  ' + fullTitle
+    else if (arrow === 'right') fullTitle = fullTitle + '  ▶'
+    else if (arrow === 'up') fullTitle = '▲ ' + fullTitle + ' ▲'
+
+    // Title Font & Color
+    let titleColor = '#ffffff'
+    if (theme === 'warning') titleColor = '#09090b'
+    else if (theme === 'vintage') titleColor = '#451a03'
+
+    ctx.fillStyle = titleColor
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+
+    // Determine font size based on length
+    let fontSize = 34
+    if (fullTitle.length > 24) fontSize = 26
+    if (fullTitle.length > 34) fontSize = 21
+
+    ctx.font = `900 ${fontSize}px "Arial Black", Impact, sans-serif`
+    if (theme !== 'warning' && theme !== 'vintage') {
+      ctx.shadowColor = 'rgba(0,0,0,0.85)'
+      ctx.shadowBlur = 8
+      ctx.shadowOffsetX = 2
+      ctx.shadowOffsetY = 2
+    }
+    ctx.fillText(fullTitle, w / 2, subtitle ? textY - 18 : textY)
+
+    // Subtitle
+    if (subtitle) {
+      let subColor = '#cbd5e1'
+      if (theme === 'warning') subColor = '#27272a'
+      else if (theme === 'vintage') subColor = '#78350f'
+      else if (theme === 'danger') subColor = '#fee2e2'
+      else if (theme === 'info') subColor = '#dbeafe'
+
+      ctx.fillStyle = subColor
+      ctx.font = '700 18px "Segoe UI", Arial, sans-serif'
+      ctx.shadowBlur = 0
+      ctx.shadowOffsetX = 0
+      ctx.shadowOffsetY = 0
+      ctx.fillText(subtitle, w / 2, textY + 22)
+    }
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.anisotropy = 8
+    texture.needsUpdate = true
+    return texture
+  }
 }

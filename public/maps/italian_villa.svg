@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- Sky & Sun Gradients -->
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="60%" stop-color="#bae6fd"/>
+      <stop offset="100%" stop-color="#fed7aa"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="80%" cy="20%" r="40%">
+      <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.9"/>
+      <stop offset="30%" stop-color="#fef08a" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#fef08a" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Mountain & Hill Gradients -->
+    <linearGradient id="hillGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#0369a1" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <!-- Villa Wall Gradients -->
+    <linearGradient id="terracottaWall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="40%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#9a3412"/>
+    </linearGradient>
+    <linearGradient id="peachWall" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="100%" stop-color="#fdba74"/>
+    </linearGradient>
+    <linearGradient id="roofTile" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#c2410c"/>
+      <stop offset="100%" stop-color="#7c2d12"/>
+    </linearGradient>
+
+    <!-- Cobblestone Ground Gradient -->
+    <linearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#78716c"/>
+      <stop offset="100%" stop-color="#44403c"/>
+    </linearGradient>
+
+    <!-- Marble Fountain Gradient -->
+    <linearGradient id="marbleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="50%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <linearGradient id="waterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+
+    <!-- Vignette Overlay -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="40%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.6"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1280" height="720" fill="url(#skyGrad)"/>
+  <!-- Sun Glow -->
+  <circle cx="1000" cy="120" r="300" fill="url(#sunGlow)"/>
+
+  <!-- Distant Mediterranean Coastal Hills -->
+  <path d="M 0,380 Q 250,280 500,340 T 1000,310 T 1280,360 L 1280,480 L 0,480 Z" fill="url(#hillGrad)"/>
+  <path d="M 150,400 Q 400,320 700,370 T 1280,350 L 1280,480 L 150,480 Z" fill="#047857" opacity="0.4"/>
+
+  <!-- Cypress Trees Silhouettes -->
+  <ellipse cx="280" cy="330" rx="14" ry="70" fill="#064e3b"/>
+  <ellipse cx="320" cy="340" rx="12" ry="55" fill="#064e3b"/>
+  <ellipse cx="980" cy="310" rx="16" ry="75" fill="#064e3b"/>
+  <ellipse cx="1020" cy="325" rx="12" ry="60" fill="#064e3b"/>
+
+  <!-- Cobblestone Piazza Ground -->
+  <polygon points="0,450 1280,450 1280,720 0,720" fill="url(#groundGrad)"/>
+
+  <!-- Perspective Cobblestone Lines -->
+  <g stroke="#292524" stroke-width="2" opacity="0.35">
+    <line x1="640" y1="450" x2="-200" y2="720"/>
+    <line x1="640" y1="450" x2="200" y2="720"/>
+    <line x1="640" y1="450" x2="640" y2="720"/>
+    <line x1="640" y1="450" x2="1080" y2="720"/>
+    <line x1="640" y1="450" x2="1480" y2="720"/>
+  </g>
+
+  <!-- Left Villa Buildings (West Wing) -->
+  <!-- Building 1 -->
+  <rect x="0" y="240" width="280" height="280" fill="url(#terracottaWall)"/>
+  <!-- Roof -->
+  <polygon points="-20,240 140,160 300,240" fill="url(#roofTile)"/>
+  <!-- Arched Windows -->
+  <g fill="#1e293b">
+    <path d="M 60,320 Q 80,300 100,320 L 100,360 L 60,360 Z"/>
+    <path d="M 160,320 Q 180,300 200,320 L 200,360 L 160,360 Z"/>
+    <path d="M 60,420 Q 80,400 100,420 L 100,480 L 60,480 Z"/>
+    <path d="M 160,420 Q 180,400 200,420 L 200,480 L 160,480 Z"/>
+  </g>
+  <!-- Window Shutters -->
+  <rect x="44" y="320" width="14" height="40" fill="#047857"/>
+  <rect x="102" y="320" width="14" height="40" fill="#047857"/>
+  <rect x="144" y="320" width="14" height="40" fill="#047857"/>
+  <rect x="202" y="320" width="14" height="40" fill="#047857"/>
+
+  <!-- Balcony at Left Villa -->
+  <rect x="50" y="360" width="170" height="12" fill="#475569"/>
+  <rect x="50" y="348" width="170" height="12" fill="none" stroke="#334155" stroke-width="3"/>
+
+  <!-- Bistro Terrace Canopy on Left -->
+  <polygon points="120,440 280,440 260,485 100,485" fill="#b91c1c"/>
+  <polygon points="140,440 180,440 160,485 120,485" fill="#f8fafc"/>
+  <polygon points="220,440 260,440 240,485 200,485" fill="#f8fafc"/>
+  <!-- Wine Barrels on Ground -->
+  <ellipse cx="260" cy="520" rx="16" ry="24" fill="#78350f"/>
+  <ellipse cx="290" cy="530" rx="18" ry="26" fill="#92400e"/>
+
+  <!-- Center-Right: Campanile Belltower (8.5m Tower) -->
+  <rect x="760" y="100" width="130" height="420" fill="url(#peachWall)"/>
+  <!-- Belltower Roof Pyramid -->
+  <polygon points="740,100 825,10 910,100" fill="url(#roofTile)"/>
+  <!-- Belltower Arched Belfry Openings -->
+  <path d="M 785,150 Q 825,120 865,150 L 865,210 L 785,210 Z" fill="#0f172a"/>
+  <!-- Bronze Bell Silhouette -->
+  <ellipse cx="825" cy="175" rx="18" ry="20" fill="#d97706"/>
+  <!-- Decorative Cornice -->
+  <rect x="750" y="220" width="150" height="14" fill="#d97706"/>
+  <rect x="750" y="330" width="150" height="10" fill="#d97706"/>
+  <!-- Tower Slit Windows -->
+  <rect x="820" y="260" width="10" height="35" fill="#0f172a"/>
+  <rect x="820" y="360" width="10" height="35" fill="#0f172a"/>
+
+  <!-- Right Villa Buildings (East Wing) -->
+  <rect x="890" y="220" width="390" height="320" fill="url(#terracottaWall)"/>
+  <polygon points="870,220 1080,140 1290,220" fill="url(#roofTile)"/>
+  <!-- Upper Floor Balcony & Windows -->
+  <path d="M 940,290 Q 965,270 990,290 L 990,340 L 940,340 Z" fill="#1e293b"/>
+  <path d="M 1040,290 Q 1065,270 1090,290 L 1090,340 L 1040,340 Z" fill="#1e293b"/>
+  <path d="M 1140,290 Q 1165,270 1190,290 L 1190,340 L 1140,340 Z" fill="#1e293b"/>
+  <!-- Balcony Railing -->
+  <rect x="930" y="340" width="280" height="12" fill="#475569"/>
+
+  <!-- Overhead Stone Arch Bridge (Connecting East to Center) -->
+  <path d="M 690,380 Q 725,320 760,380 L 760,400 Q 725,350 690,400 Z" fill="url(#terracottaWall)"/>
+
+  <!-- GRAND CENTRAL MARBLE FOUNTAIN -->
+  <!-- Outer Basin Pool -->
+  <ellipse cx="540" cy="540" rx="170" ry="50" fill="url(#marbleGrad)"/>
+  <ellipse cx="540" cy="535" rx="155" ry="42" fill="url(#waterGrad)"/>
+  <!-- Second Tier Pedestal & Basin -->
+  <rect x="520" y="470" width="40" height="60" fill="url(#marbleGrad)"/>
+  <ellipse cx="540" cy="470" rx="75" ry="22" fill="url(#marbleGrad)"/>
+  <ellipse cx="540" cy="467" rx="68" ry="18" fill="url(#waterGrad)"/>
+  <!-- Center Marble Spire Obelisk -->
+  <polygon points="532,467 540,380 548,467" fill="url(#marbleGrad)"/>
+  <!-- Fountain Water Jets -->
+  <path d="M 540,380 Q 510,400 500,465" stroke="#bae6fd" stroke-width="3" fill="none" opacity="0.8"/>
+  <path d="M 540,380 Q 570,400 580,465" stroke="#bae6fd" stroke-width="3" fill="none" opacity="0.8"/>
+  <circle cx="540" cy="380" r="5" fill="#ffffff"/>
+
+  <!-- Tactical Crates in Foreground for Cover -->
+  <rect x="380" y="550" width="60" height="50" fill="#78350f" stroke="#451a03" stroke-width="3"/>
+  <rect x="440" y="560" width="55" height="40" fill="#92400e" stroke="#451a03" stroke-width="3"/>
+  <rect x="670" y="565" width="65" height="45" fill="#78350f" stroke="#451a03" stroke-width="3"/>
+
+  <!-- Indonesian Tactical Sign Plaque on Foreground Wall -->
+  <g transform="translate(60, 480)">
+    <rect x="0" y="0" width="180" height="48" rx="6" fill="#fef3c7" stroke="#78350f" stroke-width="3"/>
+    <text x="90" y="22" font-family="'Arial Black', Impact, sans-serif" font-weight="900" font-size="12" fill="#451a03" text-anchor="middle">PIAZZA KOTA TUA</text>
+    <text x="90" y="38" font-family="'Segoe UI', sans-serif" font-weight="700" font-size="9" fill="#78350f" text-anchor="middle">ZONA EVAKUASI WARGA</text>
+  </g>
+
+  <!-- Vignette & Cinematic Shadow Overlay -->
+  <rect width="1280" height="720" fill="url(#vignette)"/>
+</svg>

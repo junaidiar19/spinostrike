@@ -92,14 +92,14 @@ export class GameEngine {
     this.scene.add(this.ambientLight)
 
     this.dirLight = new THREE.DirectionalLight(0xfffae8, 1.4)
-    this.dirLight.position.set(25, 45, 20)
+    this.dirLight.position.set(35, 60, 30)
     this.dirLight.castShadow = true
     this.dirLight.shadow.mapSize.width = 2048
     this.dirLight.shadow.mapSize.height = 2048
     this.dirLight.shadow.camera.near = 0.5
-    this.dirLight.shadow.camera.far = 120
+    this.dirLight.shadow.camera.far = 200
 
-    const d = 45
+    const d = 75 // Expanded to cover 120m x 120m maps cleanly
     this.dirLight.shadow.camera.left = -d
     this.dirLight.shadow.camera.right = d
     this.dirLight.shadow.camera.top = d
@@ -115,13 +115,13 @@ export class GameEngine {
     // Adjust sky / fog / daylight lighting based on map theme (Bright daylight for competitive clarity)
     if (mapId === 'warehouse') {
       this.scene.background = new THREE.Color('#161a22')
-      this.scene.fog = new THREE.FogExp2('#161a22', 0.018)
-      this.dirLight.intensity = 0.9
-      this.ambientLight.intensity = 0.6
+      this.scene.fog = new THREE.FogExp2('#161a22', 0.010)
+      this.dirLight.intensity = 0.95
+      this.ambientLight.intensity = 0.65
     } else if (mapId === 'arctic_outpost') {
       // Crisp Sub-Zero Arctic Daylight (High visibility)
       this.scene.background = new THREE.Color('#b8dcf5')
-      this.scene.fog = new THREE.FogExp2('#b8dcf5', 0.008)
+      this.scene.fog = new THREE.FogExp2('#b8dcf5', 0.005)
       this.dirLight.color.setHex(0xffffff)
       this.dirLight.intensity = 1.5
       this.ambientLight.color.setHex(0xdbeafe)
@@ -129,7 +129,7 @@ export class GameEngine {
     } else if (mapId === 'italian_villa') {
       // Warm Mediterranean Sunny Daylight
       this.scene.background = new THREE.Color('#7dd3fc')
-      this.scene.fog = new THREE.FogExp2('#7dd3fc', 0.008)
+      this.scene.fog = new THREE.FogExp2('#7dd3fc', 0.005)
       this.dirLight.color.setHex(0xfffae8)
       this.dirLight.intensity = 1.45
       this.ambientLight.color.setHex(0xfef3c7)
@@ -137,7 +137,7 @@ export class GameEngine {
     } else if (mapId === 'cargo_harbor') {
       // Bright Coastal Ocean Maritime Daylight
       this.scene.background = new THREE.Color('#67e8f9')
-      this.scene.fog = new THREE.FogExp2('#67e8f9', 0.008)
+      this.scene.fog = new THREE.FogExp2('#67e8f9', 0.005)
       this.dirLight.color.setHex(0xfffbeb)
       this.dirLight.intensity = 1.42
       this.ambientLight.color.setHex(0xe0f2fe)
@@ -145,14 +145,15 @@ export class GameEngine {
     } else {
       // Sandstone Arena (Dust II) Desert Sun
       this.scene.background = new THREE.Color('#87b5d8')
-      this.scene.fog = new THREE.FogExp2('#87b5d8', 0.012)
+      this.scene.fog = new THREE.FogExp2('#87b5d8', 0.006)
       this.dirLight.color.setHex(0xfffae8)
       this.dirLight.intensity = 1.4
       this.ambientLight.color.setHex(0xd4e2f5)
       this.ambientLight.intensity = 0.75
     }
 
-    // Place Player at CT Spawn
+    // Configure Player Map Bounds and Place at CT Spawn
+    this.player.setMapBounds(this.mapManager.mapBounds.x, this.mapManager.mapBounds.z)
     this.player.respawn(this.mapManager.ctSpawn)
     const activeWeapon = useGameStore.getState().activeWeaponId
     this.player.initWeapon(activeWeapon)
@@ -172,6 +173,7 @@ export class GameEngine {
     this.camera.rotation.set(0, 0, 0)
     this.camera.quaternion.identity()
 
+    this.player.setMapBounds(this.mapManager.mapBounds.x, this.mapManager.mapBounds.z)
     this.player.respawn(this.mapManager.ctSpawn)
     const activeWeapon = useGameStore.getState().activeWeaponId
     this.player.initWeapon(activeWeapon)

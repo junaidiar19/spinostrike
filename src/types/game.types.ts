@@ -67,6 +67,7 @@ export interface MapMetadata {
   theme: string
   description: string
   accentColor: string
+  previewImage: string
 }
 
 export interface KillFeedItem {

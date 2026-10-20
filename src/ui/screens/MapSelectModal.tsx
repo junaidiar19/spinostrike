@@ -43,16 +43,31 @@ export const MapSelectModal: React.FC<Props> = ({ onClose }) => {
                 className={`map-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => handleSelectMap(map.id)}
               >
-                <div
-                  className="map-card-banner"
-                  style={{ backgroundColor: map.accentColor }}
-                >
-                  <span className="map-theme-badge">{map.theme}</span>
-                  {isSelected && (
-                    <span className="map-active-badge">
-                      <Check size={14} /> ACTIVE
+                <div className="map-card-thumbnail-wrapper">
+                  <img
+                    src={map.previewImage}
+                    alt={map.name}
+                    className="map-card-thumbnail-img"
+                    loading="lazy"
+                  />
+                  <div className="map-card-thumbnail-overlay" />
+                  <div
+                    className="map-card-accent-bar"
+                    style={{ backgroundColor: map.accentColor }}
+                  />
+                  <div className="map-card-badge-row">
+                    <span
+                      className="map-theme-badge"
+                      style={{ borderLeft: `3px solid ${map.accentColor}` }}
+                    >
+                      {map.theme}
                     </span>
-                  )}
+                    {isSelected && (
+                      <span className="map-active-badge">
+                        <Check size={14} /> ACTIVE
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 <div className="map-card-body">

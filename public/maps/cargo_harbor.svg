@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- Maritime Sky Gradient -->
+    <linearGradient id="harborSky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="50%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+
+    <!-- Ocean Water Gradient -->
+    <linearGradient id="oceanWater" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0369a1"/>
+      <stop offset="40%" stop-color="#075985"/>
+      <stop offset="100%" stop-color="#0c4a6e"/>
+    </linearGradient>
+
+    <!-- Pier Concrete Gradient -->
+    <linearGradient id="pierConcrete" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="100%" stop-color="#334155"/>
+    </linearGradient>
+
+    <!-- Crane Yellow Steel Gradient -->
+    <linearGradient id="craneSteel" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="50%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+
+    <!-- Container Gradients -->
+    <linearGradient id="blueContainer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="redContainer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#dc2626"/>
+      <stop offset="100%" stop-color="#b91c1c"/>
+    </linearGradient>
+    <linearGradient id="greenContainer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="orangeContainer" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+
+    <!-- Hazard Stripes Pattern -->
+    <pattern id="hazardStripe" width="20" height="20" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+      <rect width="10" height="20" fill="#facc15"/>
+      <rect x="10" width="10" height="20" fill="#18181b"/>
+    </pattern>
+
+    <!-- Vignette -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="70%">
+      <stop offset="40%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.55"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Sky -->
+  <rect width="1280" height="720" fill="url(#harborSky)"/>
+
+  <!-- Sun & Atmospheric Glow -->
+  <circle cx="950" cy="140" r="160" fill="#ffffff" opacity="0.35"/>
+  <circle cx="950" cy="140" r="70" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Ocean Water (Right side) -->
+  <polygon points="680,340 1280,340 1280,720 680,720" fill="url(#oceanWater)"/>
+
+  <!-- Distant Container Ship on Ocean Horizon -->
+  <polygon points="980,335 1160,335 1190,342 960,342" fill="#1e293b"/>
+  <rect x="1020" y="318" width="80" height="17" fill="#dc2626"/>
+  <rect x="1040" y="302" width="40" height="16" fill="#f8fafc"/>
+  <rect x="1055" y="292" width="10" height="10" fill="#0f172a"/>
+
+  <!-- Main Concrete Pier Dock -->
+  <polygon points="0,380 720,380 720,720 0,720" fill="url(#pierConcrete)"/>
+
+  <!-- Pier Waterfront Dock Edge Barrier with Yellow Hazard Stripes -->
+  <rect x="705" y="380" width="20" height="340" fill="url(#hazardStripe)"/>
+
+  <!-- Steel Mooring Bollards along Wharf Edge -->
+  <g fill="#0f172a">
+    <ellipse cx="690" cy="420" rx="8" ry="12"/>
+    <ellipse cx="690" cy="510" rx="8" ry="12"/>
+    <ellipse cx="690" cy="600" rx="8" ry="12"/>
+    <ellipse cx="690" cy="690" rx="8" ry="12"/>
+  </g>
+
+  <!-- Customs Clearance Terminal Building (Left Background) -->
+  <rect x="0" y="280" width="240" height="190" fill="#475569"/>
+  <rect x="20" y="320" width="50" height="35" fill="#38bdf8" opacity="0.7"/>
+  <rect x="90" y="320" width="50" height="35" fill="#38bdf8" opacity="0.7"/>
+  <rect x="160" y="320" width="50" height="35" fill="#38bdf8" opacity="0.7"/>
+  <!-- Terminal Roof Railing -->
+  <rect x="0" y="268" width="240" height="12" fill="#334155"/>
+
+  <!-- MASSIVE DUAL GANTRY CRANE (Centerpiece) -->
+  <!-- Left Leg -->
+  <polygon points="340,110 380,110 370,440 330,440" fill="url(#craneSteel)"/>
+  <!-- Right Leg -->
+  <polygon points="620,110 660,110 670,440 630,440" fill="url(#craneSteel)"/>
+  <!-- Overhead Gantry Girder Truss Beam -->
+  <rect x="240" y="100" width="520" height="45" fill="url(#craneSteel)"/>
+  <!-- Crane Lattice Cross-Braces -->
+  <g stroke="#854d0e" stroke-width="4" opacity="0.7">
+    <line x1="260" y1="100" x2="300" y2="145"/>
+    <line x1="300" y1="100" x2="260" y2="145"/>
+    <line x1="300" y1="100" x2="340" y2="145"/>
+    <line x1="340" y1="100" x2="300" y2="145"/>
+    <line x1="420" y1="100" x2="460" y2="145"/>
+    <line x1="460" y1="100" x2="420" y2="145"/>
+    <line x1="500" y1="100" x2="540" y2="145"/>
+    <line x1="540" y1="100" x2="500" y2="145"/>
+    <line x1="580" y1="100" x2="620" y2="145"/>
+    <line x1="620" y1="100" x2="580" y2="145"/>
+    <line x1="660" y1="100" x2="700" y2="145"/>
+    <line x1="700" y1="100" x2="660" y2="145"/>
+  </g>
+  <!-- Crane Operator Cabin & Trolley -->
+  <rect x="460" y="145" width="80" height="45" fill="#f8fafc" stroke="#334155" stroke-width="3"/>
+  <rect x="475" y="155" width="50" height="25" fill="#0284c7" opacity="0.8"/>
+  <!-- Hoist Cables & Cargo Spreader Bar -->
+  <line x1="485" y1="190" x2="485" y2="280" stroke="#0f172a" stroke-width="2"/>
+  <line x1="515" y1="190" x2="515" y2="280" stroke="#0f172a" stroke-width="2"/>
+  <rect x="470" y="280" width="60" height="12" fill="#ca8a04"/>
+
+  <!-- MULTI-TIER SHIPPING CONTAINERS (Foreground & Midground) -->
+  <!-- Container Block 1 (Left - Blue & Orange) -->
+  <g transform="translate(140, 410)">
+    <!-- Bottom Tier: Blue Container -->
+    <rect x="0" y="60" width="160" height="70" rx="4" fill="url(#blueContainer)"/>
+    <!-- Corrugation lines -->
+    <g stroke="#1e40af" stroke-width="2">
+      <line x1="20" y1="65" x2="20" y2="125"/>
+      <line x1="40" y1="65" x2="40" y2="125"/>
+      <line x1="60" y1="65" x2="60" y2="125"/>
+      <line x1="80" y1="65" x2="80" y2="125"/>
+      <line x1="100" y1="65" x2="100" y2="125"/>
+      <line x1="120" y1="65" x2="120" y2="125"/>
+      <line x1="140" y1="65" x2="140" y2="125"/>
+    </g>
+    <!-- Top Tier: Orange Container -->
+    <rect x="15" y="-10" width="150" height="70" rx="4" fill="url(#orangeContainer)"/>
+    <g stroke="#9a3412" stroke-width="2">
+      <line x1="35" y1="-5" x2="35" y2="55"/>
+      <line x1="55" y1="-5" x2="55" y2="55"/>
+      <line x1="75" y1="-5" x2="75" y2="55"/>
+      <line x1="95" y1="-5" x2="95" y2="55"/>
+      <line x1="115" y1="-5" x2="115" y2="55"/>
+      <line x1="135" y1="-5" x2="135" y2="55"/>
+    </g>
+  </g>
+
+  <!-- Container Block 2 (Center - Red & Green) -->
+  <g transform="translate(380, 440)">
+    <!-- Bottom Tier Red Container -->
+    <rect x="0" y="60" width="180" height="80" rx="4" fill="url(#redContainer)"/>
+    <g stroke="#991b1b" stroke-width="2">
+      <line x1="20" y1="65" x2="20" y2="135"/>
+      <line x1="45" y1="65" x2="45" y2="135"/>
+      <line x1="70" y1="65" x2="70" y2="135"/>
+      <line x1="95" y1="65" x2="95" y2="135"/>
+      <line x1="120" y1="65" x2="120" y2="135"/>
+      <line x1="145" y1="65" x2="145" y2="135"/>
+    </g>
+    <!-- Top Tier Green Container -->
+    <rect x="10" y="-15" width="170" height="75" rx="4" fill="url(#greenContainer)"/>
+    <g stroke="#065f46" stroke-width="2">
+      <line x1="30" y1="-10" x2="30" y2="55"/>
+      <line x1="55" y1="-10" x2="55" y2="55"/>
+      <line x1="80" y1="-10" x2="80" y2="55"/>
+      <line x1="105" y1="-10" x2="105" y2="55"/>
+      <line x1="130" y1="-10" x2="130" y2="55"/>
+      <line x1="155" y1="-10" x2="155" y2="55"/>
+    </g>
+  </g>
+
+  <!-- Foreground Wooden Supply Crates & Fuel Barrels -->
+  <rect x="290" y="590" width="55" height="50" fill="#78350f" stroke="#451a03" stroke-width="2"/>
+  <rect x="345" y="600" width="45" height="40" fill="#92400e" stroke="#451a03" stroke-width="2"/>
+  <ellipse cx="610" cy="620" rx="14" ry="22" fill="#dc2626"/>
+  <ellipse cx="635" cy="625" rx="14" ry="22" fill="#dc2626"/>
+
+  <!-- Indonesian Maritime Tactical Sign Plaque -->
+  <g transform="translate(60, 520)">
+    <rect x="0" y="0" width="220" height="52" rx="6" fill="#0c4a6e" stroke="#38bdf8" stroke-width="3"/>
+    <text x="110" y="24" font-family="'Arial Black', Impact, sans-serif" font-weight="900" font-size="12" fill="#ffffff" text-anchor="middle">DERMAGA 08 NUSANTARA</text>
+    <text x="110" y="42" font-family="'Segoe UI', sans-serif" font-weight="700" font-size="9" fill="#7dd3fc" text-anchor="middle">TERMINAL PETI KEMAS SAMUDERA</text>
+  </g>
+
+  <!-- Vignette Overlay -->
+  <rect width="1280" height="720" fill="url(#vignette)"/>
+</svg>
