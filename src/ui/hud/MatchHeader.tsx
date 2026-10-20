@@ -8,6 +8,8 @@ export const MatchHeader: React.FC = () => {
   const targetKills = useGameStore((state) => state.matchTargetKills)
   const isMatchEnded = useGameStore((state) => state.isMatchEnded)
 
+  const setIsScoreboardOpen = useGameStore((state) => state.setIsScoreboardOpen)
+
   if (isMatchEnded) return null
 
   const minutes = Math.floor(timeRemaining / 60)
@@ -16,7 +18,11 @@ export const MatchHeader: React.FC = () => {
   const isLowTime = timeRemaining <= 30 && timeRemaining > 0
 
   return (
-    <div className="match-header-strip">
+    <div
+      className="match-header-strip"
+      onClick={() => setIsScoreboardOpen(true)}
+      title="Klik untuk membuka Tabel Skor lengkap (atau tekan TAB)"
+    >
       {/* CT (Counter-Terrorist) Team Score */}
       <div className="match-team-block ct-block">
         <div className="team-badge ct-badge">

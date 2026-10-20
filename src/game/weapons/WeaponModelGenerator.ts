@@ -38,11 +38,28 @@ export class WeaponModelGenerator {
     flatShading: true
   })
 
-  private static handMat = new THREE.MeshStandardMaterial({
-    color: 0x243242, // CT tactical glove dark blue
-    roughness: 0.7,
-    metalness: 0.2,
-    flatShading: true
+  private static gloveMat = new THREE.MeshStandardMaterial({
+    color: 0x1e293b, // Tactical dark slate nylon
+    roughness: 0.65,
+    metalness: 0.2
+  })
+
+  private static knuckleMat = new THREE.MeshStandardMaterial({
+    color: 0x0f172a, // Carbon fiber / molded knuckle armor
+    roughness: 0.3,
+    metalness: 0.5
+  })
+
+  private static sleeveMat = new THREE.MeshStandardMaterial({
+    color: 0x334155, // Combat uniform sleeve
+    roughness: 0.85,
+    metalness: 0.1
+  })
+
+  private static strapMat = new THREE.MeshStandardMaterial({
+    color: 0x0284c7, // Tactical CT team accent trim
+    roughness: 0.5,
+    metalness: 0.3
   })
 
   private static muzzleFlashMat = new THREE.MeshBasicMaterial({
@@ -334,41 +351,87 @@ export class WeaponModelGenerator {
     return new THREE.Vector3(0, 0, -0.25)
   }
 
+  // Helper to build a detailed tactical operator arm & glove
+  private static createArmSegment(isRight: boolean): THREE.Group {
+    const arm = new THREE.Group()
+
+    // 1. Forearm Sleeve (Anatomical taper)
+    const sleeveGeom = new THREE.CylinderGeometry(0.048, 0.056, 0.28, 12)
+    const sleeve = new THREE.Mesh(sleeveGeom, this.sleeveMat)
+    sleeve.rotation.x = Math.PI / 2
+    sleeve.position.set(0, 0, 0.14)
+    arm.add(sleeve)
+
+    // 2. Sleeve Cuff Trim
+    const cuffGeom = new THREE.CylinderGeometry(0.052, 0.052, 0.03, 12)
+    const cuff = new THREE.Mesh(cuffGeom, this.gloveMat)
+    cuff.rotation.x = Math.PI / 2
+    cuff.position.set(0, 0, 0.02)
+    arm.add(cuff)
+
+    // 3. Tactical Glove Wrist Cinch Strap
+    const strapGeom = new THREE.BoxGeometry(0.088, 0.018, 0.038)
+    const strap = new THREE.Mesh(strapGeom, this.strapMat)
+    strap.position.set(0, 0.042, 0.02)
+    arm.add(strap)
+
+    // 4. Palm / Hand Main Body
+    const handGeom = new THREE.BoxGeometry(0.08, 0.06, 0.11)
+    const hand = new THREE.Mesh(handGeom, this.gloveMat)
+    hand.position.set(0, 0, -0.05)
+    arm.add(hand)
+
+    // 5. Molded Carbon-Fiber Knuckle Armor Plate
+    const knuckleGeom = new THREE.BoxGeometry(0.075, 0.022, 0.042)
+    const knuckle = new THREE.Mesh(knuckleGeom, this.knuckleMat)
+    knuckle.position.set(0, 0.03, -0.06)
+    arm.add(knuckle)
+
+    // 6. Fingers gripping weapon
+    const fingerGeom = new THREE.CylinderGeometry(0.015, 0.015, 0.06, 8)
+    for (let f = -1; f <= 1; f++) {
+      const finger = new THREE.Mesh(fingerGeom, this.gloveMat)
+      finger.rotation.z = Math.PI / 2
+      finger.position.set(isRight ? -0.035 : 0.035, -0.015, -0.08 + f * 0.022)
+      arm.add(finger)
+    }
+
+    return arm
+  }
+
   private static addPlayerHands(root: THREE.Group, id: WeaponId) {
     if (id === 'knife') {
-      // Right hand holding knife
-      const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.09, 0.35), this.handMat)
-      rightArm.position.set(0.08, -0.08, 0.18)
-      rightArm.rotation.x = -0.3
+      const rightArm = this.createArmSegment(true)
+      rightArm.position.set(0.08, -0.07, 0.20)
+      rightArm.rotation.set(-0.25, 0.1, 0)
       root.add(rightArm)
       return
     }
 
     if (id === 'deagle') {
-      // Two hands holding pistol
-      const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.09, 0.35), this.handMat)
-      rightArm.position.set(0.06, -0.14, 0.18)
-      rightArm.rotation.x = -0.3
+      const rightArm = this.createArmSegment(true)
+      rightArm.position.set(0.05, -0.12, 0.22)
+      rightArm.rotation.set(-0.22, -0.08, 0)
       root.add(rightArm)
 
-      const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.09, 0.35), this.handMat)
-      leftArm.position.set(-0.06, -0.14, 0.18)
-      leftArm.rotation.x = -0.3
+      const leftArm = this.createArmSegment(false)
+      leftArm.position.set(-0.05, -0.12, 0.22)
+      leftArm.rotation.set(-0.22, 0.12, 0)
       root.add(leftArm)
       return
     }
 
-    // Rifle / Sniper (AK-47, M4A1, AWP)
+    // Rifles / Snipers (AK-47, M4A1, AWP, SSG-08)
     // Right hand on trigger grip
-    const rightArm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.09, 0.38), this.handMat)
-    rightArm.position.set(0.08, -0.12, 0.25)
-    rightArm.rotation.x = -0.2
+    const rightArm = this.createArmSegment(true)
+    rightArm.position.set(0.08, -0.10, 0.26)
+    rightArm.rotation.set(-0.18, -0.05, 0)
     root.add(rightArm)
 
     // Left hand supporting front handguard
-    const leftArm = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.35), this.handMat)
-    leftArm.position.set(-0.09, -0.12, -0.18)
-    leftArm.rotation.set(-0.15, 0.3, 0)
+    const leftArm = this.createArmSegment(false)
+    leftArm.position.set(-0.09, -0.09, -0.12)
+    leftArm.rotation.set(-0.12, 0.32, -0.1)
     root.add(leftArm)
   }
 }

@@ -5,6 +5,7 @@ import { useRoomStore } from '../../stores/useRoomStore'
 import { OperatorModelGenerator, type OperatorLimbs } from './OperatorModelGenerator'
 import type { Team } from '../../types/game.types'
 import { gameEngine } from '../core/GameEngine'
+import { radarManager } from '../core/RadarManager'
 import type { BulletManager } from '../weapons/BulletManager'
 
 export type BotState = 'PATROL' | 'COMBAT' | 'DEAD'
@@ -173,8 +174,9 @@ export class Bot {
   private combatShooting(dt: number, distToPlayer: number, collidableMeshes: THREE.Object3D[]) {
     this.fireCooldown -= dt
     if (this.fireCooldown <= 0 && this.targetPlayer) {
-      // 1. Bot Gunshot Audio
+      // 1. Bot Gunshot Audio & Radar Ping
       audioManager.playGunshot('ak47')
+      radarManager.addGunfirePing(this.position.x, this.position.z, this.team)
 
       // 2. Muzzle Flash on Bot
       if (this.limbs) {

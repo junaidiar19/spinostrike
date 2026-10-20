@@ -214,15 +214,16 @@ export class CargoHarbor {
     // 6. MULTI-TIER 3-STACK CONTAINER MAZE (EAST & WEST BLOCKS)
     // ==========================================================
     // East Block (x = 28): Stacks of Blue, Red, Green, Orange containers
-    // Tier 1
+    // Tier 1 (y = 1.5m - firmly on ground)
     this.createContainer(28, 1.5, 10, 3.2, 3, 12, this.blueContainerMat, physics)
     this.createContainer(28, 1.5, -10, 3.2, 3, 12, this.redContainerMat, physics)
-    this.createContainer(33, 1.5, 0, 3.2, 3, 10, this.orangeContainerMat, physics)
-    // Tier 2 (y = 4.5m)
+    this.createContainer(28, 1.5, 0, 3.2, 3, 8, this.orangeContainerMat, physics)
+    // Tier 2 (y = 4.5m - resting flush on Tier 1)
     this.createContainer(28, 4.5, 10, 3.2, 3, 12, this.greenContainerMat, physics)
     this.createContainer(28, 4.5, -10, 3.2, 3, 12, this.blueContainerMat, physics)
-    // Tier 3 (y = 7.5m)
-    this.createContainer(28, 7.5, 0, 3.2, 3, 10, this.redContainerMat, physics)
+    this.createContainer(28, 4.5, 0, 3.2, 3, 8, this.redContainerMat, physics)
+    // Tier 3 (y = 7.5m - resting flush on Tier 2)
+    this.createContainer(28, 7.5, 10, 3.2, 3, 12, this.orangeContainerMat, physics)
 
     // West Block Containers (x = -16, z = -18)
     this.createContainer(-16, 1.5, -18, 3.2, 3, 12, this.orangeContainerMat, physics)

@@ -808,8 +808,16 @@ body,
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
   z-index: 20;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.match-header-strip:hover {
+  transform: translateX(-50%) scale(1.03);
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.75), 0 0 16px rgba(56, 189, 248, 0.25);
 }
 
 .match-team-block {
@@ -909,6 +917,100 @@ body,
   letter-spacing: 0.8px;
   color: #94a3b8;
   margin-top: 1px;
+}
+
+/* ==========================================================================
+   TACTICAL CIRCULAR MINIMAP / RADAR HUD
+   ========================================================================== */
+
+.tactical-minimap-container {
+  position: absolute;
+  top: calc(16px + var(--safe-top));
+  left: calc(20px + var(--safe-left));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  z-index: 22;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.radar-sector-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(8, 14, 24, 0.88);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 6px;
+  padding: 3px 10px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.radar-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: radar-pulse 1.8s infinite;
+}
+
+@keyframes radar-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.radar-sector-text {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #e0f2fe;
+  text-transform: uppercase;
+}
+
+.radar-canvas-wrapper {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  cursor: pointer;
+  background: radial-gradient(circle, rgba(14, 23, 42, 0.7) 0%, rgba(3, 7, 18, 0.95) 100%);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65), inset 0 0 16px rgba(56, 189, 248, 0.15);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.radar-canvas-wrapper:hover {
+  transform: scale(1.02);
+}
+
+.radar-canvas-wrapper:active {
+  transform: scale(0.98);
+}
+
+.radar-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.radar-zoom-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 800;
+  color: #7dd3fc;
+  letter-spacing: 0.5px;
+  pointer-events: none;
 }
 
 /* ==========================================================================
@@ -1426,7 +1528,7 @@ body,
 /* Mobile Left Fire Button (Dedicated 3-Finger / Claw Grip) */
 .mobile-left-fire-btn {
   position: absolute;
-  top: calc(76px + var(--safe-top));
+  top: calc(195px + var(--safe-top));
   left: calc(20px + var(--safe-left));
   width: 58px;
   height: 58px;
@@ -1793,6 +1895,16 @@ body,
 
 .briefing-icon {
   color: var(--color-ct);
+}
+
+.briefing-map-thumb {
+  width: 46px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1.5px solid rgba(56, 189, 248, 0.4);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
 }
 
 .briefing-text {
@@ -2184,6 +2296,8 @@ body,
   position: relative;
   width: 100%;
   height: 155px;
+  min-height: 155px;
+  flex-shrink: 0;
   overflow: hidden;
   background: #0f172a;
 }
@@ -2997,6 +3111,8 @@ body,
 
   .map-card-thumbnail-wrapper {
     height: 95px;
+    min-height: 95px;
+    flex-shrink: 0;
   }
 
   .map-card-body {
@@ -3112,20 +3228,30 @@ body,
     font-size: 8px;
   }
 
+  .tactical-minimap-container {
+    top: calc(6px + var(--safe-top));
+    left: calc(8px + var(--safe-left));
+    gap: 3px;
+    transform: scale(0.72);
+    transform-origin: top left;
+  }
+
   .mobile-top-bar {
-    top: calc(8px + var(--safe-top));
-    left: calc(10px + var(--safe-left));
+    top: calc(146px + var(--safe-top));
+    left: calc(8px + var(--safe-left));
+    display: flex;
+    flex-direction: row;
     gap: 6px;
   }
 
   .mobile-round-btn {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
   }
 
   .match-header-strip {
     top: calc(6px + var(--safe-top));
-    transform: translateX(-50%) scale(0.9);
+    transform: translateX(-50%) scale(0.88);
   }
 
   .mobile-slot-bar {
@@ -3135,10 +3261,10 @@ body,
   }
 
   .mobile-left-fire-btn {
-    top: calc(52px + var(--safe-top));
-    left: calc(12px + var(--safe-left));
-    width: 50px;
-    height: 50px;
+    top: calc(188px + var(--safe-top));
+    left: calc(8px + var(--safe-left));
+    width: 46px;
+    height: 46px;
   }
 
   .slot-touch-btn {

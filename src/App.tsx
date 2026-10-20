@@ -13,6 +13,7 @@ import { Scoreboard } from './ui/hud/Scoreboard'
 import { DamageIndicator } from './ui/hud/DamageIndicator'
 import { MatchNotification } from './ui/hud/MatchNotification'
 import { MatchHeader } from './ui/hud/MatchHeader'
+import { Minimap } from './ui/hud/Minimap'
 import { MobileControls } from './ui/mobile/MobileControls'
 import { OrientationNotice } from './ui/mobile/OrientationNotice'
 import { MainMenu } from './ui/screens/MainMenu'
@@ -97,6 +98,7 @@ export const App: React.FC = () => {
       {gameStatus === 'PLAYING' && isEngineReady && (
         <div className="hud-layer">
           <MatchHeader />
+          <Minimap />
           <Crosshair />
           <SniperScope />
           <HealthBar />

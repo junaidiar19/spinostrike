@@ -7,6 +7,7 @@ import { useRoomStore } from '../../stores/useRoomStore'
 import { useSettingsStore } from '../../stores/useSettingsStore'
 import { gameEngine } from '../../game/core/GameEngine'
 import { RemotePlayer } from '../../game/entities/RemotePlayer'
+import { radarManager } from '../../game/core/RadarManager'
 import type { Team, WeaponId } from '../../types/game.types'
 
 export interface RoomPlayerPresence {
@@ -275,6 +276,12 @@ export class RealtimeManager {
     if (data.id === this.localPlayerId) return
     // Play gunshot sound for remote player
     audioManager.playGunshot(data.weaponId)
+
+    // Add gunfire ping on radar
+    const remote = this.remotePlayers.get(data.id)
+    if (remote) {
+      radarManager.addGunfirePing(data.ox, data.oz, remote.team)
+    }
 
     // Render tracer in scene
     if (gameEngine.bulletManager) {

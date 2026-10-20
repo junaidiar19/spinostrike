@@ -82,38 +82,49 @@ export class RemotePlayer {
     const isTeammate = this.team === myTeam
 
     const canvas = document.createElement('canvas')
-    canvas.width = 320
-    canvas.height = 80
+    canvas.width = 256
+    canvas.height = 64
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    // Card background
-    ctx.fillStyle = isTeammate ? 'rgba(15, 23, 42, 0.85)' : 'rgba(24, 10, 10, 0.85)'
-    ctx.roundRect(8, 8, 304, 64, 10)
+    // Card background: centered precisely in the 256x64 canvas
+    ctx.clearRect(0, 0, 256, 64)
+    ctx.fillStyle = isTeammate ? 'rgba(15, 23, 42, 0.92)' : 'rgba(28, 10, 10, 0.92)'
+    ctx.roundRect(4, 4, 248, 56, 8)
     ctx.fill()
 
     // Border highlight
-    ctx.lineWidth = 3
+    ctx.lineWidth = 2.5
     ctx.strokeStyle = isTeammate ? '#38bdf8' : '#ef4444'
     ctx.stroke()
 
     // Title / Tag
-    ctx.font = 'bold 16px sans-serif'
     ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = 'bold 12px sans-serif'
     ctx.fillStyle = isTeammate ? '#38bdf8' : '#ef4444'
-    const roleTag = isTeammate ? '🛡️ REKAN SATU TIM' : '⚔️ MUSUH (TARGET)'
-    ctx.fillText(roleTag, 160, 32)
+    const roleTag = isTeammate ? 'REKAN TIM' : 'MUSUH'
+    ctx.fillText(roleTag, 128, 20)
 
-    // Player Nickname
-    ctx.font = 'bold 22px Rajdhani, sans-serif'
+    // Player Nickname - explicitly re-declaring textAlign & textBaseline
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.font = 'bold 20px sans-serif'
     ctx.fillStyle = '#ffffff'
-    ctx.fillText(this.name, 160, 58)
+    ctx.fillText(this.name, 128, 42)
 
     const texture = new THREE.CanvasTexture(canvas)
-    const material = new THREE.SpriteMaterial({ map: texture, transparent: true })
+    const material = new THREE.SpriteMaterial({
+      map: texture,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    })
     const sprite = new THREE.Sprite(material)
-    sprite.position.set(0, 2.15, 0)
-    sprite.scale.set(1.6, 0.4, 1)
+    sprite.center.set(0.5, 0.5)
+    sprite.position.set(0, 2.05, 0)
+    sprite.scale.set(1.1, 0.28, 1)
+    sprite.renderOrder = 999
 
     this.nameplateSprite = sprite
     this.mesh.add(sprite)

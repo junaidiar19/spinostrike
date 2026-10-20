@@ -178,6 +178,10 @@ export class ItalianVilla {
 
     // Overhead Stone Arch Bridge connecting Campanile to Piazza East
     this.createSkybridge(24, 4.5, 0, 16, 0.4, 4, physics)
+    // Stone Archway Support Pillars under Skybridge
+    this.createWall(16.5, 2.25, 0, 1.2, 4.5, 4.2, physics)
+    this.createWall(24, 2.25, -1.8, 14, 4.5, 0.6, physics)
+    this.createWall(24, 2.25, 1.8, 14, 4.5, 0.6, physics)
 
     // ==========================================================
     // 6. KEDAI KOPI & BISTRO NUSANTARA + WINE CELLAR (WEST WING)
@@ -187,8 +191,9 @@ export class ItalianVilla {
     // Wine Cellar Building Body at (-34, 2.5, -16) (w = 18, h = 5, d = 16)
     this.createWall(-34, 2.5, -16, 18, 5, 16, physics)
 
-    // Overhead Arch Bridge connecting West buildings at y = 4.5m
+    // Overhead Arch Bridge connecting West buildings at y = 4.5m with arch supports
     this.createSkybridge(-34, 4.5, -4, 4, 0.4, 8, physics)
+    this.createWall(-32.2, 2.25, -4, 0.6, 4.5, 8.0, physics)
 
     // Bistro Outdoor Pergola / Cafe Tables
     this.createCrate(-22, 1, 6, 3, 2, 2, physics)

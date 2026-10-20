@@ -5,6 +5,20 @@ import { MAP_METADATA } from '../../game/maps/MapManager'
 import { gameEngine } from '../../game/core/GameEngine'
 import type { MapId } from '../../types/game.types'
 
+import dustArenaThumb from '../../assets/maps/dust_arena.jpg'
+import warehouseThumb from '../../assets/maps/warehouse.jpg'
+import arcticOutpostThumb from '../../assets/maps/arctic_outpost.jpg'
+import italianVillaThumb from '../../assets/maps/italian_villa.jpg'
+import cargoHarborThumb from '../../assets/maps/cargo_harbor.jpg'
+
+const MAP_PREVIEWS: Record<string, string> = {
+  dust_arena: dustArenaThumb,
+  warehouse: warehouseThumb,
+  arctic_outpost: arcticOutpostThumb,
+  italian_villa: italianVillaThumb,
+  cargo_harbor: cargoHarborThumb
+}
+
 interface Props {
   onClose: () => void
 }
@@ -37,18 +51,34 @@ export const MapSelectModal: React.FC<Props> = ({ onClose }) => {
         <div className="map-cards-grid">
           {mapList.map((map) => {
             const isSelected = currentMap === map.id
+            const imageSrc = MAP_PREVIEWS[map.id] || map.previewImage
             return (
               <div
                 key={map.id}
                 className={`map-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => handleSelectMap(map.id)}
               >
-                <div className="map-card-thumbnail-wrapper">
+                <div
+                  className="map-card-thumbnail-wrapper"
+                  style={{
+                    backgroundColor: '#0f172a',
+                    backgroundImage: `radial-gradient(circle at 50% 50%, ${map.accentColor}22 0%, #0f172a 100%)`
+                  }}
+                >
                   <img
-                    src={map.previewImage}
+                    src={imageSrc}
                     alt={map.name}
                     className="map-card-thumbnail-img"
-                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget
+                      if (!target.dataset.fallback) {
+                        target.dataset.fallback = '1'
+                        target.src = `/maps/${map.id}.jpg`
+                      } else if (target.dataset.fallback === '1') {
+                        target.dataset.fallback = '2'
+                        target.src = `./maps/${map.id}.jpg`
+                      }
+                    }}
                   />
                   <div className="map-card-thumbnail-overlay" />
                   <div

@@ -10,43 +10,14 @@ export const MatchNotification: React.FC = () => {
   const matchGraceTimer = useGameStore((state) => state.matchGraceTimer)
   const spawnProtection = useGameStore((state) => state.spawnProtection)
   const isMobile = useGameStore((state) => state.isMobile)
-  const scoreboard = useGameStore((state) => state.scoreboard)
   const setIsScoreboardOpen = useGameStore((state) => state.setIsScoreboardOpen)
   const ammoToast = useGameStore((state) => state.ammoToast)
-
-  const ctScore = scoreboard
-    .filter((p) => p.team === 'CT')
-    .reduce((acc, p) => acc + p.kills, 0)
-  const tScore = scoreboard
-    .filter((p) => p.team === 'T')
-    .reduce((acc, p) => acc + p.kills, 0)
 
   const isPointerLocked = gameEngine.inputManager?.isPointerLocked ?? false
 
   return (
     <>
-      {/* 1. Top HUD Match Score Bar (Clickable to open Scoreboard anytime) */}
-      <div
-        className="hud-match-score-pill"
-        onClick={() => setIsScoreboardOpen(true)}
-        title="Klik untuk membuka Tabel Skor lengkap (atau tekan TAB)"
-      >
-        <div className="match-score-team ct">
-          <span className="team-code">CT</span>
-          <span className="team-num">{ctScore}</span>
-        </div>
-        <div className="match-score-vs">
-          <Trophy size={14} className="trophy-icon" />
-          <span>VS</span>
-        </div>
-        <div className="match-score-team t">
-          <span className="team-num">{tScore}</span>
-          <span className="team-code">T</span>
-        </div>
-        <div className="match-score-tab-hint">TAB</div>
-      </div>
-
-      {/* 2. Tactical Hideout Preparation Grace Banner */}
+      {/* 1. Tactical Hideout Preparation Grace Banner */}
       {matchGraceTimer > 0 && (
         <div className="tactical-banner-container grace-banner">
           <div className="tactical-banner-badge">

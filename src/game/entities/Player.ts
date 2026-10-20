@@ -5,6 +5,8 @@ import { WeaponModelGenerator } from '../weapons/WeaponModelGenerator'
 import { WEAPON_DEFINITIONS } from '../weapons/definitions/weapons'
 import { useGameStore } from '../../stores/useGameStore'
 import { realtimeManager } from '../../services/supabase/realtime'
+import { radarManager } from '../core/RadarManager'
+import { useRoomStore } from '../../stores/useRoomStore'
 import type { WeaponId, WeaponSlot } from '../../types/game.types'
 
 export class Player {
@@ -170,7 +172,13 @@ export class Player {
     const eyeHeight = this.isCrouching ? 1.15 : 1.65
     const currentFeetY = this.position.y - eyeHeight
 
-    // 1. Vertical Physics & Surface Height
+    // 1. Horizontal Movement Candidate (Target position)
+    let targetX = this.position.x + this.velocity.x * dt
+    let targetZ = this.position.z + this.velocity.z * dt
+
+    // 2. Vertical Physics & Elevated Surface Floor Detection
+    // Allows stepping up (0.55m) and jumping onto crates / platforms
+    const stepUpTolerance = this.isGrounded ? 0.55 : 0.45
     const nextY = this.position.y + this.velocity.y * dt
     let floorY = 0
 
@@ -178,17 +186,18 @@ export class Player {
     for (const mesh of collidableMeshes) {
       if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
       const box: THREE.Box3 = mesh.userData.box3 || (mesh.userData.box3 = new THREE.Box3().setFromObject(mesh))
-      if (box.max.y <= 0.05) continue // skip ground
+      if (box.max.y <= 0.05) continue // skip flat ground
 
-      // Only treat as floor if player's feet are ALREADY at or above the top surface!
-      // (Step-up tolerance max 0.25m, preventing walking up walls or tall crates)
-      if (currentFeetY >= box.max.y - 0.25) {
-        if (
-          this.position.x + playerRadius * 0.4 > box.min.x &&
-          this.position.x - playerRadius * 0.4 < box.max.x &&
-          this.position.z + playerRadius * 0.4 > box.min.z &&
-          this.position.z - playerRadius * 0.4 < box.max.z
-        ) {
+      // Check if player's horizontal footprint overlaps this obstacle at target position
+      const overlapsHorizontally =
+        targetX + playerRadius * 0.85 > box.min.x &&
+        targetX - playerRadius * 0.85 < box.max.x &&
+        targetZ + playerRadius * 0.85 > box.min.z &&
+        targetZ - playerRadius * 0.85 < box.max.z
+
+      if (overlapsHorizontally) {
+        // Can player step up or land on this surface?
+        if (currentFeetY + stepUpTolerance >= box.max.y) {
           if (box.max.y > floorY) {
             floorY = box.max.y
           }
@@ -206,22 +215,21 @@ export class Player {
       this.isGrounded = false
     }
 
-    // 2. Horizontal Movement Candidate
-    let targetX = this.position.x + this.velocity.x * dt
-    let targetZ = this.position.z + this.velocity.z * dt
-
-    const playerBottom = this.position.y - eyeHeight + 0.15
-    const playerTop = this.position.y + 0.15
-
-    // Multi-pass Circle-AABB Minimum Translation Vector (MTV) Penetration Resolution
+    // 3. Multi-pass Circle-AABB Minimum Translation Vector (MTV) Penetration Resolution
+    const playerFeetY = this.position.y - eyeHeight
     for (let pass = 0; pass < 3; pass++) {
       for (const mesh of collidableMeshes) {
         if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
         const box: THREE.Box3 = mesh.userData.box3 || (mesh.userData.box3 = new THREE.Box3().setFromObject(mesh))
         if (box.max.y <= 0.05) continue // skip ground
 
-        // Check if player body vertically overlaps with obstacle
-        // If player is on top of obstacle, skip horizontal collision
+        // If player is on top of or standing on this obstacle, do not treat it as a side wall!
+        if (playerFeetY >= box.max.y - 0.25) continue
+
+        // Check if player body vertically overlaps with obstacle side walls
+        const playerBottom = playerFeetY + 0.1
+        const playerTop = this.position.y + 0.15
+
         if (playerBottom < box.max.y && playerTop > box.min.y) {
           // Find closest point on obstacle box to player (targetX, targetZ)
           const closestX = Math.max(box.min.x, Math.min(box.max.x, targetX))
@@ -388,6 +396,10 @@ export class Player {
     const shootOrigin = this.camera.position.clone()
     const allHitTargets = [...targetMeshes, ...collidableMeshes]
     this.bulletManager.fireBullet(shootOrigin, shootDir, activeId, allHitTargets)
+
+    // Radar gunfire ping
+    const myTeam = useRoomStore.getState().myTeam
+    radarManager.addGunfirePing(this.position.x, this.position.z, myTeam)
 
     // Broadcast shoot to Supabase Realtime room
     if (realtimeManager.currentRoomId) {

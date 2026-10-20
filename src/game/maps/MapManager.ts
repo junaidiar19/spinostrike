@@ -42,7 +42,7 @@ export const MAP_METADATA: Record<MapId, MapMetadata> = {
     theme: 'European Mediterranean',
     description: 'Kota klasik Eropa 120m x 120m dengan alun-alun piazza marmer, menara lonceng campanile 8.5m, Bistro & Kedai Kopi Nusantara, lorong gudang anggur, dan balkon duel atap villa.',
     accentColor: '#ea580c',
-    previewImage: '/maps/italian_villa.svg'
+    previewImage: '/maps/italian_villa.jpg'
   },
   cargo_harbor: {
     id: 'cargo_harbor',
@@ -51,7 +51,7 @@ export const MAP_METADATA: Record<MapId, MapMetadata> = {
     theme: 'Maritime Industrial',
     description: 'Dermaga pelabuhan samudra 120m x 120m dengan catwalk derek gantry 8.8m, terminal pabean & karantina bea cukai, labirin kontainer 3 tingkat, tepian dermaga kapal, dan rambu maritim.',
     accentColor: '#eab308',
-    previewImage: '/maps/cargo_harbor.svg'
+    previewImage: '/maps/cargo_harbor.jpg'
   }
 }
 

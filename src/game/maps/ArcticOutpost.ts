@@ -208,8 +208,29 @@ export class ArcticOutpost {
     // Skywalk Bridges seamlessly connecting Tower Mid-Level (y = 5.0m) to East and West bunkers
     // Skywalk East: span from x = 4.2 to 24 (Length 20m at y = 5.0m)
     this.createSkywalk(14, 5.0, 0, 20, 0.3, 3.5, physics)
+    // Skywalk East L-Junction: docks directly into Fuel Depot roof at z = -5
+    this.createSkywalk(24, 5.0, -2.5, 3.5, 0.3, 5.0, physics)
+
     // Skywalk West: span from x = -4.2 to -24 (Length 20m at y = 5.0m)
     this.createSkywalk(-14, 5.0, 0, 20, 0.3, 3.5, physics)
+    // Skywalk West L-Junction: docks directly into Radar Bunker roof at z = -5
+    this.createSkywalk(-24, 5.0, -2.5, 3.5, 0.3, 5.0, physics)
+
+    // Heavy Steel Structural Trestle Pillars supporting Skywalk Bridges from ground
+    const bridgePillars = [
+      [14, 0], [24, 0], [24, -4.5],
+      [-14, 0], [-24, 0], [-24, -4.5]
+    ]
+    const bPillarGeom = new THREE.BoxGeometry(0.8, 5.0, 0.8)
+    const bPillarMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.7 })
+    bridgePillars.forEach(([bx, bz]) => {
+      const col = new THREE.Mesh(bPillarGeom, bPillarMat)
+      col.position.set(bx, 2.5, bz)
+      col.castShadow = true
+      this.group.add(col)
+      this.collidableMeshes.push(col)
+      physics.createBox(bx, 2.5, bz, 0.4, 2.5, 0.4, true)
+    })
 
     // Tower Indonesian Signs
     this.createSign(0, 8.0, -4.0, 5, 1.4, 0, 'MENARA OBSERVASI UTAMA', 'POS PENEMBAK JITU KETINGGIAN 7.5M', { theme: 'military', code: 'SNIPER-TOWER' })
@@ -278,6 +299,32 @@ export class ArcticOutpost {
     this.createBarrel(14, 0, 19.5, physics)
     this.createBarrel(-14, 0, 18, physics)
     this.createBarrel(-14, 0, -18, physics)
+
+    // ==========================================================
+    // 9. ARCHITECTURAL FLOODLIGHT MASTS & SUB-ZERO BUNKER TRIMS
+    // ==========================================================
+    const mastLocations = [
+      [48, 48], [-48, 48], [48, -48], [-48, -48]
+    ]
+    const mastMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.8 })
+    const lampMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe })
+
+    mastLocations.forEach(([mx, mz]) => {
+      // 8m steel utility mast pole
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.25, 8.5, 8), mastMat)
+      mast.position.set(mx, 4.25, mz)
+      this.group.add(mast)
+
+      // Searchlight head
+      const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.8), mastMat)
+      head.position.set(mx, 8.3, mz)
+      this.group.add(head)
+
+      // Glowing lens
+      const lens = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 8), lampMat)
+      lens.position.set(mx, 8.3, mz)
+      this.group.add(lens)
+    })
   }
 
   private createCryoTank(x: number, y: number, z: number, physics: PhysicsWorld) {

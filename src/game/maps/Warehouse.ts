@@ -156,6 +156,25 @@ export class Warehouse {
     // Skybridge center cover box
     this.createCrate(0, 4.2, 0, 2, 1.6, 2, physics)
 
+    // Structural Steel I-Beam Columns supporting Catwalks & Central Skybridge
+    const pillarGeom = new THREE.BoxGeometry(0.8, 3.2, 0.8)
+    const pillarCoords = [
+      // Skybridge pillars
+      [-20, 0], [-10, 0], [10, 0], [20, 0],
+      // East catwalk pillars
+      [32, -22], [32, 0], [32, 22],
+      // West catwalk pillars
+      [-32, -22], [-32, 0], [-32, 22]
+    ]
+    pillarCoords.forEach(([px, pz]) => {
+      const pillar = new THREE.Mesh(pillarGeom, this.girderMat)
+      pillar.position.set(px, 1.6, pz)
+      pillar.castShadow = true
+      this.group.add(pillar)
+      this.collidableMeshes.push(pillar)
+      physics.createBox(px, 1.6, pz, 0.4, 1.6, 0.4, true)
+    })
+
     // Ramps to Catwalks (4 Ramps)
     this.createRamp(32, 1.6, 32, 4, 0.3, 10, 0.32, physics)
     this.createRamp(32, 1.6, -32, 4, 0.3, 10, -0.32, physics)
@@ -231,6 +250,63 @@ export class Warehouse {
     barrelLocations.forEach(([bx, by, bz]) => {
       this.createBarrel(bx, by, bz, physics)
     })
+
+    // ==========================================================
+    // 8. ARCHITECTURAL OVERHEAD STEEL TRUSSES & INDUSTRIAL HIGH-BAY LIGHTS
+    // ==========================================================
+    const trussInterval = 20
+    for (let tz = -40; tz <= 40; tz += trussInterval) {
+      // Main steel crossbeam spanning the warehouse (93m wide)
+      const truss = new THREE.Mesh(new THREE.BoxGeometry(93, 0.55, 0.55), this.girderMat)
+      truss.position.set(0, 8.6, tz)
+      truss.castShadow = true
+      this.group.add(truss)
+
+      // 3x High-Bay Industrial Floodlight Lamps hanging from each truss
+      for (const lx of [-26, 0, 26]) {
+        // Drop cable
+        const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.3, 6), this.girderMat)
+        cable.position.set(lx, 7.95, tz)
+        this.group.add(cable)
+
+        // Industrial reflector shade
+        const shade = new THREE.Mesh(new THREE.ConeGeometry(0.75, 0.45, 12, 1, true), this.wallMat)
+        shade.position.set(lx, 7.3, tz)
+        this.group.add(shade)
+
+        // Glowing emissive lamp bulb
+        const bulb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.22, 8, 8),
+          new THREE.MeshBasicMaterial({ color: 0xfffae0 })
+        )
+        bulb.position.set(lx, 7.15, tz)
+        this.group.add(bulb)
+      }
+    }
+
+    // Concrete Protective Wall Skirting around perimeter
+    const skirtingMat = new THREE.MeshStandardMaterial({
+      color: 0x1e293b,
+      roughness: 0.8,
+      metalness: 0.2
+    })
+    const skirtNSGeom = new THREE.BoxGeometry(94, 0.35, 0.4)
+    const skirtN = new THREE.Mesh(skirtNSGeom, skirtingMat)
+    skirtN.position.set(0, 0.17, -56.3)
+    this.group.add(skirtN)
+
+    const skirtS = new THREE.Mesh(skirtNSGeom, skirtingMat)
+    skirtS.position.set(0, 0.17, 56.3)
+    this.group.add(skirtS)
+
+    const skirtEWGeom = new THREE.BoxGeometry(0.4, 0.35, 114)
+    const skirtW = new THREE.Mesh(skirtEWGeom, skirtingMat)
+    skirtW.position.set(-46.3, 0.17, 0)
+    this.group.add(skirtW)
+
+    const skirtE = new THREE.Mesh(skirtEWGeom, skirtingMat)
+    skirtE.position.set(46.3, 0.17, 0)
+    this.group.add(skirtE)
   }
 
   private createSign(

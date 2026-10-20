@@ -20,6 +20,20 @@ import { WEAPON_DEFINITIONS } from '../../game/weapons/definitions/weapons'
 import { audioManager } from '../../game/core/AudioManager'
 import type { WeaponId } from '../../types/game.types'
 
+import dustArenaThumb from '../../assets/maps/dust_arena.jpg'
+import warehouseThumb from '../../assets/maps/warehouse.jpg'
+import arcticOutpostThumb from '../../assets/maps/arctic_outpost.jpg'
+import italianVillaThumb from '../../assets/maps/italian_villa.jpg'
+import cargoHarborThumb from '../../assets/maps/cargo_harbor.jpg'
+
+const MAP_PREVIEWS: Record<string, string> = {
+  dust_arena: dustArenaThumb,
+  warehouse: warehouseThumb,
+  arctic_outpost: arcticOutpostThumb,
+  italian_villa: italianVillaThumb,
+  cargo_harbor: cargoHarborThumb
+}
+
 interface Props {
   onOpenMapSelect: () => void
   onOpenLoadout: () => void
@@ -126,8 +140,19 @@ export const MainMenu: React.FC<Props> = ({
 
             {/* Current Match Briefing Bar */}
             <div className="match-briefing-strip">
-              <div className="briefing-item" onClick={onOpenMapSelect}>
-                <MapPin size={18} className="briefing-icon" />
+              <div className="briefing-item briefing-map-item" onClick={onOpenMapSelect} title="Klik untuk memilih map">
+                <img
+                  src={MAP_PREVIEWS[currentMapMeta.id] || currentMapMeta.previewImage}
+                  alt={currentMapMeta.name}
+                  className="briefing-map-thumb"
+                  onError={(e) => {
+                    const target = e.currentTarget
+                    if (!target.dataset.triedFallback) {
+                      target.dataset.triedFallback = '1'
+                      target.src = `/maps/${currentMapMeta.id}.jpg`
+                    }
+                  }}
+                />
                 <div className="briefing-text">
                   <span className="briefing-label">DEPLOYMENT MAP</span>
                   <span className="briefing-val">{currentMapMeta.name}</span>

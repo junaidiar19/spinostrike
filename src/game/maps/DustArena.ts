@@ -235,6 +235,51 @@ export class DustArena {
     this.createBarrel(-6, 0, -4, physics)
     this.createBarrel(22, 0, 12, physics)
     this.createBarrel(-22, 0, -14, physics)
+
+    // ==========================================================
+    // 8. ARCHITECTURAL DETAILS: STONE COPINGS & BOMB ZONE MARKINGS
+    // ==========================================================
+    const copingMat = new THREE.MeshStandardMaterial({
+      color: 0x8a6635,
+      roughness: 0.85
+    })
+
+    // Fortress wall stone coping trims along perimeter
+    const copingNS = new THREE.BoxGeometry(118, 0.4, 2.4)
+    const capN = new THREE.Mesh(copingNS, copingMat)
+    capN.position.set(0, 9.2, -59)
+    this.group.add(capN)
+
+    const capS = new THREE.Mesh(copingNS, copingMat)
+    capS.position.set(0, 9.2, 59)
+    this.group.add(capS)
+
+    const copingEW = new THREE.BoxGeometry(2.4, 0.4, 118)
+    const capW = new THREE.Mesh(copingEW, copingMat)
+    capW.position.set(-59, 9.2, 0)
+    this.group.add(capW)
+
+    const capE = new THREE.Mesh(copingEW, copingMat)
+    capE.position.set(59, 9.2, 0)
+    this.group.add(capE)
+
+    // Tactical Bomb Zone Blast Circle Decals on A & B Sites
+    const blastGeom = new THREE.RingGeometry(2.8, 3.4, 24)
+    const blastMatA = new THREE.MeshBasicMaterial({
+      color: 0xef4444,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.75
+    })
+    const blastA = new THREE.Mesh(blastGeom, blastMatA)
+    blastA.rotation.x = -Math.PI / 2
+    blastA.position.set(34, 1.62, -25) // Flush on A-site platform
+    this.group.add(blastA)
+
+    const blastB = new THREE.Mesh(blastGeom, blastMatA)
+    blastB.rotation.x = -Math.PI / 2
+    blastB.position.set(-34, 0.02, -25) // Flush on B-site floor
+    this.group.add(blastB)
   }
 
   private createMarketStall(x: number, y: number, z: number, physics: PhysicsWorld) {
