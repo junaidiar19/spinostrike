@@ -167,26 +167,29 @@ export class Warehouse {
     this.createSign(-32, 4.8, 0, 4.5, 1.5, Math.PI / 2, 'JEMBATAN GANTUNG TENGAH', 'ZONA ELEVASI OPERASIONAL', { theme: 'military' })
 
     // ==========================================================
-    // 5. CENTRAL 3-TIER STACKED CONTAINERS & STORAGE FORTRESS
+    // 5. ORGANIZED LOGISTICS CONTAINERS & STORAGE BLOCKS
     // ==========================================================
-    // Center stacks (Red, Blue, Green)
-    this.createContainer(0, 1.5, 0, 3.2, 3, 12, this.redContainerMat, physics)
-    this.createContainer(0, 4.5, 0, 3.2, 3, 12, this.blueContainerMat, physics) // Tier 2!
-    this.createContainer(0, 7.5, 0, 3.2, 3, 10, this.greenContainerMat, physics) // Tier 3!
+    // North Center Stack (Red & Blue at z = -14)
+    this.createContainer(0, 1.5, -14, 3.2, 3, 10, this.redContainerMat, physics)
+    this.createContainer(0, 4.5, -14, 3.2, 3, 10, this.blueContainerMat, physics)
 
-    // Flank container blocks
-    this.createContainer(-15, 1.5, 14, 7, 3, 3, this.blueContainerMat, physics)
-    this.createContainer(15, 1.5, 14, 7, 3, 3, this.redContainerMat, physics)
-    this.createContainer(-15, 1.5, -14, 7, 3, 3, this.greenContainerMat, physics)
-    this.createContainer(15, 1.5, -14, 7, 3, 3, this.blueContainerMat, physics)
+    // South Center Stack (Blue & Green at z = 14)
+    this.createContainer(0, 1.5, 14, 3.2, 3, 10, this.blueContainerMat, physics)
+    this.createContainer(0, 4.5, 14, 3.2, 3, 10, this.greenContainerMat, physics)
 
-    // Stacked second level flank containers
-    this.createContainer(-15, 4.5, 14, 7, 3, 3, this.redContainerMat, physics)
-    this.createContainer(15, 4.5, -14, 7, 3, 3, this.redContainerMat, physics)
+    // Flank container blocks (West & East at z = 0)
+    this.createContainer(-16, 1.5, 0, 3.2, 3, 10, this.greenContainerMat, physics)
+    this.createContainer(16, 1.5, 0, 3.2, 3, 10, this.redContainerMat, physics)
+
+    // Secondary perimeter containers
+    this.createContainer(-15, 1.5, 20, 7, 3, 3, this.blueContainerMat, physics)
+    this.createContainer(15, 1.5, 20, 7, 3, 3, this.redContainerMat, physics)
+    this.createContainer(-15, 1.5, -20, 7, 3, 3, this.greenContainerMat, physics)
+    this.createContainer(15, 1.5, -20, 7, 3, 3, this.blueContainerMat, physics)
 
     // Central Stacks Signboards
-    this.createSign(0, 2.5, 6.2, 4.5, 1.4, 0, 'PINTU DARURAT EVAKUASI ▲', 'JANGAN HALANGI AKSES KELUAR', { theme: 'info', arrow: 'up' })
-    this.createSign(0, 2.5, -6.2, 4.5, 1.4, Math.PI, 'JALUR FORKLIFT AKTIF', 'AWAS KENDARAAN OPERASIONAL', { theme: 'warning' })
+    this.createSign(0, 2.5, 8.8, 4.5, 1.4, Math.PI, 'PINTU DARURAT EVAKUASI ▲', 'JANGAN HALANGI AKSES KELUAR', { theme: 'info', arrow: 'up' })
+    this.createSign(0, 2.5, -8.8, 4.5, 1.4, 0, 'JALUR FORKLIFT AKTIF', 'AWAS KENDARAAN OPERASIONAL', { theme: 'warning' })
 
     // ==========================================================
     // 6. INDUSTRIAL HIGH STEEL GIRDERS & STORAGE RACKS

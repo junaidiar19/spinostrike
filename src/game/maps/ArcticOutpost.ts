@@ -183,21 +183,33 @@ export class ArcticOutpost {
     this.collidableMeshes.push(towerFloor)
     physics.createBox(0, 7.2, 0, 4.25, 0.2, 4.25, true)
 
+    // Tower Mid-Level Staging Platform (8.5m x 8.5m at y = 5.0m) seamlessly docking East & West Skywalks
+    const towerMidFloor = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.3, 8.5), this.metalCatwalkMat)
+    towerMidFloor.position.set(0, 5.0, 0)
+    towerMidFloor.receiveShadow = true
+    this.group.add(towerMidFloor)
+    this.collidableMeshes.push(towerMidFloor)
+    physics.createBox(0, 5.0, 0, 4.25, 0.15, 4.25, true)
+
     // Tower parapet railing cover for snipers (1.2m high)
     this.createCoverWall(0, 8.0, -4.2, 8.5, 1.2, 0.3, physics)
     this.createCoverWall(0, 8.0, 4.2, 8.5, 1.2, 0.3, physics)
     this.createCoverWall(-4.2, 8.0, 0, 0.3, 1.2, 8.5, physics)
     this.createCoverWall(4.2, 8.0, 0, 0.3, 1.2, 8.5, physics)
 
-    // Ramps to Tower from South & North
-    this.createRamp(0, 3.6, 8.5, 3.0, 0.3, 9.5, -Math.PI / 5.5, physics)
-    this.createRamp(0, 3.6, -8.5, 3.0, 0.3, 9.5, Math.PI / 5.5, physics)
+    // Ramps to Tower Apex from South & North
+    this.createRamp(0, 6.1, 4.2, 2.5, 0.25, 4.8, -Math.PI / 7, physics)
+    this.createRamp(0, 6.1, -4.2, 2.5, 0.25, 4.8, Math.PI / 7, physics)
 
-    // Skywalk Bridges connecting Tower (y = 5.5m level) to East and West bunkers
-    // Skywalk East: span from x = 4.2 to 24 (Length 20m at y = 5.2m)
-    this.createSkywalk(14, 5.2, 0, 20, 0.3, 3.5, physics)
-    // Skywalk West: span from x = -4.2 to -24 (Length 20m at y = 5.2m)
-    this.createSkywalk(-14, 5.2, 0, 20, 0.3, 3.5, physics)
+    // Ground Access Ramps to Mid-Level (from y = 0 to y = 5.0)
+    this.createRamp(0, 2.5, 12, 3.0, 0.3, 11, -Math.PI / 7.5, physics)
+    this.createRamp(0, 2.5, -12, 3.0, 0.3, 11, Math.PI / 7.5, physics)
+
+    // Skywalk Bridges seamlessly connecting Tower Mid-Level (y = 5.0m) to East and West bunkers
+    // Skywalk East: span from x = 4.2 to 24 (Length 20m at y = 5.0m)
+    this.createSkywalk(14, 5.0, 0, 20, 0.3, 3.5, physics)
+    // Skywalk West: span from x = -4.2 to -24 (Length 20m at y = 5.0m)
+    this.createSkywalk(-14, 5.0, 0, 20, 0.3, 3.5, physics)
 
     // Tower Indonesian Signs
     this.createSign(0, 8.0, -4.0, 5, 1.4, 0, 'MENARA OBSERVASI UTAMA', 'POS PENEMBAK JITU KETINGGIAN 7.5M', { theme: 'military', code: 'SNIPER-TOWER' })

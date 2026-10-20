@@ -66,12 +66,13 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     } catch {
       // ignore
     }
-    // Sync to Auth Store for multiplayer room presence
+    // Sync to Realtime & Auth Store for multiplayer room presence
+    import('../services/supabase/realtime').then(({ realtimeManager }) => {
+      realtimeManager.updatePlayerName(clean)
+    }).catch(() => {})
     import('./useAuthStore').then(({ useAuthStore }) => {
       useAuthStore.getState().updateNickname(clean)
-    }).catch(() => {
-      // ignore
-    })
+    }).catch(() => {})
   },
   setMouseSensitivity: (mouseSensitivity) => {
     saveStored('mouseSensitivity', mouseSensitivity)

@@ -360,6 +360,61 @@ class AudioManager {
     noiseNode.stop(now + 0.09)
   }
 
+  public playVictorySound() {
+    if (!this.ctx || !this.sfxGain) return
+    this.resume()
+    const now = this.ctx.currentTime
+
+    // Triumphant Fanfare Arpeggio: C5 -> E5 -> G5 -> C6
+    const notes = [523.25, 659.25, 783.99, 1046.50]
+    notes.forEach((freq, idx) => {
+      const time = now + idx * 0.15
+      const osc = this.ctx!.createOscillator()
+      const gain = this.ctx!.createGain()
+      osc.type = 'sawtooth'
+      osc.frequency.setValueAtTime(freq, time)
+
+      const filter = this.ctx!.createBiquadFilter()
+      filter.type = 'lowpass'
+      filter.frequency.setValueAtTime(2400, time)
+
+      gain.gain.setValueAtTime(0.3, time)
+      gain.gain.exponentialRampToValueAtTime(0.01, time + (idx === 3 ? 1.2 : 0.4))
+
+      osc.connect(filter)
+      filter.connect(gain)
+      gain.connect(this.sfxGain!)
+
+      osc.start(time)
+      osc.stop(time + (idx === 3 ? 1.25 : 0.45))
+    })
+  }
+
+  public playDefeatSound() {
+    if (!this.ctx || !this.sfxGain) return
+    this.resume()
+    const now = this.ctx.currentTime
+
+    // Somber descending chords: G3 -> E3 -> C3 -> B2
+    const notes = [196.00, 164.81, 130.81, 123.47]
+    notes.forEach((freq, idx) => {
+      const time = now + idx * 0.28
+      const osc = this.ctx!.createOscillator()
+      const gain = this.ctx!.createGain()
+      osc.type = 'triangle'
+      osc.frequency.setValueAtTime(freq, time)
+
+      gain.gain.setValueAtTime(0.4, time)
+      gain.gain.exponentialRampToValueAtTime(0.01, time + 0.8)
+
+      osc.connect(gain)
+      gain.connect(this.sfxGain!)
+
+      osc.start(time)
+      osc.stop(time + 0.85)
+    })
+  }
+
   private createNoiseBuffer(duration: number): AudioBuffer {
     if (!this.ctx) throw new Error('No audio context')
     const bufferSize = this.ctx.sampleRate * duration

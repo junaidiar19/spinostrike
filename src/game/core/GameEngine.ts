@@ -179,6 +179,7 @@ export class GameEngine {
     this.player.initWeapon(activeWeapon)
 
     const store = useGameStore.getState()
+    store.restartMatch()
     store.setHealth(100)
     store.setArmor(100)
     store.setMatchGraceTimer(5) // 5-second tactical preparation in spawn hideout
@@ -236,8 +237,11 @@ export class GameEngine {
     // 1. Step Physics
     this.physics.step(dt)
 
-    // Manage Tactical Timers (Grace Period, Spawn Protection & Respawn)
+    // Manage Tactical Timers (Match Timer, Grace Period, Spawn Protection & Respawn)
     const store = useGameStore.getState()
+    if (!store.isMatchEnded) {
+      store.tickMatchTimer(dt)
+    }
     if (store.matchGraceTimer > 0) {
       store.setMatchGraceTimer(Math.max(0, store.matchGraceTimer - dt))
     }

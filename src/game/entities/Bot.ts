@@ -39,6 +39,7 @@ export class Bot {
   private burstInterval = 0.26
   private reactionDelay = 1.4
   private alertTimer = 0
+  private stuckTimer = 0
 
   // Respawn
   private respawnTimer = 0
@@ -102,7 +103,7 @@ export class Bot {
       // Teammate bot: Never target or shoot players on the same team!
       this.state = 'PATROL'
       this.alertTimer = 0
-      this.patrol(dt)
+      this.patrol(dt, collidableMeshes)
     } else {
       // Enemy bot: Check Line of Sight to player (only targetable if alive, past grace period, and no spawn shield)
       const isPlayerTargetable = !gameStore.isPlayerDead && gameStore.spawnProtection <= 0 && gameStore.matchGraceTimer <= 0
@@ -129,7 +130,7 @@ export class Bot {
       } else {
         this.state = 'PATROL'
         this.alertTimer = 0
-        this.patrol(dt)
+        this.patrol(dt, collidableMeshes)
       }
     }
 
@@ -254,27 +255,101 @@ export class Bot {
     }
   }
 
-  private patrol(dt: number) {
+  private patrol(dt: number, collidableMeshes: THREE.Object3D[]) {
     if (this.waypoints.length === 0) {
       this.isMoving = false
       return
     }
 
     const targetWaypoint = this.waypoints[this.currentWaypointIndex]
-    const dir = new THREE.Vector3().subVectors(targetWaypoint, this.position).setY(0)
-    const dist = dir.length()
+    const toWaypoint = new THREE.Vector3().subVectors(targetWaypoint, this.position).setY(0)
+    const dist = toWaypoint.length()
 
-    if (dist < 1.2) {
+    if (dist < 1.4) {
       this.isMoving = false
       // Pick random next waypoint
       this.currentWaypointIndex = Math.floor(Math.random() * this.waypoints.length)
-    } else {
-      this.isMoving = true
-      dir.normalize()
-      this.position.addScaledVector(dir, this.moveSpeed * dt)
+      this.stuckTimer = 0
+      return
+    }
 
-      // Face direction of travel
-      const angle = Math.atan2(dir.x, dir.z)
+    this.isMoving = true
+    toWaypoint.normalize()
+
+    let targetX = this.position.x + toWaypoint.x * this.moveSpeed * dt
+    let targetZ = this.position.z + toWaypoint.z * this.moveSpeed * dt
+
+    const botRadius = 0.44
+    const botBottom = this.position.y + 0.15
+    const botTop = this.position.y + 1.8
+
+    // Multi-pass Circle-AABB Minimum Translation Vector (MTV) Penetration Resolution
+    for (let pass = 0; pass < 3; pass++) {
+      for (const mesh of collidableMeshes) {
+        if (!(mesh instanceof THREE.Mesh) || !mesh.geometry) continue
+        const box: THREE.Box3 = mesh.userData.box3 || (mesh.userData.box3 = new THREE.Box3().setFromObject(mesh))
+        if (box.max.y <= 0.05) continue // skip floor ground
+
+        // Check if bot body vertically overlaps with obstacle
+        if (botBottom < box.max.y && botTop > box.min.y) {
+          const closestX = Math.max(box.min.x, Math.min(box.max.x, targetX))
+          const closestZ = Math.max(box.min.z, Math.min(box.max.z, targetZ))
+
+          const diffX = targetX - closestX
+          const diffZ = targetZ - closestZ
+          const distSq = diffX * diffX + diffZ * diffZ
+
+          if (distSq < botRadius * botRadius) {
+            if (distSq > 0.0001) {
+              const d = Math.sqrt(distSq)
+              const overlap = botRadius - d
+              targetX += (diffX / d) * overlap
+              targetZ += (diffZ / d) * overlap
+            } else {
+              // Bot center is inside box: push out along shortest axis
+              const dLeft = targetX - box.min.x
+              const dRight = box.max.x - targetX
+              const dFront = targetZ - box.min.z
+              const dBack = box.max.z - targetZ
+              const minPen = Math.min(dLeft, dRight, dFront, dBack)
+
+              if (minPen === dLeft) targetX = box.min.x - botRadius
+              else if (minPen === dRight) targetX = box.max.x + botRadius
+              else if (minPen === dFront) targetZ = box.min.z - botRadius
+              else targetZ = box.max.z + botRadius
+            }
+          }
+        }
+      }
+    }
+
+    // Outer perimeter boundary clamp
+    targetX = Math.max(-56, Math.min(56, targetX))
+    targetZ = Math.max(-56, Math.min(56, targetZ))
+
+    // Check if bot actually made forward progress or is stuck against a wall
+    const movedDistSq = (targetX - this.position.x) ** 2 + (targetZ - this.position.z) ** 2
+    if (movedDistSq < (this.moveSpeed * dt * 0.12) ** 2) {
+      this.stuckTimer += dt
+      if (this.stuckTimer > 0.8) {
+        // Stuck against obstacle: switch to another waypoint to reroute!
+        this.currentWaypointIndex = Math.floor(Math.random() * this.waypoints.length)
+        this.stuckTimer = 0
+      }
+    } else {
+      this.stuckTimer = Math.max(0, this.stuckTimer - dt)
+    }
+
+    // Actual displacement vector
+    const actualDx = targetX - this.position.x
+    const actualDz = targetZ - this.position.z
+
+    this.position.x = targetX
+    this.position.z = targetZ
+
+    // Smoothly face actual direction of travel
+    if (actualDx * actualDx + actualDz * actualDz > 0.0001) {
+      const angle = Math.atan2(actualDx, actualDz)
       this.mesh.rotation.y = THREE.MathUtils.lerp(this.mesh.rotation.y, angle, dt * 6)
     }
   }

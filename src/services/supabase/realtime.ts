@@ -4,6 +4,7 @@ import { supabase } from './client'
 import { audioManager } from '../../game/core/AudioManager'
 import { useGameStore } from '../../stores/useGameStore'
 import { useRoomStore } from '../../stores/useRoomStore'
+import { useSettingsStore } from '../../stores/useSettingsStore'
 import { gameEngine } from '../../game/core/GameEngine'
 import { RemotePlayer } from '../../game/entities/RemotePlayer'
 import type { Team, WeaponId } from '../../types/game.types'
@@ -21,6 +22,7 @@ export interface RoomPlayerPresence {
 
 export interface PlayerMovePayload {
   id: string
+  name?: string
   x: number
   y: number
   z: number
@@ -136,6 +138,15 @@ export class RealtimeManager {
       .on('broadcast', { event: 'player_killed' }, ({ payload }) => {
         this.handleRemoteKill(payload as PlayerKillPayload)
       })
+      .on('broadcast', { event: 'player_renamed' }, ({ payload }) => {
+        if (!payload) return
+        const { id, name } = payload as { id: string; name: string }
+        const remotePlayer = this.remotePlayers.get(id)
+        if (remotePlayer) {
+          remotePlayer.updateName(name)
+        }
+        useGameStore.getState().updateRemotePlayerName(id, name)
+      })
 
     // 3. Subscribe & Track
     return new Promise((resolve) => {
@@ -171,8 +182,10 @@ export class RealtimeManager {
       if (store.gameStatus !== 'PLAYING') return
 
       const pos = gameEngine.player.position
+      const currentName = useSettingsStore.getState().playerName || 'Striker'
       const payload: PlayerMovePayload = {
         id: this.localPlayerId,
+        name: currentName,
         x: Number(pos.x.toFixed(3)),
         y: Number(pos.y.toFixed(3)),
         z: Number(pos.z.toFixed(3)),
@@ -244,6 +257,10 @@ export class RealtimeManager {
     if (data.id === this.localPlayerId) return
     const remote = this.remotePlayers.get(data.id)
     if (remote) {
+      if (data.name && remote.name !== data.name) {
+        remote.updateName(data.name)
+        useGameStore.getState().updateRemotePlayerName(data.id, data.name)
+      }
       // Offset eye height (1.65 standing / 1.0 crouching) so boots are firmly planted on the ground (y = 0)
       const eyeHeight = data.isCrouching ? 1.0 : 1.65
       const groundY = Math.max(0, data.y - eyeHeight)
@@ -335,6 +352,7 @@ export class RealtimeManager {
         return p
       })
       store.setScoreboard(updated)
+      store.incrementTeamScore(data.killerTeam)
     }
   }
 
@@ -350,7 +368,8 @@ export class RealtimeManager {
           if (cleanName.toLowerCase().startsWith('operative_')) {
             cleanName = 'Striker_' + p.id.slice(-4)
           }
-          this.getOrCreateRemotePlayer(p.id, cleanName, p.team)
+          const remote = this.getOrCreateRemotePlayer(p.id, cleanName, p.team)
+          remote.updateName(cleanName)
           store.addOrUpdatePlayerScore({
             id: p.id,
             name: cleanName,
@@ -418,6 +437,30 @@ export class RealtimeManager {
     })
     this.remotePlayers.clear()
     this.currentRoomId = null
+  }
+
+  public async updatePlayerName(newName: string) {
+    if (!this.channel || !this.localPlayerId) return
+    const myTeam = useRoomStore.getState().myTeam
+    try {
+      await this.channel.track({
+        id: this.localPlayerId,
+        name: newName,
+        team: myTeam,
+        kills: 0,
+        deaths: 0,
+        score: 0,
+        isReady: true,
+        joinedAt: Date.now()
+      })
+      await this.channel.send({
+        type: 'broadcast',
+        event: 'player_renamed',
+        payload: { id: this.localPlayerId, name: newName }
+      })
+    } catch {
+      // ignore
+    }
   }
 }
 

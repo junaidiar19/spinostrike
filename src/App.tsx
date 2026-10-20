@@ -12,6 +12,7 @@ import { SniperScope } from './ui/hud/SniperScope'
 import { Scoreboard } from './ui/hud/Scoreboard'
 import { DamageIndicator } from './ui/hud/DamageIndicator'
 import { MatchNotification } from './ui/hud/MatchNotification'
+import { MatchHeader } from './ui/hud/MatchHeader'
 import { MobileControls } from './ui/mobile/MobileControls'
 import { OrientationNotice } from './ui/mobile/OrientationNotice'
 import { MainMenu } from './ui/screens/MainMenu'
@@ -19,6 +20,7 @@ import { MapSelectModal } from './ui/screens/MapSelectModal'
 import { LoadoutModal } from './ui/screens/LoadoutModal'
 import { SettingsModal } from './ui/screens/SettingsModal'
 import { PauseModal } from './ui/screens/PauseModal'
+import { MatchEndModal } from './ui/screens/MatchEndModal'
 import { RoomLobbyModal } from './ui/screens/RoomLobbyModal'
 import { AuthModal } from './ui/screens/AuthModal'
 import './index.css'
@@ -94,6 +96,7 @@ export const App: React.FC = () => {
       {/* IN-GAME HUD (Visible during gameplay) */}
       {gameStatus === 'PLAYING' && isEngineReady && (
         <div className="hud-layer">
+          <MatchHeader />
           <Crosshair />
           <SniperScope />
           <HealthBar />
@@ -105,6 +108,9 @@ export const App: React.FC = () => {
           {isMobile && <MobileControls />}
         </div>
       )}
+
+      {/* MATCH END MODAL (Victory / Defeat / Draw) */}
+      <MatchEndModal onOpenMapSelect={() => setIsMapSelectOpen(true)} />
 
       {/* MAIN MENU */}
       {gameStatus === 'MENU' && (

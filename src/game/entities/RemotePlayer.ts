@@ -65,6 +65,12 @@ export class RemotePlayer {
     this.hitboxes = hitboxes
   }
 
+  public updateName(newName: string) {
+    if (this.name === newName) return
+    this.name = newName
+    this.createNameplate()
+  }
+
   public createNameplate() {
     if (this.nameplateSprite) {
       this.nameplateSprite.material.dispose()

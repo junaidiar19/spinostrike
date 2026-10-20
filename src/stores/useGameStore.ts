@@ -38,6 +38,12 @@ interface GameStoreState {
   spawnProtection: number
   lastWeaponId: WeaponId
   ammoToast: string | null
+  matchDuration: number
+  matchTimeRemaining: number
+  matchTargetKills: number
+  teamScores: { CT: number; T: number }
+  isMatchEnded: boolean
+  matchResult: 'VICTORY' | 'DEFEAT' | 'DRAW' | null
 
   // Actions
   setGameStatus: (status: GameStatus) => void
@@ -70,6 +76,7 @@ interface GameStoreState {
   addKillFeed: (item: Omit<KillFeedItem, 'id' | 'timestamp'>) => void
   setScoreboard: (scores: PlayerScore[]) => void
   updatePlayerName: (name: string) => void
+  updateRemotePlayerName: (id: string, name: string) => void
   setPlayerTeam: (team: Team) => void
   addOrUpdatePlayerScore: (score: PlayerScore) => void
   removePlayerScore: (id: string) => void
@@ -80,6 +87,10 @@ interface GameStoreState {
   setSpawnProtection: (seconds: number) => void
   setIsMobile: (isMobile: boolean) => void
   setIsScoreboardOpen: (isOpen: boolean) => void
+  tickMatchTimer: (dt: number) => void
+  incrementTeamScore: (team: Team) => void
+  endMatch: () => void
+  restartMatch: () => void
   resetPlayerStats: () => void
 }
 
@@ -160,6 +171,12 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   spawnProtection: 0,
   lastWeaponId: 'deagle',
   ammoToast: null,
+  matchDuration: 300,
+  matchTimeRemaining: 300,
+  matchTargetKills: 25,
+  teamScores: { CT: 0, T: 0 },
+  isMatchEnded: false,
+  matchResult: null,
 
   setGameStatus: (status) => set({ gameStatus: status }),
 
@@ -386,6 +403,12 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     }))
   },
 
+  updateRemotePlayerName: (id: string, name: string) => {
+    set((state) => ({
+      scoreboard: state.scoreboard.map((p) => (p.id === id ? { ...p, name } : p))
+    }))
+  },
+
   setPlayerTeam: (team: Team) => {
     set((state) => ({
       scoreboard: state.scoreboard.map((p) =>
@@ -438,6 +461,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       return p
     })
     set({ scoreboard: updatedScores })
+    state.incrementTeamScore(myTeam)
   },
 
   recordPlayerDeath: (killerBotId, killerName, killerTeam, weaponName) => {
@@ -466,6 +490,7 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       }
       return p
     })
+    state.incrementTeamScore(killerTeam)
 
     set({
       health: 0,
@@ -493,6 +518,72 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   setSpawnProtection: (seconds) => set({ spawnProtection: seconds }),
 
   setIsMobile: (isMobile) => set({ isMobile }),
+  tickMatchTimer: (dt: number) => {
+    const state = get()
+    if (state.isMatchEnded || state.gameStatus !== 'PLAYING') return
+
+    const nextTime = Math.max(0, state.matchTimeRemaining - dt)
+    set({ matchTimeRemaining: nextTime })
+
+    if (nextTime <= 0) {
+      state.endMatch()
+    }
+  },
+
+  incrementTeamScore: (team: Team) => {
+    const state = get()
+    if (state.isMatchEnded) return
+
+    const newScores = {
+      ...state.teamScores,
+      [team]: state.teamScores[team] + 1
+    }
+    set({ teamScores: newScores })
+
+    if (newScores[team] >= state.matchTargetKills) {
+      state.endMatch()
+    }
+  },
+
+  endMatch: () => {
+    const state = get()
+    if (state.isMatchEnded) return
+
+    const myPlayer = state.scoreboard.find((p) => p.id === 'player-1')
+    const myTeam = myPlayer?.team || 'CT'
+    const ctScore = state.teamScores.CT
+    const tScore = state.teamScores.T
+
+    let result: 'VICTORY' | 'DEFEAT' | 'DRAW' = 'DRAW'
+    if (ctScore > tScore) {
+      result = myTeam === 'CT' ? 'VICTORY' : 'DEFEAT'
+    } else if (tScore > ctScore) {
+      result = myTeam === 'T' ? 'VICTORY' : 'DEFEAT'
+    } else {
+      result = 'DRAW'
+    }
+
+    set({ isMatchEnded: true, matchResult: result, isScoreboardOpen: true })
+
+    import('../game/core/AudioManager').then(({ audioManager }) => {
+      if (result === 'VICTORY') {
+        audioManager.playVictorySound()
+      } else {
+        audioManager.playDefeatSound()
+      }
+    }).catch(() => {})
+  },
+
+  restartMatch: () => {
+    set({
+      matchTimeRemaining: 300,
+      teamScores: { CT: 0, T: 0 },
+      isMatchEnded: false,
+      matchResult: null,
+      isScoreboardOpen: false
+    })
+  },
+
   setIsScoreboardOpen: (isScoreboardOpen) => set({ isScoreboardOpen }),
 
   resetPlayerStats: () => {

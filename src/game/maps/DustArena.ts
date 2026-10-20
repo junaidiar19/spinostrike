@@ -106,7 +106,7 @@ export class DustArena {
     this.createCrate(0, 1, 43, 4, 2, 2, physics)
     this.createCrate(-4.5, 1, 45, 2.5, 2, 2, physics)
     this.createCrate(4.5, 1, 45, 2.5, 2, 2, physics)
-    this.createCrate(0, 2.5, 43, 2, 1.5, 2, physics) // Stacked crate cover
+    this.createCrate(0, 2.75, 43, 2, 1.5, 2, physics) // Stacked crate cover resting flush on base crate
 
     // CT Spawn Indonesian Signage
     this.createSign(0, 4.5, 58.8, 8, 2.2, Math.PI, 'POS KOMANDO OPERASI (CT)', 'SEKTOR PERTAHANAN SELATAN - SIAP TEMPUR', { theme: 'military', code: 'SPINO-CT-01' })
@@ -119,7 +119,7 @@ export class DustArena {
     this.createCrate(0, 1, -43, 4, 2, 2, physics)
     this.createCrate(-4.5, 1, -45, 2.5, 2, 2, physics)
     this.createCrate(4.5, 1, -45, 2.5, 2, 2, physics)
-    this.createCrate(0, 2.5, -43, 2, 1.5, 2, physics)
+    this.createCrate(0, 2.75, -43, 2, 1.5, 2, physics) // Stacked crate cover resting flush on base crate
 
     // T Spawn Indonesian Signage
     this.createSign(0, 4.5, -58.8, 8, 2.2, 0, 'MARKAS GERILYA GURUN (T)', 'OPERASI SERANGAN FAJAR - SEKTOR UTARA', { theme: 'danger', code: 'SPINO-T-01' })
@@ -154,10 +154,10 @@ export class DustArena {
     // Ramp to Sniper Tower
     this.createRamp(48, 3.25, -28, 3, 0.4, 8, -0.4, physics)
 
-    // Metal Containers & Supply Crates on A Platform
-    this.createMetalContainer(32, 2.3, -24, 3, 3, 7, physics)
-    this.createCrate(28, 2.3, -30, 3, 2.5, 3, physics)
-    this.createCrate(40, 2.3, -20, 2.5, 2.5, 2.5, physics)
+    // Metal Containers & Supply Crates flush on A Platform (top y = 1.6)
+    this.createMetalContainer(32, 3.1, -24, 3, 3, 7, physics)
+    this.createCrate(28, 2.85, -30, 3, 2.5, 3, physics)
+    this.createCrate(40, 2.85, -20, 2.5, 2.5, 2.5, physics)
     this.createBarrel(38, 1.6, -24, physics)
     this.createBarrel(38, 1.6, -26, physics)
 
