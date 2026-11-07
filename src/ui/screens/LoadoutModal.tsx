@@ -13,9 +13,9 @@ export const LoadoutModal: React.FC<Props> = ({ onClose }) => {
   const selectedPrimary = useGameStore((state) => state.selectedPrimary)
   const setSelectedPrimary = useGameStore((state) => state.setSelectedPrimary)
   const currentSlot = useGameStore((state) => state.currentSlot)
-  const [activeCategory, setActiveCategory] = useState<'all' | 'rifle' | 'sniper'>('all')
+  const [activeCategory, setActiveCategory] = useState<'all' | 'rifle' | 'sniper' | 'heavy' | 'launcher'>('all')
 
-  const primaryOptions: WeaponId[] = ['ak47', 'm4a1', 'awp', 'ssg08']
+  const primaryOptions: WeaponId[] = ['ak47', 'm4a1', 'awp', 'ssg08', 'minigun', 'bazooka']
 
   const filteredOptions = primaryOptions.filter((id) => {
     if (activeCategory === 'all') return true
@@ -49,7 +49,7 @@ export const LoadoutModal: React.FC<Props> = ({ onClose }) => {
             className={`auth-tab ${activeCategory === 'all' ? 'active' : ''}`}
             onClick={() => setActiveCategory('all')}
           >
-            ALL WEAPONS
+            ALL
           </button>
           <button
             type="button"
@@ -57,7 +57,7 @@ export const LoadoutModal: React.FC<Props> = ({ onClose }) => {
             onClick={() => setActiveCategory('rifle')}
           >
             <Zap size={14} style={{ display: 'inline', marginRight: 4 }} />
-            ASSAULT RIFLES
+            RIFLE
           </button>
           <button
             type="button"
@@ -65,7 +65,21 @@ export const LoadoutModal: React.FC<Props> = ({ onClose }) => {
             onClick={() => setActiveCategory('sniper')}
           >
             <Target size={14} style={{ display: 'inline', marginRight: 4 }} />
-            SNIPER RIFLES
+            SNIPER
+          </button>
+          <button
+            type="button"
+            className={`auth-tab ${activeCategory === 'heavy' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('heavy')}
+          >
+            MINIGUN
+          </button>
+          <button
+            type="button"
+            className={`auth-tab ${activeCategory === 'launcher' ? 'active' : ''}`}
+            onClick={() => setActiveCategory('launcher')}
+          >
+            BAZOOKA
           </button>
         </div>
 

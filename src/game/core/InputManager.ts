@@ -20,6 +20,7 @@ export class InputManager {
   public isAiming: boolean = false
   public reloadRequested: boolean = false
   public requestedSlot: WeaponSlot | null = null
+  public interactTankRequested: boolean = false
 
   // Pointer lock state
   public isPointerLocked: boolean = false
@@ -283,13 +284,15 @@ export class InputManager {
       this.requestedSlot = useGameStore.getState().currentSlot
     }
 
-    // Direct slot access: 1 (AK-47), 2 (M4A1), 3 (AWP), 4 (SSG-08), 5 (DEAGLE), 6 (KNIFE)
+    // Direct slot access: 1 (AK-47), 2 (M4A1), 3 (AWP), 4 (SSG-08), 5 (DEAGLE), 6 (KNIFE), 7 (MINIGUN), 8 (BAZOOKA)
     if (e.code === 'Digit1') this.requestedSlot = 1
     if (e.code === 'Digit2') this.requestedSlot = 2
     if (e.code === 'Digit3') this.requestedSlot = 3
     if (e.code === 'Digit4') this.requestedSlot = 4
     if (e.code === 'Digit5') this.requestedSlot = 5
     if (e.code === 'Digit6') this.requestedSlot = 6
+    if (e.code === 'Digit7') this.requestedSlot = 7
+    if (e.code === 'Digit8') this.requestedSlot = 8
 
     // Laptop-friendly Shoot & Aim keyboard shortcuts (F or J to shoot, E or K to scope)
     if (e.code === 'KeyF' || e.code === 'KeyJ') {
@@ -300,7 +303,15 @@ export class InputManager {
       }
     }
 
-    if (e.code === 'KeyE' || e.code === 'KeyK') {
+    if (e.code === 'KeyE') {
+      const store = useGameStore.getState()
+      if (store.isNearTank || store.isDrivingTank) {
+        this.interactTankRequested = true
+      } else {
+        this.isAiming = !this.isAiming
+        store.setIsAiming(this.isAiming)
+      }
+    } else if (e.code === 'KeyK') {
       this.isAiming = !this.isAiming
       useGameStore.getState().setIsAiming(this.isAiming)
     }
@@ -368,6 +379,10 @@ export class InputManager {
     this.requestedSlot = slot
   }
 
+  public triggerTankInteract() {
+    this.interactTankRequested = true
+  }
+
   // Called at the end of each frame to reset per-frame deltas
   public consumeFrameDeltas() {
     const dx = this.lookDeltaX
@@ -380,6 +395,9 @@ export class InputManager {
 
     const slot = this.requestedSlot
     this.requestedSlot = null
+
+    const interactTank = this.interactTankRequested
+    this.interactTankRequested = false
 
     // Combined movement
     let fwd = this.moveForward
@@ -399,7 +417,8 @@ export class InputManager {
       shoot: this.isShooting,
       aim: this.isAiming,
       reload,
-      slot
+      slot,
+      interactTank
     }
   }
 

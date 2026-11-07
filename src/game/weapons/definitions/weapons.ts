@@ -107,5 +107,41 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
     recoilHorizontal: 0.01,
     spread: 0.001,
     description: 'Pisau taktis untuk serangan senyap jarak dekat. Serangan dari belakang menghasilkan instan kill.'
+  },
+  minigun: {
+    id: 'minigun',
+    name: 'M134 Vulcan Minigun',
+    slot: 7,
+    type: 'heavy',
+    damage: 28,
+    headshotMultiplier: 2.5,
+    legMultiplier: 0.8,
+    fireRate: 20.0, // 1200 RPM super rapid rotary fire!
+    clipSize: 150,
+    maxReserve: 450,
+    reloadTime: 4.2,
+    recoilVertical: 0.024,
+    recoilHorizontal: 0.028,
+    spread: 0.018,
+    zoomFov: 65,
+    description: 'Senapan putar rotary 6 laras bertenaga luar biasa dengan laju tembak 1200 RPM dan semburan peluru masif.'
+  },
+  bazooka: {
+    id: 'bazooka',
+    name: 'RPG-7 Rocket Bazooka',
+    slot: 8,
+    type: 'launcher',
+    damage: 180, // Heavy explosive rocket
+    headshotMultiplier: 1.5,
+    legMultiplier: 1.0,
+    fireRate: 0.6,
+    clipSize: 1,
+    maxReserve: 8,
+    reloadTime: 3.2,
+    recoilVertical: 0.14,
+    recoilHorizontal: 0.03,
+    spread: 0.004,
+    zoomFov: 42,
+    description: 'Peluncur roket berkepala hulu ledak eksplosif tinggi. Menghasilkan ledakan dahsyat dengan daya hancur area (AoE).'
   }
 }

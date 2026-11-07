@@ -45,6 +45,15 @@ interface GameStoreState {
   isMatchEnded: boolean
   matchResult: 'VICTORY' | 'DEFEAT' | 'DRAW' | null
 
+  // Tank Vehicle States
+  isDrivingTank: boolean
+  tankHealth: number
+  tankMaxHealth: number
+  tankCannonReady: boolean
+  tankCannonCooldown: number
+  isNearTank: boolean
+  nearTankPrompt: string | null
+
   // Actions
   setGameStatus: (status: GameStatus) => void
   setSelectedPrimary: (id: WeaponId) => void
@@ -92,6 +101,13 @@ interface GameStoreState {
   endMatch: () => void
   restartMatch: () => void
   resetPlayerStats: () => void
+
+  // Tank Vehicle Actions
+  enterTank: () => void
+  exitTank: () => void
+  damageTank: (amount: number) => void
+  setTankCannonReady: (ready: boolean, cooldown?: number) => void
+  setIsNearTank: (isNear: boolean, prompt?: string | null) => void
 }
 
 const initialWeaponStates: Record<WeaponId, WeaponState> = {
@@ -136,6 +152,20 @@ const initialWeaponStates: Record<WeaponId, WeaponState> = {
     reserve: 0,
     isReloading: false,
     reloadProgress: 0
+  },
+  minigun: {
+    id: 'minigun',
+    clip: WEAPON_DEFINITIONS.minigun.clipSize,
+    reserve: WEAPON_DEFINITIONS.minigun.maxReserve,
+    isReloading: false,
+    reloadProgress: 0
+  },
+  bazooka: {
+    id: 'bazooka',
+    clip: WEAPON_DEFINITIONS.bazooka.clipSize,
+    reserve: WEAPON_DEFINITIONS.bazooka.maxReserve,
+    isReloading: false,
+    reloadProgress: 0
   }
 }
 
@@ -178,6 +208,15 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   isMatchEnded: false,
   matchResult: null,
 
+  // Tank Vehicle Initial State
+  isDrivingTank: false,
+  tankHealth: 500,
+  tankMaxHealth: 500,
+  tankCannonReady: true,
+  tankCannonCooldown: 0,
+  isNearTank: false,
+  nearTankPrompt: null,
+
   setGameStatus: (status) => set({ gameStatus: status }),
 
   setSelectedPrimary: (id) => {
@@ -201,7 +240,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       3: 'awp',
       4: 'ssg08',
       5: 'deagle',
-      6: 'knife'
+      6: 'knife',
+      7: 'minigun',
+      8: 'bazooka'
     }
     const targetId = slotToWeapon[slot] || 'ak47'
     const current = get().activeWeaponId
@@ -220,7 +261,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       awp: 3,
       ssg08: 4,
       deagle: 5,
-      knife: 6
+      knife: 6,
+      minigun: 7,
+      bazooka: 8
     }
     const current = get().activeWeaponId
     set({
@@ -235,9 +278,9 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     const current = get().currentSlot
     let next: WeaponSlot = 1
     if (direction === 'next') {
-      next = (current >= 6 ? 1 : current + 1) as WeaponSlot
+      next = (current >= 8 ? 1 : current + 1) as WeaponSlot
     } else {
-      next = (current <= 1 ? 6 : current - 1) as WeaponSlot
+      next = (current <= 1 ? 8 : current - 1) as WeaponSlot
     }
     get().setCurrentSlot(next)
   },
@@ -596,6 +639,12 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       respawnCountdown: 0,
       damageFlash: false,
       damageAngle: null,
+      isDrivingTank: false,
+      tankHealth: 500,
+      tankCannonReady: true,
+      tankCannonCooldown: 0,
+      isNearTank: false,
+      nearTankPrompt: null,
       scoreboard: state.scoreboard.map((p) => ({
         ...p,
         kills: 0,
@@ -616,7 +665,40 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       killerInfo: null,
       respawnCountdown: 0,
       damageFlash: false,
+      isDrivingTank: false,
+      tankHealth: 500,
+      tankCannonReady: true,
+      tankCannonCooldown: 0,
+      isNearTank: false,
+      nearTankPrompt: null,
       weaponStates: initialWeaponStates
     })
+  },
+
+  enterTank: () => {
+    set({ isDrivingTank: true, isAiming: false })
+  },
+
+  exitTank: () => {
+    set({ isDrivingTank: false })
+  },
+
+  damageTank: (amount: number) => {
+    const current = get().tankHealth
+    const next = Math.max(0, current - amount)
+    set({ tankHealth: next })
+    if (next <= 0 && get().isDrivingTank) {
+      // Tank destroyed -> eject player with explosion damage
+      set({ isDrivingTank: false })
+      get().applyDamageToPlayer(40, undefined, 'Tank Explosion', undefined, 'EXPLOSION')
+    }
+  },
+
+  setTankCannonReady: (ready: boolean, cooldown = 0) => {
+    set({ tankCannonReady: ready, tankCannonCooldown: cooldown })
+  },
+
+  setIsNearTank: (isNear: boolean, prompt = null) => {
+    set({ isNearTank: isNear, nearTankPrompt: prompt })
   }
 }))

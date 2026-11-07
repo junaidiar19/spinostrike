@@ -62,6 +62,12 @@ class AudioManager {
       case 'knife':
         this.playKnifeSlash(now)
         break
+      case 'minigun':
+        this.playMinigunSound(now)
+        break
+      case 'bazooka':
+        this.playBazookaFire(now)
+        break
     }
   }
 
@@ -262,6 +268,189 @@ class AudioManager {
 
     noiseNode.start(now)
     noiseNode.stop(now + 0.14)
+  }
+
+  private playMinigunSound(now: number) {
+    if (!this.ctx || !this.sfxGain) return
+    // Rapid heavy rotary crack + punch
+    const osc = this.ctx.createOscillator()
+    const oscGain = this.ctx.createGain()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(190, now)
+    osc.frequency.exponentialRampToValueAtTime(45, now + 0.08)
+    oscGain.gain.setValueAtTime(0.7, now)
+    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.09)
+
+    const noise = this.createNoiseBuffer(0.1)
+    const noiseNode = this.ctx.createBufferSource()
+    noiseNode.buffer = noise
+    const filter = this.ctx.createBiquadFilter()
+    filter.type = 'bandpass'
+    filter.frequency.setValueAtTime(2800, now)
+    filter.frequency.exponentialRampToValueAtTime(800, now + 0.08)
+
+    const noiseGain = this.ctx.createGain()
+    noiseGain.gain.setValueAtTime(0.65, now)
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.09)
+
+    osc.connect(oscGain)
+    oscGain.connect(this.sfxGain)
+    noiseNode.connect(filter)
+    filter.connect(noiseGain)
+    noiseGain.connect(this.sfxGain)
+
+    osc.start(now)
+    osc.stop(now + 0.09)
+    noiseNode.start(now)
+    noiseNode.stop(now + 0.10)
+  }
+
+  private playBazookaFire(now: number) {
+    if (!this.ctx || !this.sfxGain) return
+    // Rocket launch thump + whoosh hiss
+    const osc = this.ctx.createOscillator()
+    const oscGain = this.ctx.createGain()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(140, now)
+    osc.frequency.exponentialRampToValueAtTime(30, now + 0.28)
+    oscGain.gain.setValueAtTime(0.9, now)
+    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.35)
+
+    const noise = this.createNoiseBuffer(0.4)
+    const noiseNode = this.ctx.createBufferSource()
+    noiseNode.buffer = noise
+    const filter = this.ctx.createBiquadFilter()
+    filter.type = 'lowpass'
+    filter.frequency.setValueAtTime(1800, now)
+    filter.frequency.exponentialRampToValueAtTime(300, now + 0.38)
+
+    const noiseGain = this.ctx.createGain()
+    noiseGain.gain.setValueAtTime(0.85, now)
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.40)
+
+    osc.connect(oscGain)
+    oscGain.connect(this.sfxGain)
+    noiseNode.connect(filter)
+    filter.connect(noiseGain)
+    noiseGain.connect(this.sfxGain)
+
+    osc.start(now)
+    osc.stop(now + 0.35)
+    noiseNode.start(now)
+    noiseNode.stop(now + 0.42)
+  }
+
+  public playExplosionSound() {
+    if (!this.ctx || !this.sfxGain) return
+    this.resume()
+    const now = this.ctx.currentTime
+
+    // Heavy sub-bass earthquake rumble
+    const subOsc = this.ctx.createOscillator()
+    const subGain = this.ctx.createGain()
+    subOsc.type = 'sine'
+    subOsc.frequency.setValueAtTime(110, now)
+    subOsc.frequency.exponentialRampToValueAtTime(20, now + 0.8)
+    subGain.gain.setValueAtTime(1.0, now)
+    subGain.gain.exponentialRampToValueAtTime(0.01, now + 0.9)
+
+    // Detonation noise blast
+    const noise = this.createNoiseBuffer(0.9)
+    const noiseNode = this.ctx.createBufferSource()
+    noiseNode.buffer = noise
+    const filter = this.ctx.createBiquadFilter()
+    filter.type = 'lowpass'
+    filter.frequency.setValueAtTime(2400, now)
+    filter.frequency.exponentialRampToValueAtTime(120, now + 0.85)
+
+    const noiseGain = this.ctx.createGain()
+    noiseGain.gain.setValueAtTime(1.0, now)
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.9)
+
+    subOsc.connect(subGain)
+    subGain.connect(this.sfxGain)
+    noiseNode.connect(filter)
+    filter.connect(noiseGain)
+    noiseGain.connect(this.sfxGain)
+
+    subOsc.start(now)
+    subOsc.stop(now + 0.9)
+    noiseNode.start(now)
+    noiseNode.stop(now + 0.95)
+  }
+
+  public playTankCannonSound() {
+    if (!this.ctx || !this.sfxGain) return
+    this.resume()
+    const now = this.ctx.currentTime
+
+    // Deep 120mm artillery blast
+    const cannonOsc = this.ctx.createOscillator()
+    const cannonGain = this.ctx.createGain()
+    cannonOsc.type = 'sawtooth'
+    cannonOsc.frequency.setValueAtTime(180, now)
+    cannonOsc.frequency.exponentialRampToValueAtTime(22, now + 0.6)
+    cannonGain.gain.setValueAtTime(1.0, now)
+    cannonGain.gain.exponentialRampToValueAtTime(0.01, now + 0.7)
+
+    const noise = this.createNoiseBuffer(0.8)
+    const noiseNode = this.ctx.createBufferSource()
+    noiseNode.buffer = noise
+    const filter = this.ctx.createBiquadFilter()
+    filter.type = 'lowpass'
+    filter.frequency.setValueAtTime(3500, now)
+    filter.frequency.exponentialRampToValueAtTime(150, now + 0.75)
+
+    const noiseGain = this.ctx.createGain()
+    noiseGain.gain.setValueAtTime(1.0, now)
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.8)
+
+    cannonOsc.connect(cannonGain)
+    cannonGain.connect(this.sfxGain)
+    noiseNode.connect(filter)
+    filter.connect(noiseGain)
+    noiseGain.connect(this.sfxGain)
+
+    cannonOsc.start(now)
+    cannonOsc.stop(now + 0.7)
+    noiseNode.start(now)
+    noiseNode.stop(now + 0.85)
+  }
+
+  public playHatchSound() {
+    if (!this.ctx || !this.sfxGain) return
+    this.resume()
+    const now = this.ctx.currentTime
+    const osc = this.ctx.createOscillator()
+    const oscGain = this.ctx.createGain()
+    osc.type = 'triangle'
+    osc.frequency.setValueAtTime(420, now)
+    osc.frequency.exponentialRampToValueAtTime(120, now + 0.15)
+    oscGain.gain.setValueAtTime(0.6, now)
+    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.18)
+
+    osc.connect(oscGain)
+    oscGain.connect(this.sfxGain)
+    osc.start(now)
+    osc.stop(now + 0.2)
+  }
+
+  public playTankEngineSound() {
+    if (!this.ctx || !this.sfxGain) return
+    this.resume()
+    const now = this.ctx.currentTime
+    const osc = this.ctx.createOscillator()
+    const oscGain = this.ctx.createGain()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(40, now)
+    osc.frequency.linearRampToValueAtTime(65, now + 0.25)
+    oscGain.gain.setValueAtTime(0.4, now)
+    oscGain.gain.exponentialRampToValueAtTime(0.01, now + 0.3)
+
+    osc.connect(oscGain)
+    oscGain.connect(this.sfxGain)
+    osc.start(now)
+    osc.stop(now + 0.32)
   }
 
   // Hitmarker sound

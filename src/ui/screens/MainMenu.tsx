@@ -168,12 +168,30 @@ export const MainMenu: React.FC<Props> = ({
               </div>
             </div>
 
-            {/* Quick Weapon Selector Pills (Fast Sniper & Rifle Equip) */}
+            {/* Quick Weapon Selector Pills (Fast Heavy, Sniper & Rifle Equip) */}
             <div className="quick-weapon-pills">
               <span className="quick-weapon-label">PILIH SENJATA CEPAT:</span>
-              {(['ak47', 'm4a1', 'awp', 'ssg08'] as WeaponId[]).map((id) => {
+              {(['ak47', 'm4a1', 'awp', 'ssg08', 'minigun', 'bazooka'] as WeaponId[]).map((id) => {
                 const w = WEAPON_DEFINITIONS[id]
                 const isEquipped = selectedPrimary === id
+                const badge =
+                  w.type === 'sniper'
+                    ? '🎯 '
+                    : w.type === 'heavy'
+                    ? '🔥 '
+                    : w.type === 'launcher'
+                    ? '🚀 '
+                    : '⚡ '
+                const label =
+                  id === 'awp'
+                    ? 'AWP SNIPER'
+                    : id === 'ssg08'
+                    ? 'SCOUT SNIPER'
+                    : id === 'minigun'
+                    ? 'MINIGUN'
+                    : id === 'bazooka'
+                    ? 'BAZOOKA'
+                    : w.name.split(' ')[0]
                 return (
                   <button
                     key={id}
@@ -184,8 +202,8 @@ export const MainMenu: React.FC<Props> = ({
                       gameEngine.player.initWeapon(id)
                     }}
                   >
-                    {w.type === 'sniper' ? '🎯 ' : '⚡ '}
-                    {id === 'awp' ? 'AWP SNIPER' : id === 'ssg08' ? 'SCOUT SNIPER' : w.name.split(' ')[0]}
+                    {badge}
+                    {label}
                   </button>
                 )
               })}

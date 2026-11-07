@@ -6,10 +6,13 @@ import { audioManager } from '../../game/core/AudioManager'
 import { gameEngine } from '../../game/core/GameEngine'
 
 export const AmmoCounter: React.FC = () => {
+  const isDrivingTank = useGameStore((state) => state.isDrivingTank)
   const activeWeaponId = useGameStore((state) => state.activeWeaponId)
   const currentSlot = useGameStore((state) => state.currentSlot)
   const weaponState = useGameStore((state) => state.weaponStates[activeWeaponId])
   const activeConfig = WEAPON_DEFINITIONS[activeWeaponId]
+
+  if (isDrivingTank) return null
 
   const isKnife = activeWeaponId === 'knife'
   const isLowAmmo = !isKnife && weaponState.clip <= Math.ceil(activeConfig.clipSize * 0.25)

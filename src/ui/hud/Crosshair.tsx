@@ -2,10 +2,15 @@ import React from 'react'
 import { useGameStore } from '../../stores/useGameStore'
 
 export const Crosshair: React.FC = () => {
+  const isDrivingTank = useGameStore((state) => state.isDrivingTank)
   const crosshairSpread = useGameStore((state) => state.crosshairSpread)
   const isAiming = useGameStore((state) => state.isAiming)
   const activeWeaponId = useGameStore((state) => state.activeWeaponId)
   const hitmarker = useGameStore((state) => state.hitmarker)
+
+  if (isDrivingTank) {
+    return null
+  }
 
   // Hide crosshair when scoped in with Sniper rifles
   if ((activeWeaponId === 'awp' || activeWeaponId === 'ssg08') && isAiming) {

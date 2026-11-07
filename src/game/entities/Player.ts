@@ -101,10 +101,19 @@ export class Player {
     const weaponState = gameStore.weaponStates[activeId]
 
     // 1. Check weapon slot change
-    if (input.slot !== null && input.slot >= 1 && input.slot <= 6 && !gameStore.isPlayerDead) {
+    if (input.slot !== null && input.slot >= 1 && input.slot <= 8 && !gameStore.isPlayerDead) {
       gameStore.setCurrentSlot(input.slot as WeaponSlot)
       const newActive = useGameStore.getState().activeWeaponId
       this.initWeapon(newActive)
+    }
+
+    // When piloting battle tank, tank controls movement, aiming, and firing
+    if (gameStore.isDrivingTank) {
+      this.viewmodelContainer.visible = false
+      this.velocity.set(0, 0, 0)
+      return
+    } else {
+      this.viewmodelContainer.visible = true
     }
 
     // 2. Camera Rotations (Mouse / Touch Look)
@@ -413,7 +422,7 @@ export class Player {
 
   private updateViewmodelAnimations(
     dt: number,
-    input: { dx: number; dy: number; aim: boolean },
+    input: { dx: number; dy: number; aim: boolean; shoot?: boolean },
     isMoving: boolean,
     activeId: WeaponId
   ) {
@@ -425,6 +434,24 @@ export class Player {
       return
     } else {
       this.currentWeaponMeshGroup.visible = true
+    }
+
+    // Minigun 6-Barrel Rotary Spin Animation
+    if (activeId === 'minigun') {
+      const barrels = this.currentWeaponMeshGroup.getObjectByName('minigun_barrels')
+      const isShootingRecent = performance.now() - this.lastShootTime < 250
+      if (barrels && (input.shoot || isShootingRecent)) {
+        barrels.rotation.z += dt * 45
+      }
+    }
+
+    // Bazooka Rocket Warhead Visibility (hidden when fired/empty)
+    if (activeId === 'bazooka') {
+      const warhead = this.currentWeaponMeshGroup.getObjectByName('bazooka_warhead')
+      const st = useGameStore.getState().weaponStates.bazooka
+      if (warhead) {
+        warhead.visible = st.clip > 0
+      }
     }
 
     // Weapon Sway (lagging slightly behind mouse rotation)

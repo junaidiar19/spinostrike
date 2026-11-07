@@ -14,6 +14,7 @@ import { DamageIndicator } from './ui/hud/DamageIndicator'
 import { MatchNotification } from './ui/hud/MatchNotification'
 import { MatchHeader } from './ui/hud/MatchHeader'
 import { Minimap } from './ui/hud/Minimap'
+import { TankHud } from './ui/hud/TankHud'
 import { MobileControls } from './ui/mobile/MobileControls'
 import { OrientationNotice } from './ui/mobile/OrientationNotice'
 import { MainMenu } from './ui/screens/MainMenu'
@@ -107,6 +108,7 @@ export const App: React.FC = () => {
           <HealthBar />
           <AmmoCounter />
           {!isMobile && <WeaponSelector />}
+          <TankHud />
           <KillFeed />
           <Scoreboard />
           <MatchNotification />

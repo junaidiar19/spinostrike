@@ -4224,4 +4224,270 @@ body,
   color: #38bdf8;
 }
 
+/* ==========================================================================
+   BATTLE TANK HUD & PROMPT
+   ========================================================================== */
+
+/* Proximity Boarding Prompt */
+.tank-prompt-overlay {
+  position: absolute;
+  bottom: calc(90px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: modal-pop 0.25s ease-out;
+}
+
+.tank-prompt-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.92);
+  border: 2px solid #10b981;
+  border-radius: 14px;
+  padding: 10px 18px;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.tank-prompt-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+}
+
+.tank-prompt-text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tank-prompt-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  color: #34d399;
+  letter-spacing: 1px;
+}
+
+.tank-prompt-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.btn-tank-board {
+  background: linear-gradient(135deg, #059669, #047857);
+  border: 1px solid #34d399;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 12px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.5);
+  transition: all 0.15s ease;
+}
+
+.btn-tank-board:hover {
+  transform: scale(1.05);
+  filter: brightness(1.2);
+}
+
+/* Tank Driving Cockpit HUD */
+.tank-driving-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+}
+
+.tank-crosshair-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #10b981;
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.8));
+}
+
+.tank-bore-circle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #34d399;
+  border-radius: 50%;
+}
+
+.tank-dashboard-card {
+  position: absolute;
+  bottom: calc(18px + var(--safe-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92vw, 460px);
+  background: rgba(10, 15, 26, 0.94);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 16px;
+  padding: 14px 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tank-dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tank-id-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #34d399;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+}
+
+.btn-tank-exit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.18);
+  border: 1px solid rgba(239, 68, 68, 0.6);
+  border-radius: 8px;
+  color: #f87171;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-tank-exit:hover {
+  background: rgba(239, 68, 68, 0.35);
+  transform: scale(1.04);
+}
+
+.tank-armor-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tank-armor-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tank-armor-title {
+  color: #94a3b8;
+}
+
+.tank-armor-value {
+  color: #34d399;
+  font-size: 12px;
+}
+
+.tank-armor-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.tank-armor-bar-fill {
+  height: 100%;
+  transition: width 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.tank-cannon-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cannon-caliber-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.5px;
+}
+
+.cannon-status-pill {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.cannon-status-pill.ready {
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #34d399;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+
+.cannon-status-pill.reloading {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+}
+
+/* Mobile Tank Buttons */
+.mobile-tank-board-btn {
+  position: absolute;
+  bottom: calc(180px + var(--safe-bottom));
+  right: calc(30px + var(--safe-right));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #059669, #047857);
+  border: 2px solid #34d399;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 4px 20px rgba(5, 150, 105, 0.6);
+  z-index: 45;
+  pointer-events: auto;
+  animation: pulse-reload-btn 1.5s infinite;
+}
+
+.btn-tank-mobile-exit {
+  background: rgba(239, 68, 68, 0.3) !important;
+  border-color: #ef4444 !important;
+  color: #fca5a5 !important;
+}
+
 

@@ -10,7 +10,9 @@ import {
   PackagePlus,
   Maximize,
   Minimize,
-  Zap
+  Zap,
+  Shield,
+  LogOut
 } from 'lucide-react'
 import { gameEngine } from '../../game/core/GameEngine'
 import { useGameStore } from '../../stores/useGameStore'
@@ -18,6 +20,8 @@ import { useSettingsStore } from '../../stores/useSettingsStore'
 import { ALL_ARENA_WEAPONS, type WeaponSlot } from '../../types/game.types'
 
 export const MobileControls: React.FC = () => {
+  const isDrivingTank = useGameStore((state) => state.isDrivingTank)
+  const isNearTank = useGameStore((state) => state.isNearTank)
   const isAiming = useGameStore((state) => state.isAiming)
   const activeWeaponId = useGameStore((state) => state.activeWeaponId)
   const currentSlot = useGameStore((state) => state.currentSlot)
@@ -353,81 +357,108 @@ export const MobileControls: React.FC = () => {
         </button>
       </div>
 
-      {/* Quick Slot Selector (Right Side Top) - ALL 6 WEAPONS with Clean Ammo Display */}
-      <div className="mobile-slot-bar">
-        {ALL_ARENA_WEAPONS.map((item) => {
-          const isActive = currentSlot === item.slot
-          const state = weaponStates[item.id]
-          const isKnife = item.id === 'knife'
-          const ammo = isKnife ? '⚔️' : `${state?.clip ?? 0}`
+      {/* Quick Slot Selector (Right Side Top) - ALL ARENA WEAPONS */}
+      {!isDrivingTank && (
+        <div className="mobile-slot-bar">
+          {ALL_ARENA_WEAPONS.map((item) => {
+            const isActive = currentSlot === item.slot
+            const state = weaponStates[item.id]
+            const isKnife = item.id === 'knife'
+            const ammo = isKnife ? '⚔️' : `${state?.clip ?? 0}`
 
-          return (
-            <button
-              key={item.slot}
-              type="button"
-              className={`slot-touch-btn ${isActive ? 'active' : ''}`}
-              onTouchStart={(e) => handleSlot(item.slot, e)}
-            >
-              <span className="slot-btn-label">{item.shortName}</span>
-              <span className={`slot-btn-ammo ${!isKnife && state?.clip === 0 ? 'empty' : ''}`}>
-                {ammo}
-              </span>
-            </button>
-          )
-        })}
-      </div>
+            return (
+              <button
+                key={item.slot}
+                type="button"
+                className={`slot-touch-btn ${isActive ? 'active' : ''}`}
+                onTouchStart={(e) => handleSlot(item.slot, e)}
+              >
+                <span className="slot-btn-label">{item.shortName}</span>
+                <span className={`slot-btn-ammo ${!isKnife && state?.clip === 0 ? 'empty' : ''}`}>
+                  {ammo}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Floating Tank Board Button when near an unoccupied tank */}
+      {isNearTank && !isDrivingTank && (
+        <button
+          type="button"
+          className="mobile-tank-board-btn"
+          onTouchStart={() => gameEngine.inputManager.triggerTankInteract()}
+        >
+          <Shield size={20} />
+          <span>NAIK TANK</span>
+        </button>
+      )}
 
       {/* Right Side Tactical Action Cluster */}
       <div className="mobile-action-cluster">
-        <div className="mobile-action-secondary-group">
-          <div className="mobile-action-row">
-            {/* Aim / Scope Button */}
+        {isDrivingTank ? (
+          <div className="mobile-action-secondary-group">
             <button
               type="button"
-              className={`mobile-action-btn btn-aim ${isAiming ? 'aim-active' : ''}`}
-              onTouchStart={handleAim}
+              className="mobile-action-btn btn-tank-mobile-exit"
+              onTouchStart={() => gameEngine.inputManager.triggerTankInteract()}
             >
-              <Target size={20} />
-              <span className="btn-label">
-                {activeWeaponId === 'awp' || activeWeaponId === 'ssg08' ? 'SCOPE' : 'AIM'}
-              </span>
-            </button>
-
-            {/* Reload Button */}
-            <button
-              type="button"
-              className="mobile-action-btn btn-reload"
-              onTouchStart={handleReload}
-            >
-              <RotateCcw size={18} />
-              <span className="btn-label">RELOAD</span>
+              <LogOut size={20} />
+              <span className="btn-label">KELUAR</span>
             </button>
           </div>
+        ) : (
+          <div className="mobile-action-secondary-group">
+            <div className="mobile-action-row">
+              {/* Aim / Scope Button */}
+              <button
+                type="button"
+                className={`mobile-action-btn btn-aim ${isAiming ? 'aim-active' : ''}`}
+                onTouchStart={handleAim}
+              >
+                <Target size={20} />
+                <span className="btn-label">
+                  {activeWeaponId === 'awp' || activeWeaponId === 'ssg08' ? 'SCOPE' : 'AIM'}
+                </span>
+              </button>
 
-          <div className="mobile-action-row">
-            {/* Crouch Button */}
-            <button
-              type="button"
-              className="mobile-action-btn btn-crouch"
-              onTouchStart={handleCrouchStart}
-              onTouchEnd={handleCrouchEnd}
-            >
-              <ChevronsDown size={20} />
-              <span className="btn-label">DUCK</span>
-            </button>
+              {/* Reload Button */}
+              <button
+                type="button"
+                className="mobile-action-btn btn-reload"
+                onTouchStart={handleReload}
+              >
+                <RotateCcw size={18} />
+                <span className="btn-label">RELOAD</span>
+              </button>
+            </div>
 
-            {/* Jump Button */}
-            <button
-              type="button"
-              className="mobile-action-btn btn-jump"
-              onTouchStart={handleJumpStart}
-              onTouchEnd={handleJumpEnd}
-            >
-              <ChevronsUp size={20} />
-              <span className="btn-label">JUMP</span>
-            </button>
+            <div className="mobile-action-row">
+              {/* Crouch Button */}
+              <button
+                type="button"
+                className="mobile-action-btn btn-crouch"
+                onTouchStart={handleCrouchStart}
+                onTouchEnd={handleCrouchEnd}
+              >
+                <ChevronsDown size={20} />
+                <span className="btn-label">DUCK</span>
+              </button>
+
+              {/* Jump Button */}
+              <button
+                type="button"
+                className="mobile-action-btn btn-jump"
+                onTouchStart={handleJumpStart}
+                onTouchEnd={handleJumpEnd}
+              >
+                <ChevronsUp size={20} />
+                <span className="btn-label">JUMP</span>
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Large Primary Fire Button */}
         <button
@@ -438,7 +469,7 @@ export const MobileControls: React.FC = () => {
           onTouchCancel={handleShootEnd}
         >
           <Crosshair size={32} />
-          <span className="fire-label">FIRE</span>
+          <span className="fire-label">{isDrivingTank ? 'MERIAM' : 'FIRE'}</span>
         </button>
       </div>
     </div>

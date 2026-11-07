@@ -7,6 +7,9 @@ import type { WeaponId } from '../../types/game.types'
 export const WeaponSelector: React.FC = () => {
   const currentSlot = useGameStore((state) => state.currentSlot)
   const weaponStates = useGameStore((state) => state.weaponStates)
+  const isDrivingTank = useGameStore((state) => state.isDrivingTank)
+
+  if (isDrivingTank) return null
 
   const handleSelect = (id: WeaponId) => {
     useGameStore.getState().setActiveWeapon(id)

@@ -6,6 +6,7 @@ import { BulletManager } from '../weapons/BulletManager'
 import { MapManager } from '../maps/MapManager'
 import { Player } from '../entities/Player'
 import { BotManager } from '../ai/BotManager'
+import { TankManager } from '../entities/TankManager'
 import { useGameStore } from '../../stores/useGameStore'
 import { realtimeManager } from '../../services/supabase/realtime'
 import type { MapId } from '../../types/game.types'
@@ -23,6 +24,7 @@ export class GameEngine {
   public mapManager!: MapManager
   public player!: Player
   public botManager!: BotManager
+  public tankManager!: TankManager
 
   // Lighting
   private dirLight!: THREE.DirectionalLight
@@ -74,6 +76,7 @@ export class GameEngine {
 
     // 6. Subsystems
     this.bulletManager = new BulletManager(this.scene)
+    this.tankManager = new TankManager(this.scene, this.bulletManager)
     this.mapManager = new MapManager(this.scene, this.physics)
     this.botManager = new BotManager(this.scene)
     this.player = new Player(this.camera, this.bulletManager)
@@ -165,6 +168,9 @@ export class GameEngine {
       this.mapManager.ctSpawn,
       this.bulletManager
     )
+
+    // Spawn Arena Tanks on the tactical battlefield
+    this.tankManager.spawnTanksForMap(mapId)
   }
 
   public startMatch() {
@@ -189,6 +195,9 @@ export class GameEngine {
 
     this.bulletManager.cleanup()
     this.inputManager.reset()
+
+    // Spawn Arena Tanks fresh for the match
+    this.tankManager.spawnTanksForMap(this.mapManager.getCurrentMapId())
 
     // Respawn bots fresh at ground level
     this.botManager.spawnBots(
@@ -286,24 +295,34 @@ export class GameEngine {
     })
     const allTargets = [...this.botManager.allHitboxes, ...remoteHitboxes]
 
-    // 3. Update Player
-    this.player.update(
+    // 3. Update Battle Tank Subsystem (Driving, Turret Aiming, 120mm Cannon, Boarding)
+    this.tankManager.update(
       dt,
+      this.player,
+      this.camera,
       frameInput,
       this.mapManager.collidableMeshes,
       allTargets
     )
 
-    // 4. Update Bullet Tracers & Sparks
+    // 4. Update Player
+    this.player.update(
+      dt,
+      frameInput,
+      [...this.mapManager.collidableMeshes, ...this.tankManager.collidableMeshes],
+      allTargets
+    )
+
+    // 5. Update Bullet Tracers, Rockets & Explosions
     this.bulletManager.update(dt)
 
-    // 5. Update Bot AI (only during ACTIVE combat)
+    // 6. Update Bot AI (only during ACTIVE combat)
     this.botManager.update(dt, this.player, this.mapManager.collidableMeshes)
 
-    // 6. Update Multiplayer Remote Players
+    // 7. Update Multiplayer Remote Players
     realtimeManager.update(dt)
 
-    // 7. Render Frame
+    // 8. Render Frame
     this.renderer.render(this.scene, this.camera)
 
     this.animationFrameId = requestAnimationFrame(this.gameLoop)
@@ -325,6 +344,7 @@ export class GameEngine {
     this.inputManager.destroy()
     this.physics.destroy()
     this.bulletManager.cleanup()
+    this.tankManager.cleanup()
     this.mapManager.cleanup()
     this.botManager.cleanup()
 
