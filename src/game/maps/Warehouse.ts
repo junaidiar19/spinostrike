@@ -25,7 +25,13 @@ export class Warehouse {
     new THREE.Vector3(24, 1, 0),        // Central Stacks Flank East
     new THREE.Vector3(-24, 1, 0),       // Central Stacks Flank West
     new THREE.Vector3(68, 1, 60),       // CT East Ramp Foot
-    new THREE.Vector3(-68, 1, -60)      // T West Ramp Foot
+    new THREE.Vector3(-68, 1, -60),     // T West Ramp Foot
+    new THREE.Vector3(-72, 8.2, -10),   // Admin Office Mezzanine Deck
+    new THREE.Vector3(72, 8.2, -10),    // Hazmat Lab Observation Roof
+    new THREE.Vector3(-50, 7.2, 60),    // Heavy Maintenance Garage Roof
+    new THREE.Vector3(50, 7.2, 60),     // Cold Chain Cargo Vault Roof
+    new THREE.Vector3(-72, 1, -68),     // Server & Security Hub
+    new THREE.Vector3(72, 1, -68)       // High-Voltage Electrical Substation
   ]
 
   // Realistic Procedural Materials
@@ -238,6 +244,45 @@ export class Warehouse {
       truss.position.set(0, 9.8, tz)
       this.group.add(truss)
     }
+
+    // ==========================================================
+    // 6. MULTI-STORY WAREHOUSE INDUSTRIAL BUILDINGS & OFFICES
+    // ==========================================================
+    // Building 1: Administrative 2-Story Logistics Office (West Flank: x = -72, z = -10)
+    this.createWall(-72, 4.0, -10, 18, 8, 24, physics)
+    this.createWall(-72, 8.6, 2.5, 18, 1.2, 0.5, physics)
+    this.createWall(-72, 8.6, -22.5, 18, 1.2, 0.5, physics)
+    this.createWall(-81.5, 8.6, -10, 0.5, 1.2, 24, physics)
+    this.createRamp(-60, 4.0, -10, 4, 0.3, 16, 0.28, physics)
+    this.createSign(-72, 5.0, 2.8, 8, 2.0, 0, 'KANTOR ADMINISTRASI LOGISTIK', 'LANTAI 2 - PUSAT KONTROL CCTV', { theme: 'industrial', code: 'HQ-LOG-01' })
+
+    // Building 2: Hazmat & Chemical Containment Lab (East Flank: x = 72, z = -10)
+    this.createWall(72, 4.0, -10, 18, 8, 24, physics)
+    this.createWall(72, 8.6, 2.5, 18, 1.2, 0.5, physics)
+    this.createWall(72, 8.6, -22.5, 18, 1.2, 0.5, physics)
+    this.createWall(81.5, 8.6, -10, 0.5, 1.2, 24, physics)
+    this.createRamp(60, 4.0, -10, 4, 0.3, 16, 0.28, physics)
+    this.createSign(72, 5.0, 2.8, 8, 2.0, 0, 'LABORATORIUM & DEPO KIMIA B3', 'RUANG DEKONTAMINASI RADIASI', { theme: 'danger', code: 'HAZMAT-LAB' })
+
+    // Building 3: Heavy Maintenance Garage & Forklift Bay (SW: x = -50, z = 60)
+    this.createWall(-50, 3.5, 60, 22, 7, 18, physics)
+    this.createWall(-50, 7.6, 50.5, 22, 1.2, 0.5, physics)
+    this.createRamp(-36, 3.5, 60, 4, 0.3, 14, 0.28, physics)
+    this.createSign(-50, 4.5, 50.8, 8, 2.0, 0, 'BENGKEL PEMELIHARAAN ALAT BERAT', 'PERBAIKAN TANK TEMPUR & FORKLIFT', { theme: 'industrial' })
+
+    // Building 4: Cold Chain Cargo Vault (SE: x = 50, z = 60)
+    this.createWall(50, 3.5, 60, 22, 7, 18, physics)
+    this.createWall(50, 7.6, 50.5, 22, 1.2, 0.5, physics)
+    this.createRamp(36, 3.5, 60, 4, 0.3, 14, 0.28, physics)
+    this.createSign(50, 4.5, 50.8, 8, 2.0, 0, 'GUDANG PENDINGIN BEKU (COLD VAULT)', 'SUHU KONSTAN -20°C', { theme: 'info', code: 'COLD-01' })
+
+    // Building 5: Server & Security Hub (NW: x = -72, z = -68)
+    this.createWall(-72, 3.0, -68, 14, 6, 14, physics)
+    this.createSign(-72, 4.0, -60.8, 7, 1.8, 0, 'RUANG SERVER PUSAT', 'AKSES TERBATAS KEAMANAN', { theme: 'military' })
+
+    // Building 6: High-Voltage Electrical Substation (NE: x = 72, z = -68)
+    this.createWall(72, 3.0, -68, 14, 6, 14, physics)
+    this.createSign(72, 4.0, -60.8, 7, 1.8, 0, 'GARDU INDUK TEGANGAN TINGGI', 'BAHAYA SENGATAN 20.000V', { theme: 'danger' })
   }
 
   private createSign(

@@ -25,7 +25,13 @@ export class ItalianVilla {
     new THREE.Vector3(0, 1, -76),       // T Courtyard Spawn Exit
     new THREE.Vector3(28, 4.5, 0),      // Overhead Stone Arch Bridge East
     new THREE.Vector3(-28, 4.5, 0),     // Overhead Stone Arch Bridge West
-    new THREE.Vector3(0, 1, 28)         // Piazza South Approach
+    new THREE.Vector3(0, 1, 28),        // Piazza South Approach
+    new THREE.Vector3(68, 8.2, 55),     // San Marco Chapel Balcony
+    new THREE.Vector3(68, 7.2, -55),    // Olive Oil Press Roof
+    new THREE.Vector3(-70, 8.2, 55),    // Old Town Shophouses Terrace
+    new THREE.Vector3(-70, 7.2, -55),   // Porta Nuova Bastion Roof
+    new THREE.Vector3(-35, 1, 85),      // Gelateria Cafe
+    new THREE.Vector3(35, 1, -85)       // Stables & Carriage Depot
   ]
 
   // Realistic Procedural Materials with DoubleSide for raycast & collision reliability
@@ -216,6 +222,47 @@ export class ItalianVilla {
 
     this.createSign(0, 5.8, 58.2, 8.0, 1.8, 0, 'VILLA SELATAN - TERAS ATAP', 'POS TEMBAK GARIS BELAKANG', { theme: 'vintage' })
     this.createSign(0, 5.8, -58.2, 8.0, 1.8, Math.PI, 'VILLA UTARA - TERAS ATAP', 'POS TEMBAK GARIS DEPAN', { theme: 'vintage' })
+
+    // ==========================================================
+    // 8. TUSCAN RESIDENTIAL QUARTERS, CHAPELS & FORTRESS GATES
+    // ==========================================================
+    // Building 1: San Marco Chapel & Sanctuary (SE: x = 68, z = 55)
+    this.createWall(68, 4.0, 55, 22, 8, 20, physics)
+    this.createCoverWall(68, 8.6, 44.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(68, 8.6, 65.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(79.5, 8.6, 55, 0.5, 1.2, 20, physics)
+    this.createRamp(54, 4.0, 55, 4, 0.3, 16, 0.28, physics)
+    this.createSign(68, 5.0, 44.8, 8, 2.0, 0, 'KAPEL SAN MARCO KOTA KUNO', 'LANTAI 2 - BALKONI BIARA', { theme: 'vintage', code: 'SAN-MARCO' })
+
+    // Building 2: Olive Oil Press Mill & Tasting Cantina (NE: x = 68, z = -55)
+    this.createWall(68, 3.5, -55, 22, 7, 20, physics)
+    this.createCoverWall(68, 7.6, -44.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(79.5, 7.6, -55, 0.5, 1.2, 20, physics)
+    this.createRamp(54, 3.5, -55, 4, 0.3, 14, -0.28, physics)
+    this.createSign(68, 4.5, -44.8, 8, 2.0, Math.PI, 'PABRIK PENGGILINGAN ZAITUN', 'DEPO PENYIMPANAN MINYAK ZAITUN', { theme: 'vintage' })
+
+    // Building 3: Old Town Street Terraced Shophouses (SW: x = -70, z = 55)
+    this.createWall(-70, 4.0, 55, 22, 8, 20, physics)
+    this.createCoverWall(-70, 8.6, 44.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(-70, 8.6, 65.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(-81.5, 8.6, 55, 0.5, 1.2, 20, physics)
+    this.createRamp(-56, 4.0, 55, 4, 0.3, 16, 0.28, physics)
+    this.createSign(-70, 5.0, 44.8, 8, 2.0, 0, 'RUKO MEDITERANIA KOTA TUA', 'LANTAI 2 - TERAS PEDAGANG KERAMIK', { theme: 'vintage' })
+
+    // Building 4: Porta Nuova Fortress Bastion Gatehouse (NW: x = -70, z = -55)
+    this.createWall(-70, 3.5, -55, 22, 7, 20, physics)
+    this.createCoverWall(-70, 7.6, -44.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(-81.5, 7.6, -55, 0.5, 1.2, 20, physics)
+    this.createRamp(-56, 3.5, -55, 4, 0.3, 14, -0.28, physics)
+    this.createSign(-70, 4.5, -44.8, 8, 2.0, Math.PI, 'BENTENG PORTA NUOVA', 'POS PENJAGA GERBANG UTARA', { theme: 'military' })
+
+    // Building 5: Gelateria & Artisan Bakery Cafe (SW Base: x = -35, z = 85)
+    this.createWall(-35, 3.0, 85, 14, 6, 14, physics)
+    this.createSign(-35, 4.0, 77.8, 7, 1.8, 0, 'GELATERIA & ROTI ARTISAN', 'KULINER KHAS TUSCANY', { theme: 'vintage' })
+
+    // Building 6: Stables & Carriage Depot (NE Base: x = 35, z = -85)
+    this.createWall(35, 3.0, -85, 14, 6, 14, physics)
+    this.createSign(35, 4.0, -77.8, 7, 1.8, Math.PI, 'DEPO KERETA KUDA & STAL', 'PERAWATAN KENDARAAN KOTA TUA', { theme: 'vintage' })
   }
 
   private createSkybridge(

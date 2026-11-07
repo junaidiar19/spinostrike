@@ -25,7 +25,13 @@ export class ArcticOutpost {
     new THREE.Vector3(36, 1, 60),       // Helipad Access Path
     new THREE.Vector3(-36, 1, -60),     // Radar Flank Path North
     new THREE.Vector3(0, 3.8, 20),      // Tower South Ramp Midpoint
-    new THREE.Vector3(0, 3.8, -20)      // Tower North Ramp Midpoint
+    new THREE.Vector3(0, 3.8, -20),     // Tower North Ramp Midpoint
+    new THREE.Vector3(-70, 8.2, 55),    // Cryo Lab Rooftop Deck
+    new THREE.Vector3(-70, 7.2, -55),   // Arctic Barracks Roof Vantage
+    new THREE.Vector3(70, 7.2, -55),    // Tank Armored Motor Pool Roof
+    new THREE.Vector3(70, 1, 70),       // Emergency Power Station
+    new THREE.Vector3(-35, 1, 85),      // Meteorology Station
+    new THREE.Vector3(35, 1, -85)       // Field Medical Clinic
   ]
 
   // Realistic Procedural Materials with DoubleSide for raycast & collision reliability
@@ -267,6 +273,43 @@ export class ArcticOutpost {
       head.position.set(mx, 10.2, mz)
       this.group.add(head)
     })
+
+    // ==========================================================
+    // 8. EXPANDED ARCTIC BASE MILITARY BUILDINGS & CRYO LABS
+    // ==========================================================
+    // Building 1: Cryogenic Research Laboratories & Server Wing (SW: x = -70, z = 55)
+    this.createWall(-70, 4.0, 55, 22, 8, 20, physics)
+    this.createCoverWall(-70, 8.6, 44.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(-70, 8.6, 65.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(-81.5, 8.6, 55, 0.5, 1.2, 20, physics)
+    this.createRamp(-56, 4.0, 55, 4, 0.3, 16, 0.28, physics)
+    this.createSign(-70, 5.0, 44.8, 8, 2.0, 0, 'LABORATORIUM RISET KRIOGENIK', 'LANTAI 2 - PUSAT DATA KUTUB UTARA', { theme: 'military', code: 'CRYO-LAB-01' })
+
+    // Building 2: Arctic Military Barracks & Command Post (NW: x = -70, z = -55)
+    this.createWall(-70, 3.5, -55, 22, 7, 20, physics)
+    this.createCoverWall(-70, 7.6, -44.5, 22, 1.2, 0.5, physics)
+    this.createCoverWall(-81.5, 7.6, -55, 0.5, 1.2, 20, physics)
+    this.createRamp(-56, 3.5, -55, 4, 0.3, 14, -0.28, physics)
+    this.createSign(-70, 4.5, -44.8, 8, 2.0, Math.PI, 'BARAK MILITER & KOMANDO OPERASI', 'DORMI KHUSUS PASUKAN SALJU', { theme: 'military' })
+
+    // Building 3: Snowcat & Tank Armored Motor Pool Garage (NE: x = 70, z = -55)
+    this.createWall(70, 3.5, -55, 24, 7, 22, physics)
+    this.createCoverWall(70, 7.6, -43.5, 24, 1.2, 0.5, physics)
+    this.createCoverWall(82.5, 7.6, -55, 0.5, 1.2, 22, physics)
+    this.createRamp(55, 3.5, -55, 4, 0.3, 14, -0.28, physics)
+    this.createSign(70, 4.5, -43.8, 8, 2.0, Math.PI, 'DEPO HANGAR KENDARAAN LAPIS BAJA', 'GARASI PERBAIKAN TANK SALJU & SNOWCAT', { theme: 'industrial', code: 'MOTOR-POOL' })
+
+    // Building 4: Emergency Sub-Zero Power Station (SE: x = 70, z = 70)
+    this.createWall(70, 3.0, 70, 18, 6, 16, physics)
+    this.createSign(70, 4.0, 61.8, 8, 2.0, 0, 'GARDU PEMBANGKIT DAYA DARURAT', 'GENERATOR TURBIN TERMAL KUTUB', { theme: 'danger' })
+
+    // Building 5: Weather Observation Station (SW Base: x = -35, z = 85)
+    this.createWall(-35, 3.0, 85, 14, 6, 14, physics)
+    this.createSign(-35, 4.0, 77.8, 7, 1.8, 0, 'STASIUN METEOROLOGI & BADAI', 'SENSOR ANGIN & SUHU SUB-ZERO', { theme: 'info' })
+
+    // Building 6: Field Medical Clinic (NE Base: x = 35, z = -85)
+    this.createWall(35, 3.0, -85, 14, 6, 14, physics)
+    this.createSign(35, 4.0, -77.8, 7, 1.8, Math.PI, 'POS MEDIS EVAKUASI DARURAT', 'TIM DOKTER BEDAH MILITER', { theme: 'info', code: 'MEDIC-01' })
   }
 
   private createCryoTank(x: number, y: number, z: number, physics: PhysicsWorld) {

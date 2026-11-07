@@ -25,7 +25,13 @@ export class CargoHarbor {
     new THREE.Vector3(0, 1, -76),       // T Freight Spawn Exit
     new THREE.Vector3(0, 4.4, 24),      // Crane South Access Ramp Mid
     new THREE.Vector3(0, 4.4, -24),     // Crane North Access Ramp Mid
-    new THREE.Vector3(84, 1, 56)        // Wharf South Sniper Perch
+    new THREE.Vector3(84, 1, 56),       // Wharf South Sniper Perch
+    new THREE.Vector3(70, 8.2, -45),    // Passenger Terminal Deck
+    new THREE.Vector3(-70, 7.2, -45),   // Bonded Cargo Hangar Roof
+    new THREE.Vector3(70, 8.2, 55),     // Marine Workshop Roof Deck
+    new THREE.Vector3(-70, 8.2, 60),    // Harbor Master VTS Tower Roof
+    new THREE.Vector3(-35, 1, 85),      // Weighbridge Office
+    new THREE.Vector3(35, 1, -85)       // Fuel Bunkering Station
   ]
 
   // Realistic Procedural Materials with DoubleSide for raycast & collision reliability
@@ -235,6 +241,47 @@ export class CargoHarbor {
     this.createBarrel(36, 0, 35, physics)
     this.createBarrel(-20, 0, 40, physics)
     this.createBarrel(-20, 0, -40, physics)
+
+    // ==========================================================
+    // 7. PORT PASSENGER TERMINALS, WAREHOUSES & CONTROL TOWERS
+    // ==========================================================
+    // Building 1: Port Passenger Terminal & Customs Hall (NE: x = 70, z = -45)
+    this.createWall(70, 4.0, -45, 22, 8, 20, physics)
+    this.createWall(70, 8.6, -55.5, 22, 1.2, 0.5, physics)
+    this.createWall(70, 8.6, -34.5, 22, 1.2, 0.5, physics)
+    this.createWall(81.5, 8.6, -45, 0.5, 1.2, 20, physics)
+    this.createRamp(56, 4.0, -45, 4, 0.3, 16, -0.28, physics)
+    this.createSign(70, 5.0, -34.8, 8, 2.0, 0, 'TERMINAL PENUMPANG & IMIGRASI', 'LANTAI 2 - DECK OBSERVASI SAMUDERA', { theme: 'maritime', code: 'TERM-SEA-01' })
+
+    // Building 2: Bonded Cargo Warehouse Hangar (NW: x = -70, z = -45)
+    this.createWall(-70, 3.5, -45, 22, 7, 20, physics)
+    this.createWall(-70, 7.6, -34.5, 22, 1.2, 0.5, physics)
+    this.createWall(-81.5, 7.6, -45, 0.5, 1.2, 20, physics)
+    this.createRamp(-56, 3.5, -45, 4, 0.3, 14, -0.28, physics)
+    this.createSign(-70, 4.5, -34.8, 8, 2.0, Math.PI, 'GUDANG BERIKAT KARGO INTERNASIONAL', 'PENYIMPANAN LOGISTIK PELABUHAN', { theme: 'industrial' })
+
+    // Building 3: Marine Freight Workshop & Spares Depot (SE: x = 70, z = 55)
+    this.createWall(70, 4.0, 55, 22, 8, 20, physics)
+    this.createWall(70, 8.6, 44.5, 22, 1.2, 0.5, physics)
+    this.createWall(70, 8.6, 65.5, 22, 1.2, 0.5, physics)
+    this.createWall(81.5, 8.6, 55, 0.5, 1.2, 20, physics)
+    this.createRamp(56, 4.0, 55, 4, 0.3, 16, 0.28, physics)
+    this.createSign(70, 5.0, 44.8, 8, 2.0, 0, 'BENGKEL MESIN KAPAL & ALAT DERMAGA', 'SPESIALISASI DIESEL & HYDRAULIC', { theme: 'industrial' })
+
+    // Building 4: Harbor Master & Port Traffic Control Tower (SW: x = -70, z = 60)
+    this.createWall(-70, 4.0, 60, 18, 8, 18, physics)
+    this.createWall(-70, 8.6, 50.5, 18, 1.2, 0.5, physics)
+    this.createWall(-81.5, 8.6, 60, 0.5, 1.2, 18, physics)
+    this.createRamp(-58, 4.0, 60, 4, 0.3, 16, 0.28, physics)
+    this.createSign(-70, 5.0, 50.8, 8, 2.0, 0, 'MENARA LALU LINTAS LAUT (VTS)', 'LANTAI 2 - RADAR NAVIGASI KAPAL', { theme: 'maritime', code: 'VTS-RADAR' })
+
+    // Building 5: Security Gate & Weighbridge Office (SW Base: x = -35, z = 85)
+    this.createWall(-35, 3.0, 85, 14, 6, 14, physics)
+    this.createSign(-35, 4.0, 77.8, 7, 1.8, 0, 'POS TIMBANG TRUK & PEMERIKSAAN', 'BEBAN MAKSIMUM 50 TON', { theme: 'maritime' })
+
+    // Building 6: Fuel Bunkering & Maritime Oil Station (NE Base: x = 35, z = -85)
+    this.createWall(35, 3.0, -85, 14, 6, 14, physics)
+    this.createSign(35, 4.0, -77.8, 7, 1.8, Math.PI, 'STASIUN PENGISIAN BAHAN BAKAR KAPAL', 'BAHAYA MUATAN MUDAH TERBAKAR', { theme: 'danger' })
   }
 
   private createContainer(

@@ -758,6 +758,8 @@ export class Tank {
       exitOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), this.hullYaw)
       this.driver.position.copy(this.position).add(exitOffset)
       this.driver.position.y = 1.5
+      this.driver.yaw = this.turretYaw
+      this.driver.pitch = 0
     }
 
     this.driver = null

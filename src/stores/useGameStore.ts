@@ -190,7 +190,15 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
     { id: 'bot-1', name: 'Bot Bravo', team: 'T', kills: 0, deaths: 0, score: 0, ping: 25, isBot: true },
     { id: 'bot-2', name: 'Bot Viper', team: 'T', kills: 0, deaths: 0, score: 0, ping: 30, isBot: true },
     { id: 'bot-3', name: 'Bot Ghost', team: 'CT', kills: 0, deaths: 0, score: 0, ping: 18, isBot: true },
-    { id: 'bot-4', name: 'Bot Rex', team: 'T', kills: 0, deaths: 0, score: 0, ping: 22, isBot: true }
+    { id: 'bot-4', name: 'Bot Rex', team: 'T', kills: 0, deaths: 0, score: 0, ping: 22, isBot: true },
+    { id: 'bot-5', name: 'Bot Falcon', team: 'CT', kills: 0, deaths: 0, score: 0, ping: 16, isBot: true },
+    { id: 'bot-6', name: 'Bot Hawk', team: 'CT', kills: 0, deaths: 0, score: 0, ping: 19, isBot: true },
+    { id: 'bot-7', name: 'Bot Shadow', team: 'T', kills: 0, deaths: 0, score: 0, ping: 28, isBot: true },
+    { id: 'bot-8', name: 'Bot Titan', team: 'T', kills: 0, deaths: 0, score: 0, ping: 32, isBot: true },
+    { id: 'bot-9', name: 'Bot Cobra', team: 'T', kills: 0, deaths: 0, score: 0, ping: 24, isBot: true },
+    { id: 'bot-10', name: 'Bot Hunter', team: 'T', kills: 0, deaths: 0, score: 0, ping: 27, isBot: true },
+    { id: 'bot-11', name: 'Bot Reaper', team: 'T', kills: 0, deaths: 0, score: 0, ping: 35, isBot: true },
+    { id: 'bot-12', name: 'Bot Wolf', team: 'T', kills: 0, deaths: 0, score: 0, ping: 21, isBot: true }
   ],
   isMobile: false,
   isScoreboardOpen: false,

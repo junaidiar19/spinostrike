@@ -304,9 +304,9 @@ export class InputManager {
     }
 
     // Key E: Dedicated vehicle enter/exit and interact key (100% keyboard driven, no cursor required)
-    if (e.code === 'KeyE') {
+    if (e.code === 'KeyE' || e.key === 'e' || e.key === 'E') {
       this.interactTankRequested = true
-    } else if (e.code === 'KeyK') {
+    } else if (e.code === 'KeyK' || e.key === 'k' || e.key === 'K') {
       this.isAiming = !this.isAiming
       useGameStore.getState().setIsAiming(this.isAiming)
     }

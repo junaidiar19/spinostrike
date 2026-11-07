@@ -26,7 +26,13 @@ export class DustArena {
     new THREE.Vector3(0, 1, -76),       // T Spawn Yard Exit
     new THREE.Vector3(-24, 1, 0),       // Mid Bazaar Market Left
     new THREE.Vector3(24, 1, 0),        // Mid Bazaar Market Right
-    new THREE.Vector3(0, 1, -36)        // T Underpass to Mid
+    new THREE.Vector3(0, 1, -36),       // T Underpass to Mid
+    new THREE.Vector3(-48, 8.2, 52),    // SW Shophouse Rooftop Balcony
+    new THREE.Vector3(50, 8.2, 62),     // SE Citadel Garrison Roof
+    new THREE.Vector3(-48, 7.2, -48),   // NW Desert Caravanserai Roof
+    new THREE.Vector3(86, 8.2, 36),     // NE A-Long Gatehouse Roof
+    new THREE.Vector3(-38, 1, 96),      // SW Logistics Depot
+    new THREE.Vector3(38, 1, -96)       // NE Guerrilla Barracks
   ]
 
   // Realistic Procedural Materials with DoubleSide for 100% raycast hit reliability
@@ -279,6 +285,45 @@ export class DustArena {
     blastB.rotation.x = -Math.PI / 2
     blastB.position.set(-68, 0.02, -50)
     this.group.add(blastB)
+
+    // ==========================================================
+    // 9. DENSE URBAN BUILDINGS & RESIDENTIAL BAZAAR DISTRICTS
+    // ==========================================================
+    // Building 1: 2-Story Sandstone Shophouse Complex (SW Quarter: x = -48, z = 52)
+    this.createWall(-48, 4.0, 52, 18, 8, 20, physics)
+    this.createWall(-48, 8.6, 42.5, 18, 1.2, 0.5, physics)
+    this.createWall(-48, 8.6, 61.5, 18, 1.2, 0.5, physics)
+    this.createWall(-56.5, 8.6, 52, 0.5, 1.2, 18, physics)
+    this.createRamp(-36, 4.0, 52, 4, 0.3, 16, 0.28, physics)
+    this.createCrate(-48, 9.2, 52, 3, 1.5, 3, physics)
+    this.createSign(-48, 5.0, 41.8, 8, 2.0, 0, 'KOMPLEKS PERTOKOAN GURUN', 'LANTAI 2 - BALKONI PENGAWASAN', { theme: 'vintage' })
+
+    // Building 2: Fortified Citadel Garrison (SE Quarter: x = 50, z = 62)
+    this.createWall(50, 4.0, 62, 22, 8, 18, physics)
+    this.createWall(50, 8.6, 53.5, 22, 1.2, 0.5, physics)
+    this.createWall(60.5, 8.6, 62, 0.5, 1.2, 18, physics)
+    this.createRamp(36, 4.0, 62, 4, 0.3, 16, 0.28, physics)
+    this.createSign(50, 5.0, 52.8, 8, 2.0, 0, 'BENTENG GARRISON SELATAN', 'POS PERTAHANAN KAVALERI & TANK', { theme: 'military', code: 'GARRISON-02' })
+
+    // Building 3: North Desert Caravanserai (NW Quarter: x = -48, z = -48)
+    this.createWall(-48, 3.5, -48, 20, 7, 18, physics)
+    this.createWall(-48, 7.6, -39.5, 20, 1.2, 0.5, physics)
+    this.createRamp(-35, 3.5, -48, 4, 0.3, 14, -0.28, physics)
+    this.createSign(-48, 4.5, -38.8, 8, 2.0, Math.PI, 'KARAVANSERAI KOTA KUNO', 'DEPO LOGISTIK JALUR SUTRA', { theme: 'vintage' })
+
+    // Building 4: A-Long Flank Shophouse & Gatehouse (NE Quarter: x = 86, z = 36)
+    this.createWall(86, 4.0, 36, 14, 8, 16, physics)
+    this.createWall(86, 8.6, 28.5, 14, 1.2, 0.5, physics)
+    this.createRamp(76, 4.0, 36, 4, 0.3, 16, 0.28, physics)
+    this.createSign(86, 5.0, 27.8, 7, 1.8, 0, 'GERBANG TIMUR A-LONG', 'POS PEMERIKSAAN KENDARAAN BERAT', { theme: 'military' })
+
+    // Building 5: South Logistics Storage Depot (SW Base: x = -38, z = 96)
+    this.createWall(-38, 3.0, 96, 16, 6, 14, physics)
+    this.createSign(-38, 4.0, 88.8, 7, 1.8, 0, 'DEPO PERBEKALAN CT', 'AMUNISI & SUKU CADANG TANK', { theme: 'industrial' })
+
+    // Building 6: North Guerrilla Barracks (NE Base: x = 38, z = -96)
+    this.createWall(38, 3.0, -96, 16, 6, 14, physics)
+    this.createSign(38, 4.0, -88.8, 7, 1.8, Math.PI, 'BARAK GERILYA UTARA', 'POS PERAKITAN ROKET & MORTIR', { theme: 'danger' })
   }
 
   private createMarketStall(x: number, y: number, z: number, physics: PhysicsWorld) {
