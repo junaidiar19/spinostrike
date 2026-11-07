@@ -19,12 +19,12 @@ export const PauseModal: React.FC<Props> = ({ onOpenSettings, onOpenMapSelect })
 
   const handleRestart = () => {
     gameEngine.loadMap(currentMap)
-    setGameStatus('PLAYING')
-    gameEngine.inputManager.requestPointerLock()
+    gameEngine.startMatch()
   }
 
   const handleMainMenu = () => {
     gameEngine.inputManager.exitPointerLock()
+    useGameStore.getState().restartMatch()
     setGameStatus('MENU')
   }
 

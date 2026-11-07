@@ -31,6 +31,11 @@ export const MapSelectModal: React.FC<Props> = ({ onClose }) => {
     setCurrentMap(mapId)
     gameEngine.loadMap(mapId)
     onClose()
+
+    const store = useGameStore.getState()
+    if (store.isMatchEnded || store.gameStatus === 'PAUSED') {
+      gameEngine.startMatch()
+    }
   }
 
   const mapList = Object.values(MAP_METADATA)

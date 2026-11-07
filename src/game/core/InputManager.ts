@@ -115,18 +115,52 @@ export class InputManager {
     }
   }
 
+  public reset() {
+    this.moveForward = 0
+    this.moveRight = 0
+    this.isJumping = false
+    this.isCrouching = false
+    this.isSprinting = false
+    this.lookDeltaX = 0
+    this.lookDeltaY = 0
+    this.isShooting = false
+    this.isAiming = false
+    this.isMouseDown = false
+    this.isKeyShooting = false
+    this.reloadRequested = false
+    this.requestedSlot = null
+    this.mobileMoveX = 0
+    this.mobileMoveY = 0
+    this.lastMouseX = null
+    this.lastMouseY = null
+  }
+
   public exitPointerLock() {
     if (document.pointerLockElement) {
-      document.exitPointerLock()
+      try {
+        document.exitPointerLock()
+      } catch {
+        // ignore
+      }
     }
+    this.isPointerLocked = false
+    this.reset()
   }
 
   private onPointerLockChange() {
     // As long as ANY element is pointer locked, pointer lock is active!
     this.isPointerLocked = !!document.pointerLockElement
+    if (!this.isPointerLocked) {
+      this.isMouseDown = false
+      this.isShooting = false
+      this.lastMouseX = null
+      this.lastMouseY = null
+    }
   }
 
   private onMouseMove(e: MouseEvent) {
+    if (useGameStore.getState().isMatchEnded) return
+
     const { mouseSensitivity, invertY } = useSettingsStore.getState()
     const factor = 0.0016 * mouseSensitivity
 
@@ -160,8 +194,13 @@ export class InputManager {
   private isKeyShooting: boolean = false
 
   private onMouseDown(e: MouseEvent) {
+    const store = useGameStore.getState()
+    if (store.isMatchEnded) {
+      return
+    }
+
     // If clicking during gameplay on desktop, request pointer lock
-    if (useGameStore.getState().gameStatus === 'PLAYING') {
+    if (store.gameStatus === 'PLAYING') {
       if (!this.isPointerLocked) {
         this.requestPointerLock()
       }
@@ -172,11 +211,17 @@ export class InputManager {
       this.isShooting = true
     } else if (e.button === 2) {
       this.isAiming = !this.isAiming
-      useGameStore.getState().setIsAiming(this.isAiming)
+      store.setIsAiming(this.isAiming)
     }
   }
 
   private onMouseUp(e: MouseEvent) {
+    if (useGameStore.getState().isMatchEnded) {
+      this.isMouseDown = false
+      this.isShooting = false
+      return
+    }
+
     if (e.button === 0) {
       this.isMouseDown = false
       this.isShooting = this.isKeyShooting
@@ -196,6 +241,8 @@ export class InputManager {
   }
 
   private onKeyDown(e: KeyboardEvent) {
+    if (useGameStore.getState().isMatchEnded) return
+
     // Scoreboard tab
     if (e.code === 'Tab') {
       e.preventDefault()

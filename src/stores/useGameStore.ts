@@ -563,7 +563,16 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
       result = 'DRAW'
     }
 
-    set({ isMatchEnded: true, matchResult: result, isScoreboardOpen: true })
+    set({ isMatchEnded: true, matchResult: result, isScoreboardOpen: false })
+
+    // Release mouse pointer lock so the user can immediately interact with MatchEndModal
+    if (typeof document !== 'undefined' && document.pointerLockElement) {
+      try {
+        document.exitPointerLock()
+      } catch {
+        // ignore
+      }
+    }
 
     import('../game/core/AudioManager').then(({ audioManager }) => {
       if (result === 'VICTORY') {
@@ -575,13 +584,25 @@ export const useGameStore = create<GameStoreState>((set, get) => ({
   },
 
   restartMatch: () => {
-    set({
-      matchTimeRemaining: 300,
+    const duration = get().matchDuration || 300
+    set((state) => ({
+      matchTimeRemaining: duration,
       teamScores: { CT: 0, T: 0 },
       isMatchEnded: false,
       matchResult: null,
-      isScoreboardOpen: false
-    })
+      isScoreboardOpen: false,
+      isPlayerDead: false,
+      killerInfo: null,
+      respawnCountdown: 0,
+      damageFlash: false,
+      damageAngle: null,
+      scoreboard: state.scoreboard.map((p) => ({
+        ...p,
+        kills: 0,
+        deaths: 0,
+        score: 0
+      }))
+    }))
   },
 
   setIsScoreboardOpen: (isScoreboardOpen) => set({ isScoreboardOpen }),

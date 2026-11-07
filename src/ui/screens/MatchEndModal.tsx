@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Trophy, RotateCcw, Map, Home, Skull, Target, Crosshair, Award } from 'lucide-react'
 import { useGameStore } from '../../stores/useGameStore'
 import { gameEngine } from '../../game/core/GameEngine'
@@ -14,6 +14,13 @@ export const MatchEndModal: React.FC<MatchEndModalProps> = ({ onOpenMapSelect })
   const scoreboard = useGameStore((state) => state.scoreboard)
   const setGameStatus = useGameStore((state) => state.setGameStatus)
 
+  // Ensure pointer lock is immediately exited when match end modal appears
+  useEffect(() => {
+    if (isMatchEnded) {
+      gameEngine.inputManager.exitPointerLock()
+    }
+  }, [isMatchEnded])
+
   if (!isMatchEnded) return null
 
   // Find local player stats
@@ -27,15 +34,20 @@ export const MatchEndModal: React.FC<MatchEndModalProps> = ({ onOpenMapSelect })
   const sorted = [...scoreboard].sort((a, b) => b.score - a.score)
   const mvp = sorted[0]
 
-  const handlePlayAgain = () => {
+  const handlePlayAgain = (e: React.MouseEvent) => {
+    e.stopPropagation()
     gameEngine.startMatch()
   }
 
-  const handleSelectMap = () => {
+  const handleSelectMap = (e: React.MouseEvent) => {
+    e.stopPropagation()
     onOpenMapSelect()
   }
 
-  const handleBackToMenu = () => {
+  const handleBackToMenu = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    gameEngine.inputManager.exitPointerLock()
+    useGameStore.getState().restartMatch()
     setGameStatus('MENU')
   }
 
@@ -43,7 +55,7 @@ export const MatchEndModal: React.FC<MatchEndModalProps> = ({ onOpenMapSelect })
   const isDefeat = matchResult === 'DEFEAT'
 
   return (
-    <div className="match-end-overlay">
+    <div className="match-end-overlay" onClick={(e) => e.stopPropagation()}>
       <div className={`match-end-card ${isVictory ? 'card-victory' : isDefeat ? 'card-defeat' : 'card-draw'}`}>
         {/* Banner Header */}
         <div className="match-end-banner">

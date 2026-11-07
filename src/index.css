@@ -1029,6 +1029,7 @@ body,
   justify-content: center;
   padding: 20px;
   animation: modalFadeIn 0.3s ease-out;
+  pointer-events: auto;
 }
 
 .match-end-card {
@@ -2180,14 +2181,24 @@ body,
    ========================================================================== */
 
 .modal-backdrop,
-.pause-modal-backdrop,
+.pause-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10005;
+  background: rgba(9, 13, 22, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  pointer-events: auto;
+}
+
 .scoreboard-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 60;
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
   background: rgba(9, 13, 22, 0.85);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -2195,6 +2206,7 @@ body,
   align-items: center;
   justify-content: center;
   padding: 20px;
+  pointer-events: auto;
 }
 
 .modal-dialog {

@@ -73,9 +73,12 @@ export const App: React.FC = () => {
       if (isLocked) {
         wasPointerLockedRef.current = true
       } else {
+        const isMatchEnded = useGameStore.getState().isMatchEnded
         if (wasPointerLockedRef.current && !isMobile && gameStatus === 'PLAYING') {
           wasPointerLockedRef.current = false
-          setGameStatus('PAUSED')
+          if (!isMatchEnded) {
+            setGameStatus('PAUSED')
+          }
         }
       }
     }

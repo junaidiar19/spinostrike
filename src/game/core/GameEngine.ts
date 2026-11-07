@@ -180,10 +180,15 @@ export class GameEngine {
 
     const store = useGameStore.getState()
     store.restartMatch()
+    store.resetPlayerStats()
     store.setHealth(100)
     store.setArmor(100)
     store.setMatchGraceTimer(5) // 5-second tactical preparation in spawn hideout
     store.setSpawnProtection(5)
+    store.setGameStatus('PLAYING')
+
+    this.bulletManager.cleanup()
+    this.inputManager.reset()
 
     // Respawn bots fresh at ground level
     this.botManager.spawnBots(
@@ -192,6 +197,10 @@ export class GameEngine {
       this.mapManager.ctSpawn,
       this.bulletManager
     )
+
+    if (!store.isMobile) {
+      this.inputManager.requestPointerLock()
+    }
   }
 
   public start() {
@@ -241,6 +250,14 @@ export class GameEngine {
     const store = useGameStore.getState()
     if (!store.isMatchEnded) {
       store.tickMatchTimer(dt)
+    }
+
+    // Freeze active combat while match end modal is displayed
+    if (store.isMatchEnded) {
+      this.bulletManager.update(dt)
+      this.renderer.render(this.scene, this.camera)
+      this.animationFrameId = requestAnimationFrame(this.gameLoop)
+      return
     }
     if (store.matchGraceTimer > 0) {
       store.setMatchGraceTimer(Math.max(0, store.matchGraceTimer - dt))
