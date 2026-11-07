@@ -24,7 +24,7 @@ export const TankHud: React.FC = () => {
     <>
       {/* 1. Proximity prompt when player is walking near an unoccupied tank */}
       {isNearTank && !isDrivingTank && (
-        <div className="tank-prompt-overlay" onClick={handleBoardTank}>
+        <div className="tank-prompt-overlay" onClick={isMobile ? handleBoardTank : undefined}>
           <div className="tank-prompt-card">
             <div className="tank-prompt-icon-wrap">
               <Shield size={24} className="tank-prompt-icon" />
@@ -32,12 +32,19 @@ export const TankHud: React.FC = () => {
             <div className="tank-prompt-text-col">
               <span className="tank-prompt-title">TANK TEMPUR TERSEDIA</span>
               <span className="tank-prompt-sub">
-                {isMobile ? 'KETUK DI SINI UNTUK NAIK TANK' : 'TEKAN [E] ATAU KLIK UNTUK NAIK TANK'}
+                {isMobile ? 'KETUK DI SINI UNTUK NAIK TANK' : 'TEKAN TOMBOL [E] PADA KEYBOARD UNTUK NAIK'}
               </span>
             </div>
-            <button type="button" className="btn-tank-board" onClick={handleBoardTank}>
-              NAIK TANK
-            </button>
+            {isMobile ? (
+              <button type="button" className="btn-tank-board" onClick={handleBoardTank}>
+                NAIK TANK
+              </button>
+            ) : (
+              <div className="tank-key-badge-indicator flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/50 px-3 py-1.5 rounded-lg">
+                <kbd className="px-2.5 py-1 bg-amber-400 text-black font-extrabold text-sm rounded shadow">E</kbd>
+                <span className="text-xs font-bold text-emerald-300">MASUK TANK</span>
+              </div>
+            )}
           </div>
         </div>
       )}

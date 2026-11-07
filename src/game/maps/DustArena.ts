@@ -7,26 +7,26 @@ export class DustArena {
   public colliderBodies: unknown[] = []
   public collidableMeshes: THREE.Object3D[] = []
 
-  // Expanded tactical spawn locations (120m x 120m map)
-  public ctSpawn = new THREE.Vector3(0, 1.5, 48)
-  public tSpawn = new THREE.Vector3(0, 1.5, -48)
+  // Expanded tactical spawn locations (240m x 240m map - 2x broader combat arena)
+  public ctSpawn = new THREE.Vector3(0, 1.5, 96)
+  public tSpawn = new THREE.Vector3(0, 1.5, -96)
   public botWaypoints: THREE.Vector3[] = [
     new THREE.Vector3(0, 1, 0),         // Mid Central Archway
-    new THREE.Vector3(12, 1, 14),       // Mid to A-Short Ramp
-    new THREE.Vector3(26, 1, 28),       // A-Long Colonnade Entry
-    new THREE.Vector3(38, 1, 10),       // A-Long Midpoint
-    new THREE.Vector3(34, 2.0, -25),    // Zona Bom A Platform
-    new THREE.Vector3(45, 6.2, -32),    // A Sniper Watchtower Top
-    new THREE.Vector3(14, 1, -18),      // CT Spawn to A Connector
-    new THREE.Vector3(-14, 1, 18),      // Mid to B Underpass Entry
-    new THREE.Vector3(-32, 1, 20),      // B-Tunnels Underground Chamber
-    new THREE.Vector3(-32, 1, -24),     // Zona Bom B Compound
-    new THREE.Vector3(-42, 2.5, -34),   // B Site Defense Vantage
-    new THREE.Vector3(0, 1, 38),        // CT Spawn Yard Exit
-    new THREE.Vector3(0, 1, -38),       // T Spawn Yard Exit
-    new THREE.Vector3(-12, 1, 0),       // Mid Bazaar Market Left
-    new THREE.Vector3(12, 1, 0),        // Mid Bazaar Market Right
-    new THREE.Vector3(0, 1, -18)        // T Underpass to Mid
+    new THREE.Vector3(24, 1, 28),       // Mid to A-Short Ramp
+    new THREE.Vector3(52, 1, 56),       // A-Long Colonnade Entry
+    new THREE.Vector3(76, 1, 20),       // A-Long Midpoint
+    new THREE.Vector3(68, 2.0, -50),    // Zona Bom A Platform
+    new THREE.Vector3(92, 6.2, -64),    // A Sniper Watchtower Top
+    new THREE.Vector3(28, 1, -36),      // CT Spawn to A Connector
+    new THREE.Vector3(-28, 1, 36),      // Mid to B Underpass Entry
+    new THREE.Vector3(-64, 1, 40),      // B-Tunnels Underground Chamber
+    new THREE.Vector3(-68, 1, -48),     // Zona Bom B Compound
+    new THREE.Vector3(-84, 2.5, -68),   // B Site Defense Vantage
+    new THREE.Vector3(0, 1, 76),        // CT Spawn Yard Exit
+    new THREE.Vector3(0, 1, -76),       // T Spawn Yard Exit
+    new THREE.Vector3(-24, 1, 0),       // Mid Bazaar Market Left
+    new THREE.Vector3(24, 1, 0),        // Mid Bazaar Market Right
+    new THREE.Vector3(0, 1, -36)        // T Underpass to Mid
   ]
 
   // Realistic Procedural Materials with DoubleSide for 100% raycast hit reliability
@@ -82,159 +82,158 @@ export class DustArena {
   public build(physics: PhysicsWorld) {
     this.group.name = 'map_dust_arena'
 
-    // 1. Expanded Main Ground (120m x 120m)
-    const groundGeom = new THREE.BoxGeometry(120, 1, 120)
+    // 1. Expanded Main Ground (240m x 240m - 2x Larger Battlefield)
+    const groundGeom = new THREE.BoxGeometry(240, 1, 240)
     const ground = new THREE.Mesh(groundGeom, this.sandMat)
     ground.position.set(0, -0.5, 0)
     ground.receiveShadow = true
     this.group.add(ground)
     this.collidableMeshes.push(ground)
-    physics.createBox(0, -0.5, 0, 60, 0.5, 60, true)
+    physics.createBox(0, -0.5, 0, 120, 0.5, 120, true)
 
-    // 2. Perimeter Sandstone Walls (Height 7m, Thickness 2m at ±60m)
-    this.createWall(0, 3.5, -60, 120, 7, 2, physics) // North
-    this.createWall(0, 3.5, 60, 120, 7, 2, physics)  // South
-    this.createWall(-60, 3.5, 0, 2, 7, 120, physics) // West
-    this.createWall(60, 3.5, 0, 2, 7, 120, physics)  // East
+    // 2. Perimeter Sandstone Walls (Height 8m, Thickness 3m at ±120m)
+    this.createWall(0, 4.0, -120, 240, 8, 3, physics) // North
+    this.createWall(0, 4.0, 120, 240, 8, 3, physics)  // South
+    this.createWall(-120, 4.0, 0, 3, 8, 240, physics) // West
+    this.createWall(120, 4.0, 0, 3, 8, 240, physics)  // East
 
     // ==========================================================
     // 3. FORTIFIED CT SPAWN & T SPAWN HIDEOUTS (Tempat Persembunyian Awal)
     // ==========================================================
-    // CT Spawn Hideout (z = 48): Sandstone bunker with tactical blast walls at z = 40
-    this.createWall(-10, 3, 40, 16, 6, 2, physics)
-    this.createWall(10, 3, 40, 16, 6, 2, physics)
-    this.createCrate(0, 1, 43, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, 45, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, 45, 2.5, 2, 2, physics)
-    this.createCrate(0, 2.75, 43, 2, 1.5, 2, physics) // Stacked crate cover resting flush on base crate
+    // CT Spawn Hideout (z = 96): Sandstone bunker with tactical blast walls at z = 80
+    this.createWall(-20, 3.5, 80, 32, 7, 3, physics)
+    this.createWall(20, 3.5, 80, 32, 7, 3, physics)
+    this.createCrate(0, 1, 86, 6, 2, 3, physics)
+    this.createCrate(-9, 1, 90, 4, 2, 3, physics)
+    this.createCrate(9, 1, 90, 4, 2, 3, physics)
+    this.createCrate(0, 2.75, 86, 3, 1.5, 3, physics)
 
     // CT Spawn Indonesian Signage
-    this.createSign(0, 4.5, 58.8, 8, 2.2, Math.PI, 'POS KOMANDO OPERASI (CT)', 'SEKTOR PERTAHANAN SELATAN - SIAP TEMPUR', { theme: 'military', code: 'SPINO-CT-01' })
-    this.createSign(-10, 3.2, 38.8, 4.5, 1.6, 0, 'MENUJU ZONA BOM A ➔', 'JALUR A-LONG', { theme: 'info', arrow: 'right' })
-    this.createSign(10, 3.2, 38.8, 4.5, 1.6, 0, '◀ MENUJU ZONA BOM B', 'LORONG B-TUNNEL', { theme: 'info', arrow: 'left' })
+    this.createSign(0, 5.0, 118.5, 12, 2.8, Math.PI, 'POS KOMANDO OPERASI (CT)', 'SEKTOR PERTAHANAN SELATAN - 240M SUPER ARENA', { theme: 'military', code: 'SPINO-CT-01' })
+    this.createSign(-20, 3.8, 77.8, 6, 1.8, 0, 'MENUJU ZONA BOM A ➔', 'JALUR A-LONG', { theme: 'info', arrow: 'right' })
+    this.createSign(20, 3.8, 77.8, 6, 1.8, 0, '◀ MENUJU ZONA BOM B', 'LORONG B-TUNNEL', { theme: 'info', arrow: 'left' })
 
-    // T Spawn Hideout (z = -48): Fortified guerrilla camp with blast walls at z = -40
-    this.createWall(-10, 3, -40, 16, 6, 2, physics)
-    this.createWall(10, 3, -40, 16, 6, 2, physics)
-    this.createCrate(0, 1, -43, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, -45, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, -45, 2.5, 2, 2, physics)
-    this.createCrate(0, 2.75, -43, 2, 1.5, 2, physics) // Stacked crate cover resting flush on base crate
+    // T Spawn Hideout (z = -96): Fortified guerrilla camp with blast walls at z = -80
+    this.createWall(-20, 3.5, -80, 32, 7, 3, physics)
+    this.createWall(20, 3.5, -80, 32, 7, 3, physics)
+    this.createCrate(0, 1, -86, 6, 2, 3, physics)
+    this.createCrate(-9, 1, -90, 4, 2, 3, physics)
+    this.createCrate(9, 1, -90, 4, 2, 3, physics)
+    this.createCrate(0, 2.75, -86, 3, 1.5, 3, physics)
 
     // T Spawn Indonesian Signage
-    this.createSign(0, 4.5, -58.8, 8, 2.2, 0, 'MARKAS GERILYA GURUN (T)', 'OPERASI SERANGAN FAJAR - SEKTOR UTARA', { theme: 'danger', code: 'SPINO-T-01' })
-    this.createSign(10, 3.2, -38.8, 4.5, 1.6, Math.PI, '◀ SERBU ZONA BOM A', 'JALUR A-LONG TIMUR', { theme: 'warning', arrow: 'left' })
-    this.createSign(-10, 3.2, -38.8, 4.5, 1.6, Math.PI, 'SERBU ZONA BOM B ▶', 'LORONG BAWAH TANAH BARAT', { theme: 'warning', arrow: 'right' })
+    this.createSign(0, 5.0, -118.5, 12, 2.8, 0, 'MARKAS GERILYA GURUN (T)', 'OPERASI SERANGAN FAJAR - SEKTOR UTARA', { theme: 'danger', code: 'SPINO-T-01' })
+    this.createSign(20, 3.8, -77.8, 6, 1.8, Math.PI, '◀ SERBU ZONA BOM A', 'JALUR A-LONG TIMUR', { theme: 'warning', arrow: 'left' })
+    this.createSign(-20, 3.8, -77.8, 6, 1.8, Math.PI, 'SERBU ZONA BOM B ▶', 'LORONG BAWAH TANAH BARAT', { theme: 'warning', arrow: 'right' })
 
     // ==========================================================
     // 4. ZONA BOM A (East Wing - Colonnade A-Long & Sniper Tower)
     // ==========================================================
-    // A-Site Elevated Platform (24m x 24m at y = 1.0)
-    const aPlat = new THREE.Mesh(new THREE.BoxGeometry(24, 1.6, 24), this.wallMat)
-    aPlat.position.set(34, 0.8, -25)
+    // A-Site Elevated Platform (48m x 48m at y = 1.0)
+    const aPlat = new THREE.Mesh(new THREE.BoxGeometry(48, 1.6, 48), this.wallMat)
+    aPlat.position.set(68, 0.8, -50)
     aPlat.receiveShadow = true
     this.group.add(aPlat)
     this.collidableMeshes.push(aPlat)
-    physics.createBox(34, 0.8, -25, 12, 0.8, 12, true)
+    physics.createBox(68, 0.8, -50, 24, 0.8, 24, true)
 
     // Ramp from Mid to A-Site
-    this.createRamp(20, 0.6, -15, 6, 0.4, 10, 0.22, physics)
+    this.createRamp(40, 0.6, -30, 10, 0.4, 18, 0.22, physics)
     // Ramp from A-Long to A-Site
-    this.createRamp(34, 0.6, -10, 6, 0.4, 8, -0.25, physics)
+    this.createRamp(68, 0.6, -20, 10, 0.4, 16, -0.25, physics)
 
-    // A-Long Defensive Colonnade Pillars & Blast Walls along X = 44
-    for (let pz = 30; pz >= -10; pz -= 10) {
-      this.createWall(44, 3, pz, 2, 6, 4, physics)
+    // A-Long Defensive Colonnade Pillars & Blast Walls along X = 88
+    for (let pz = 60; pz >= -20; pz -= 18) {
+      this.createWall(88, 3.5, pz, 3, 7, 6, physics)
     }
-    // High Corner Sniper Watchtower at A (Height 6.5m)
-    this.createWall(48, 3.25, -36, 8, 6.5, 8, physics)
+    // High Corner Sniper Watchtower at A (Height 7m)
+    this.createWall(96, 3.5, -72, 12, 7, 12, physics)
     // Sniper Tower Parapet Railing
-    this.createWall(48, 7.0, -32.2, 8, 1.2, 0.4, physics)
-    this.createWall(44.2, 7.0, -36, 0.4, 1.2, 8, physics)
+    this.createWall(96, 7.6, -65.5, 12, 1.2, 0.6, physics)
+    this.createWall(89.5, 7.6, -72, 0.6, 1.2, 12, physics)
     // Ramp to Sniper Tower
-    this.createRamp(48, 3.25, -28, 3, 0.4, 8, -0.4, physics)
+    this.createRamp(96, 3.5, -56, 5, 0.4, 14, -0.35, physics)
 
-    // Metal Containers & Supply Crates flush on A Platform (top y = 1.6)
-    this.createMetalContainer(32, 3.1, -24, 3, 3, 7, physics)
-    this.createCrate(28, 2.85, -30, 3, 2.5, 3, physics)
-    this.createCrate(40, 2.85, -20, 2.5, 2.5, 2.5, physics)
-    this.createBarrel(38, 1.6, -24, physics)
-    this.createBarrel(38, 1.6, -26, physics)
+    // Metal Containers & Supply Crates flush on A Platform
+    this.createMetalContainer(64, 3.1, -48, 4, 3, 10, physics)
+    this.createCrate(56, 2.85, -60, 4, 2.5, 4, physics)
+    this.createCrate(80, 2.85, -40, 4, 2.5, 4, physics)
+    this.createBarrel(76, 1.6, -48, physics)
+    this.createBarrel(76, 1.6, -52, physics)
 
     // Zona Bom A Indonesian Signs
-    this.createSign(34, 3.5, -36.8, 7, 2.2, 0, 'ZONA BOM A', 'TITIK PELEDAKAN STRATEGIS - DAERAH STERIL', { theme: 'warning', code: 'TARGET-ALPHA' })
-    this.createSign(44.2, 4.0, 10, 5, 1.6, -Math.PI / 2, 'JALUR A-LONG', 'AWAS! AREA TERBUKA PENEMBAK JITU', { theme: 'danger' })
-    this.createSign(48, 5.0, -31.8, 4.5, 1.4, 0, 'MENARA SNIPER A', 'PENGINTAIAN GARIS DEPAN', { theme: 'military' })
+    this.createSign(68, 4.0, -73.5, 9, 2.4, 0, 'ZONA BOM A', 'TITIK PELEDAKAN STRATEGIS - DAERAH STERIL', { theme: 'warning', code: 'TARGET-ALPHA' })
+    this.createSign(88.4, 4.5, 20, 7, 1.8, -Math.PI / 2, 'JALUR A-LONG', 'AWAS! AREA TERBUKA TANK & PENEMBAK JITU', { theme: 'danger' })
+    this.createSign(96, 5.5, -64.8, 6, 1.6, 0, 'MENARA SNIPER A', 'PENGINTAIAN GARIS DEPAN', { theme: 'military' })
 
     // ==========================================================
     // 5. ZONA BOM B (West Wing - Labyrinth Tunnels & Fortress Site)
     // ==========================================================
-    // Fortified B-Site Compound Walls (x = -34, z = -25)
-    this.createWall(-34, 3, -37, 26, 6, 2, physics) // North B Wall
-    this.createWall(-46, 3, -25, 2, 6, 24, physics) // West B Wall
-    this.createWall(-22, 3, -28, 2, 6, 16, physics) // East B Wall
+    // Fortified B-Site Compound Walls (x = -68, z = -50)
+    this.createWall(-68, 3.5, -74, 52, 7, 3, physics) // North B Wall
+    this.createWall(-92, 3.5, -50, 3, 7, 48, physics) // West B Wall
+    this.createWall(-44, 3.5, -56, 3, 7, 32, physics) // East B Wall
     // Center defense bunker inside B
-    this.createWall(-34, 2, -22, 8, 4, 3, physics)
+    this.createWall(-68, 2.5, -44, 14, 5, 5, physics)
 
     // B-Tunnels Underground / Covered Passageway
-    // Wall and archway enclosure from z = 25 to z = -10 at x = -36
-    this.createWall(-36, 3, 8, 2, 6, 26, physics)
-    this.createWall(-24, 3, 8, 2, 6, 20, physics)
+    this.createWall(-72, 3.5, 16, 3, 7, 52, physics)
+    this.createWall(-48, 3.5, 16, 3, 7, 40, physics)
     // Tunnel Ceiling slab
-    const tunnelRoof = new THREE.Mesh(new THREE.BoxGeometry(14, 0.5, 24), this.wallMat)
-    tunnelRoof.position.set(-30, 5.8, 8)
+    const tunnelRoof = new THREE.Mesh(new THREE.BoxGeometry(26, 0.6, 48), this.wallMat)
+    tunnelRoof.position.set(-60, 6.8, 16)
     this.group.add(tunnelRoof)
     this.collidableMeshes.push(tunnelRoof)
 
     // Containers & Cover inside B
-    this.createMetalContainer(-34, 1.5, -28, 3, 3, 7, physics)
-    this.createContainer(-40, 1.5, -18, 6, 3, 3, this.redContainerMat, physics)
-    this.createCrate(-28, 1, -20, 2.5, 2, 2.5, physics)
-    this.createCrate(-38, 1, -30, 3, 2, 3, physics)
-    this.createBarrel(-32, 0, -18, physics)
-    this.createBarrel(-33.5, 0, -18, physics)
+    this.createMetalContainer(-68, 1.5, -56, 4, 3, 10, physics)
+    this.createContainer(-80, 1.5, -36, 8, 3, 4, this.redContainerMat, physics)
+    this.createCrate(-56, 1, -40, 4, 2, 4, physics)
+    this.createCrate(-76, 1, -60, 4, 2, 4, physics)
+    this.createBarrel(-64, 0, -36, physics)
+    this.createBarrel(-66, 0, -36, physics)
 
     // Zona Bom B Indonesian Signs
-    this.createSign(-34, 3.8, -35.8, 7, 2.2, 0, 'ZONA BOM B', 'GUDANG SENJATA & AMUNISI UTAMA', { theme: 'warning', code: 'TARGET-BRAVO' })
-    this.createSign(-24, 3.2, 18, 5, 1.6, -Math.PI / 2, 'LORONG B-TUNNEL ➔', 'AWAS! PERTEMPURAN JARAK DEKAT', { theme: 'military', arrow: 'right' })
-    this.createSign(-34, 2.8, -20.3, 4.5, 1.4, 0, 'BAHAYA AMUNISI AKTIF', 'DILARANG MEMBAWA API ATAU MEROKOK', { theme: 'danger' })
+    this.createSign(-68, 4.2, -71.8, 9, 2.4, 0, 'ZONA BOM B', 'GUDANG SENJATA & AMUNISI UTAMA', { theme: 'warning', code: 'TARGET-BRAVO' })
+    this.createSign(-48, 3.8, 36, 7, 1.8, -Math.PI / 2, 'LORONG B-TUNNEL ➔', 'AWAS! PERTEMPURAN JARAK DEKAT', { theme: 'military', arrow: 'right' })
+    this.createSign(-68, 3.2, -40.8, 6, 1.6, 0, 'BAHAYA AMUNISI AKTIF', 'DILARANG MEMBAWA API ATAU MEROKOK', { theme: 'danger' })
 
     // ==========================================================
     // 6. CENTRAL MID & PASAR GURUN TRADISIONAL (Mid Bazaar)
     // ==========================================================
-    // Massive Double Mid Arch Walls with gateway
-    this.createWall(-18, 3.5, 0, 16, 7, 2, physics)
-    this.createWall(18, 3.5, 0, 16, 7, 2, physics)
-    // High Arch over Mid Gap (Span = 12m at y = 6.2)
-    this.createWall(0, 6.2, 0, 12, 1.6, 2, physics)
+    // Massive Double Mid Arch Walls with wide gateway for Tanks to pass!
+    this.createWall(-36, 4.0, 0, 32, 8, 3, physics)
+    this.createWall(36, 4.0, 0, 32, 8, 3, physics)
+    // High Arch over Mid Gap (Wide Tank Clearance Span = 20m at y = 7.2)
+    this.createWall(0, 7.2, 0, 24, 2.0, 3, physics)
 
-    // Mid Bazaar Market Stalls (Kios Pasar Berkanopi)
-    this.createMarketStall(8, 0, 10, physics)
-    this.createMarketStall(-8, 0, 10, physics)
-    this.createMarketStall(8, 0, -10, physics)
-    this.createMarketStall(-8, 0, -10, physics)
+    // Mid Bazaar Market Stalls
+    this.createMarketStall(16, 0, 20, physics)
+    this.createMarketStall(-16, 0, 20, physics)
+    this.createMarketStall(16, 0, -20, physics)
+    this.createMarketStall(-16, 0, -20, physics)
 
     // Central Mid Wooden Crate barricades
-    this.createCrate(0, 1, 6, 3, 2, 2, physics)
-    this.createCrate(0, 1, -6, 3, 2, 2, physics)
-    this.createCrate(-3.5, 1, 0, 2, 2, 2, physics)
-    this.createCrate(3.5, 1, 0, 2, 2, 2, physics)
+    this.createCrate(0, 1, 12, 5, 2, 3, physics)
+    this.createCrate(0, 1, -12, 5, 2, 3, physics)
+    this.createCrate(-7, 1, 0, 3, 2, 3, physics)
+    this.createCrate(7, 1, 0, 3, 2, 3, physics)
 
     // Mid Indonesian Signage
-    this.createSign(0, 6.2, 1.1, 8, 2.0, 0, 'PINTU GERBANG UTAMA', 'POS PEMERIKSAAN MILITER GURUN', { theme: 'military', code: 'GERBANG-MID' })
-    this.createSign(0, 6.2, -1.1, 8, 2.0, Math.PI, 'PINTU GERBANG UTAMA', 'POS PEMERIKSAAN MILITER GURUN', { theme: 'military', code: 'GERBANG-MID' })
-    this.createSign(16, 3.0, 1.2, 5, 1.5, 0, 'AWAS! JALUR PENEMBAK JITU', 'GARIS TEMBAK TERBUKA DARI DUA ARAH', { theme: 'danger' })
-    this.createSign(-16, 3.0, 1.2, 5, 1.5, 0, 'PASAR TRADISIONAL GURUN', 'AREA DISTRIBUSI LOGISTIK LOKAL', { theme: 'vintage' })
+    this.createSign(0, 7.2, 1.8, 10, 2.2, 0, 'PINTU GERBANG UTAMA', 'POS PEMERIKSAAN MILITER GURUN', { theme: 'military', code: 'GERBANG-MID' })
+    this.createSign(0, 7.2, -1.8, 10, 2.2, Math.PI, 'PINTU GERBANG UTAMA', 'POS PEMERIKSAAN MILITER GURUN', { theme: 'military', code: 'GERBANG-MID' })
+    this.createSign(32, 3.5, 2.0, 7, 1.8, 0, 'AWAS! JALUR PENEMBAK JITU', 'GARIS TEMBAK TERBUKA DARI DUA ARAH', { theme: 'danger' })
+    this.createSign(-32, 3.5, 2.0, 7, 1.8, 0, 'PASAR TRADISIONAL GURUN', 'AREA DISTRIBUSI LOGISTIK LOKAL', { theme: 'vintage' })
 
     // Underpass link from Mid to A-Short
-    this.createWall(16, 2.5, 18, 14, 5, 1.5, physics)
-    this.createSign(16, 2.8, 17.1, 4.5, 1.4, Math.PI, 'JALUR A-SHORT ➔', 'MENUJU ELEVASI A-SITE', { theme: 'info', arrow: 'right' })
+    this.createWall(32, 3.0, 36, 24, 6, 2, physics)
+    this.createSign(32, 3.2, 34.6, 6, 1.6, Math.PI, 'JALUR A-SHORT ➔', 'MENUJU ELEVASI A-SITE', { theme: 'info', arrow: 'right' })
 
-    // 7. Tactical Hazard Barrels
-    this.createBarrel(6, 0, 4, physics)
-    this.createBarrel(-6, 0, -4, physics)
-    this.createBarrel(22, 0, 12, physics)
-    this.createBarrel(-22, 0, -14, physics)
+    // Tactical Hazard Barrels
+    this.createBarrel(12, 0, 8, physics)
+    this.createBarrel(-12, 0, -8, physics)
+    this.createBarrel(44, 0, 24, physics)
+    this.createBarrel(-44, 0, -28, physics)
 
     // ==========================================================
     // 8. ARCHITECTURAL DETAILS: STONE COPINGS & BOMB ZONE MARKINGS
@@ -245,26 +244,26 @@ export class DustArena {
     })
 
     // Fortress wall stone coping trims along perimeter
-    const copingNS = new THREE.BoxGeometry(118, 0.4, 2.4)
+    const copingNS = new THREE.BoxGeometry(238, 0.4, 3.6)
     const capN = new THREE.Mesh(copingNS, copingMat)
-    capN.position.set(0, 9.2, -59)
+    capN.position.set(0, 10.2, -119)
     this.group.add(capN)
 
     const capS = new THREE.Mesh(copingNS, copingMat)
-    capS.position.set(0, 9.2, 59)
+    capS.position.set(0, 10.2, 119)
     this.group.add(capS)
 
-    const copingEW = new THREE.BoxGeometry(2.4, 0.4, 118)
+    const copingEW = new THREE.BoxGeometry(3.6, 0.4, 238)
     const capW = new THREE.Mesh(copingEW, copingMat)
-    capW.position.set(-59, 9.2, 0)
+    capW.position.set(-119, 10.2, 0)
     this.group.add(capW)
 
     const capE = new THREE.Mesh(copingEW, copingMat)
-    capE.position.set(59, 9.2, 0)
+    capE.position.set(119, 10.2, 0)
     this.group.add(capE)
 
     // Tactical Bomb Zone Blast Circle Decals on A & B Sites
-    const blastGeom = new THREE.RingGeometry(2.8, 3.4, 24)
+    const blastGeom = new THREE.RingGeometry(3.8, 4.8, 24)
     const blastMatA = new THREE.MeshBasicMaterial({
       color: 0xef4444,
       side: THREE.DoubleSide,
@@ -273,12 +272,12 @@ export class DustArena {
     })
     const blastA = new THREE.Mesh(blastGeom, blastMatA)
     blastA.rotation.x = -Math.PI / 2
-    blastA.position.set(34, 1.62, -25) // Flush on A-site platform
+    blastA.position.set(68, 1.62, -50)
     this.group.add(blastA)
 
     const blastB = new THREE.Mesh(blastGeom, blastMatA)
     blastB.rotation.x = -Math.PI / 2
-    blastB.position.set(-34, 0.02, -25) // Flush on B-site floor
+    blastB.position.set(-68, 0.02, -50)
     this.group.add(blastB)
   }
 

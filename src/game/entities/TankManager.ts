@@ -23,19 +23,30 @@ export class TankManager {
 
     switch (mapId) {
       case 'dust_arena':
-        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 0), yaw: 0 })
+        // Spawn Tank right near CT spawn for instant boarding, plus T side & Mid
+        spawnPoints.push({ pos: new THREE.Vector3(12, 0, 78), yaw: Math.PI }) // CT Base Tank
+        spawnPoints.push({ pos: new THREE.Vector3(-12, 0, -78), yaw: 0 })    // T Base Tank
+        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 0), yaw: Math.PI / 2 }) // Mid Tank
         break
       case 'warehouse':
-        spawnPoints.push({ pos: new THREE.Vector3(0, 0, -4), yaw: Math.PI / 2 })
+        spawnPoints.push({ pos: new THREE.Vector3(14, 0, 74), yaw: Math.PI }) // CT Dock Tank
+        spawnPoints.push({ pos: new THREE.Vector3(-14, 0, -74), yaw: 0 })    // T Dock Tank
+        spawnPoints.push({ pos: new THREE.Vector3(0, 0, -8), yaw: Math.PI / 2 }) // Main Floor Tank
         break
       case 'arctic_outpost':
-        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 8), yaw: 0 })
+        spawnPoints.push({ pos: new THREE.Vector3(12, 0, 78), yaw: Math.PI }) // CT Base Tank
+        spawnPoints.push({ pos: new THREE.Vector3(-12, 0, -78), yaw: 0 })    // T Base Tank
+        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 16), yaw: 0 })       // Helipad Tank
         break
       case 'italian_villa':
-        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 0), yaw: 0 })
+        spawnPoints.push({ pos: new THREE.Vector3(10, 0, 78), yaw: Math.PI }) // CT Gate Tank
+        spawnPoints.push({ pos: new THREE.Vector3(-10, 0, -78), yaw: 0 })    // T Gate Tank
+        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 0), yaw: 0 })        // Piazza Tank
         break
       case 'cargo_harbor':
-        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 0), yaw: -Math.PI / 2 })
+        spawnPoints.push({ pos: new THREE.Vector3(12, 0, 78), yaw: Math.PI }) // CT Wharf Tank
+        spawnPoints.push({ pos: new THREE.Vector3(-12, 0, -78), yaw: 0 })    // T Wharf Tank
+        spawnPoints.push({ pos: new THREE.Vector3(0, 0, 0), yaw: -Math.PI / 2 }) // Crane Yard Tank
         break
     }
 
@@ -78,23 +89,25 @@ export class TankManager {
       }
     })
 
-    // Check interaction range (< 4.5m)
+    // Generous interaction range (8.5m radius covers all angles of the tank)
     const targetTank = nearestTank as Tank | null
-    const isClose = nearestDist <= 4.5 && targetTank !== null
+    const isClose = nearestDist <= 8.5 && targetTank !== null
 
-    if (isClose && targetTank && !store.isDrivingTank) {
+    if (store.isDrivingTank) {
+      store.setIsNearTank(true, 'TEKAN [E] UNTUK KELUAR DARI TANK')
+    } else if (isClose && targetTank) {
       store.setIsNearTank(true, 'TEKAN [E] UNTUK NAIK TANK TEMPUR')
       if (input.interactTank) {
         targetTank.boardTank(player)
       }
-    } else if (!store.isDrivingTank) {
+    } else {
       store.setIsNearTank(false, null)
     }
 
     // Update all tanks
     this.tanks.forEach((tank) => {
       if (tank.isOccupied) {
-        // Handle exit tank key
+        // Handle exit tank via Key E
         if (input.interactTank) {
           tank.ejectDriver()
           return

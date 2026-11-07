@@ -7,25 +7,25 @@ export class Warehouse {
   public collidableMeshes: THREE.Object3D[] = []
 
   // Expanded tactical spawn locations (95m x 115m map)
-  public ctSpawn = new THREE.Vector3(0, 1.5, 46)
-  public tSpawn = new THREE.Vector3(0, 1.5, -46)
+  public ctSpawn = new THREE.Vector3(0, 1.5, 92)
+  public tSpawn = new THREE.Vector3(0, 1.5, -92)
   public botWaypoints: THREE.Vector3[] = [
     new THREE.Vector3(0, 1, 0),         // Central hangar floor
     new THREE.Vector3(0, 3.5, 0),       // Central Skybridge Overlook
-    new THREE.Vector3(20, 1, 16),       // East Freight Corridor
-    new THREE.Vector3(-20, 1, 16),      // West Chemical Corridor
-    new THREE.Vector3(20, 1, -16),      // East Rack Storage
-    new THREE.Vector3(-20, 1, -16),     // West Container Bay
-    new THREE.Vector3(32, 3.5, 15),     // East Catwalk Mezzanine South
-    new THREE.Vector3(32, 3.5, -15),    // East Catwalk Mezzanine North
-    new THREE.Vector3(-32, 3.5, 15),    // West Catwalk Mezzanine South
-    new THREE.Vector3(-32, 3.5, -15),   // West Catwalk Mezzanine North
-    new THREE.Vector3(0, 1, 34),        // CT Loading Bay Exit
-    new THREE.Vector3(0, 1, -34),       // T Receiving Bay Exit
-    new THREE.Vector3(12, 1, 0),        // Central Stacks Flank East
-    new THREE.Vector3(-12, 1, 0),       // Central Stacks Flank West
-    new THREE.Vector3(34, 1, 30),       // CT East Ramp Foot
-    new THREE.Vector3(-34, 1, -30)      // T West Ramp Foot
+    new THREE.Vector3(40, 1, 32),       // East Freight Corridor
+    new THREE.Vector3(-40, 1, 32),      // West Chemical Corridor
+    new THREE.Vector3(40, 1, -32),      // East Rack Storage
+    new THREE.Vector3(-40, 1, -32),     // West Container Bay
+    new THREE.Vector3(64, 3.5, 30),     // East Catwalk Mezzanine South
+    new THREE.Vector3(64, 3.5, -30),    // East Catwalk Mezzanine North
+    new THREE.Vector3(-64, 3.5, 30),    // West Catwalk Mezzanine South
+    new THREE.Vector3(-64, 3.5, -30),   // West Catwalk Mezzanine North
+    new THREE.Vector3(0, 1, 68),        // CT Loading Bay Exit
+    new THREE.Vector3(0, 1, -68),       // T Receiving Bay Exit
+    new THREE.Vector3(24, 1, 0),        // Central Stacks Flank East
+    new THREE.Vector3(-24, 1, 0),       // Central Stacks Flank West
+    new THREE.Vector3(68, 1, 60),       // CT East Ramp Foot
+    new THREE.Vector3(-68, 1, -60)      // T West Ramp Foot
   ]
 
   // Realistic Procedural Materials
@@ -95,218 +95,149 @@ export class Warehouse {
   public build(physics: PhysicsWorld) {
     this.group.name = 'map_warehouse'
 
-    // 1. Expanded Industrial Concrete Ground (95m x 115m)
-    const floorGeom = new THREE.BoxGeometry(95, 1, 115)
+    // 1. Expanded Industrial Concrete Ground (190m x 230m - 2x Larger Mega Hangar)
+    const floorGeom = new THREE.BoxGeometry(190, 1, 230)
     const floor = new THREE.Mesh(floorGeom, this.floorMat)
     floor.position.set(0, -0.5, 0)
     floor.receiveShadow = true
     this.group.add(floor)
     this.collidableMeshes.push(floor)
-    physics.createBox(0, -0.5, 0, 47.5, 0.5, 57.5, true)
+    physics.createBox(0, -0.5, 0, 95, 0.5, 115, true)
 
-    // 2. High Industrial Perimeter Walls (H: 9m, D: 2m)
-    this.createWall(0, 4.5, -57.5, 95, 9, 2, physics) // North
-    this.createWall(0, 4.5, 57.5, 95, 9, 2, physics)  // South
-    this.createWall(-47.5, 4.5, 0, 2, 9, 115, physics) // West
-    this.createWall(47.5, 4.5, 0, 2, 9, 115, physics)  // East
+    // 2. High Industrial Perimeter Walls (H: 10m, D: 3m)
+    this.createWall(0, 5.0, -115, 190, 10, 3, physics) // North
+    this.createWall(0, 5.0, 115, 190, 10, 3, physics)  // South
+    this.createWall(-95, 5.0, 0, 3, 10, 230, physics) // West
+    this.createWall(95, 5.0, 0, 3, 10, 230, physics)  // East
 
     // ==========================================================
     // 3. FORTIFIED CT & T LOADING BAY HIDEOUTS (Tempat Persembunyian Awal)
     // ==========================================================
-    // CT Spawn Hideout (z = 46): Trailer container barrier & pallets at z = 38
-    this.createContainer(-12, 1.5, 38, 8, 3, 3, this.blueContainerMat, physics)
-    this.createContainer(12, 1.5, 38, 8, 3, 3, this.redContainerMat, physics)
-    this.createCrate(0, 1, 41, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, 43, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, 43, 2.5, 2, 2, physics)
+    // CT Spawn Hideout (z = 92): Trailer container barrier & pallets at z = 76
+    this.createContainer(-24, 1.5, 76, 12, 3, 4, this.blueContainerMat, physics)
+    this.createContainer(24, 1.5, 76, 12, 3, 4, this.redContainerMat, physics)
+    this.createCrate(0, 1, 82, 6, 2, 3, physics)
+    this.createCrate(-9, 1, 86, 4, 2, 3, physics)
+    this.createCrate(9, 1, 86, 4, 2, 3, physics)
 
     // CT Spawn Indonesian Signage
-    this.createSign(0, 5.5, 56.3, 8, 2.2, Math.PI, 'GUDANG LOGISTIK UTAMA - SEKTOR 04', 'DERMAGA BONGKAR MUAT SELATAN (CT)', { theme: 'industrial', code: 'LOG-K3-04' })
-    this.createSign(12, 3.2, 36.3, 4.5, 1.5, 0, 'JALUR CATWALK TIMUR ➔', 'AKSES TANGGA MEZZANINE', { theme: 'info', arrow: 'right' })
-    this.createSign(-12, 3.2, 36.3, 4.5, 1.5, 0, '◀ JALUR CATWALK BARAT', 'ZONA PENYIMPANAN KIMIA', { theme: 'info', arrow: 'left' })
+    this.createSign(0, 5.5, 113.3, 12, 2.8, Math.PI, 'GUDANG LOGISTIK UTAMA - SEKTOR 04', 'DERMAGA BONGKAR MUAT SELATAN (CT) - 190M MEGA HANGAR', { theme: 'industrial', code: 'LOG-K3-04' })
+    this.createSign(24, 3.8, 72.3, 6, 1.8, 0, 'JALUR CATWALK TIMUR ➔', 'AKSES TANGGA MEZZANINE', { theme: 'info', arrow: 'right' })
+    this.createSign(-24, 3.8, 72.3, 6, 1.8, 0, '◀ JALUR CATWALK BARAT', 'ZONA PENYIMPANAN KIMIA', { theme: 'info', arrow: 'left' })
 
-    // T Spawn Hideout (z = -46): Trailer container barrier & crates at z = -38
-    this.createContainer(-12, 1.5, -38, 8, 3, 3, this.redContainerMat, physics)
-    this.createContainer(12, 1.5, -38, 8, 3, 3, this.greenContainerMat, physics)
-    this.createCrate(0, 1, -41, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, -43, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, -43, 2.5, 2, 2, physics)
+    // T Spawn Hideout (z = -92): Trailer container barrier & crates at z = -76
+    this.createContainer(-24, 1.5, -76, 12, 3, 4, this.redContainerMat, physics)
+    this.createContainer(24, 1.5, -76, 12, 3, 4, this.greenContainerMat, physics)
+    this.createCrate(0, 1, -82, 6, 2, 3, physics)
+    this.createCrate(-9, 1, -86, 4, 2, 3, physics)
+    this.createCrate(9, 1, -86, 4, 2, 3, physics)
 
     // T Spawn Indonesian Signage
-    this.createSign(0, 5.5, -56.3, 8, 2.2, 0, 'TERMINAL PENERIMAAN FREIGHT (T)', 'DEPO DISTRIBUSI KARGO UTARA', { theme: 'industrial', code: 'LOG-T-02' })
-    this.createSign(12, 3.2, -36.3, 4.5, 1.5, Math.PI, '◀ MENUJU HANGAR UTAMA', 'JALUR LOGISTIK UTARA', { theme: 'warning', arrow: 'left' })
-    this.createSign(-12, 3.2, -36.3, 4.5, 1.5, Math.PI, 'MENUJU ZONA KIMIA ▶', 'AREA BERBAHAYA', { theme: 'danger', arrow: 'right' })
+    this.createSign(0, 5.5, -113.3, 12, 2.8, 0, 'TERMINAL PENERIMAAN FREIGHT (T)', 'DEPO DISTRIBUSI KARGO UTARA', { theme: 'industrial', code: 'LOG-T-02' })
+    this.createSign(24, 3.8, -72.3, 6, 1.8, Math.PI, '◀ MENUJU HANGAR UTAMA', 'JALUR LOGISTIK UTARA', { theme: 'warning', arrow: 'left' })
+    this.createSign(-24, 3.8, -72.3, 6, 1.8, Math.PI, 'MENUJU ZONA KIMIA ▶', 'AREA BERBAHAYA', { theme: 'danger', arrow: 'right' })
 
     // ==========================================================
     // 4. ELEVATED CATWALK MEZZANINE (EAST & WEST) + CENTRAL SKYBRIDGE
     // ==========================================================
-    // East Catwalk at x = 32 (Length: 70m, y = 3.2m)
-    this.createCatwalk(32, 3.2, 0, 5, 0.4, 70, physics)
-    // West Catwalk at x = -32 (Length: 70m, y = 3.2m)
-    this.createCatwalk(-32, 3.2, 0, 5, 0.4, 70, physics)
+    // East Catwalk at x = 64 (Length: 140m, y = 3.5m)
+    this.createCatwalk(64, 3.5, 0, 7, 0.4, 140, physics)
+    // West Catwalk at x = -64 (Length: 140m, y = 3.5m)
+    this.createCatwalk(-64, 3.5, 0, 7, 0.4, 140, physics)
 
-    // Central Connecting Skybridge spanning across the hangar (Span: 60m at z = 0, y = 3.2m)
-    this.createCatwalk(0, 3.2, 0, 60, 0.4, 4.5, physics)
+    // Central Connecting Skybridge (Span: 128m at z = 0, y = 3.5m)
+    this.createCatwalk(0, 3.5, 0, 128, 0.4, 6.0, physics)
 
-    // Catwalk Parapet Railings for Tactical Sniper Cover
-    this.createWall(32, 4.0, 35, 5, 1.2, 0.2, physics)
-    this.createWall(32, 4.0, -35, 5, 1.2, 0.2, physics)
-    this.createWall(-32, 4.0, 35, 5, 1.2, 0.2, physics)
-    this.createWall(-32, 4.0, -35, 5, 1.2, 0.2, physics)
-    // Skybridge center cover box
-    this.createCrate(0, 4.2, 0, 2, 1.6, 2, physics)
+    // Catwalk Parapet Railings
+    this.createWall(64, 4.4, 70, 7, 1.2, 0.3, physics)
+    this.createWall(64, 4.4, -70, 7, 1.2, 0.3, physics)
+    this.createWall(-64, 4.4, 70, 7, 1.2, 0.3, physics)
+    this.createWall(-64, 4.4, -70, 7, 1.2, 0.3, physics)
+    this.createCrate(0, 4.5, 0, 3, 1.6, 3, physics)
 
-    // Structural Steel I-Beam Columns supporting Catwalks & Central Skybridge
-    const pillarGeom = new THREE.BoxGeometry(0.8, 3.2, 0.8)
+    // Supporting Pillars
+    const pillarGeom = new THREE.BoxGeometry(1.2, 3.5, 1.2)
     const pillarCoords = [
-      // Skybridge pillars
-      [-20, 0], [-10, 0], [10, 0], [20, 0],
-      // East catwalk pillars
-      [32, -22], [32, 0], [32, 22],
-      // West catwalk pillars
-      [-32, -22], [-32, 0], [-32, 22]
+      [-40, 0], [-20, 0], [20, 0], [40, 0],
+      [64, -44], [64, 0], [64, 44],
+      [-64, -44], [-64, 0], [-64, 44]
     ]
     pillarCoords.forEach(([px, pz]) => {
       const pillar = new THREE.Mesh(pillarGeom, this.girderMat)
-      pillar.position.set(px, 1.6, pz)
+      pillar.position.set(px, 1.75, pz)
       pillar.castShadow = true
       this.group.add(pillar)
       this.collidableMeshes.push(pillar)
-      physics.createBox(px, 1.6, pz, 0.4, 1.6, 0.4, true)
+      physics.createBox(px, 1.75, pz, 0.6, 1.75, 0.6, true)
     })
 
-    // Ramps to Catwalks (4 Ramps)
-    this.createRamp(32, 1.6, 32, 4, 0.3, 10, 0.32, physics)
-    this.createRamp(32, 1.6, -32, 4, 0.3, 10, -0.32, physics)
-    this.createRamp(-32, 1.6, 32, 4, 0.3, 10, 0.32, physics)
-    this.createRamp(-32, 1.6, -32, 4, 0.3, 10, -0.32, physics)
+    // Ramps to Catwalks
+    this.createRamp(64, 1.75, 64, 5, 0.3, 16, 0.28, physics)
+    this.createRamp(64, 1.75, -64, 5, 0.3, 16, -0.28, physics)
+    this.createRamp(-64, 1.75, 64, 5, 0.3, 16, 0.28, physics)
+    this.createRamp(-64, 1.75, -64, 5, 0.3, 16, -0.28, physics)
 
-    // Catwalk Indonesian Signboards
-    this.createSign(32, 4.8, 0, 4.5, 1.5, -Math.PI / 2, 'CATWALK LANTAI 2', 'AWAS! BAHAYA JATUH DARI KETINGGIAN', { theme: 'warning' })
-    this.createSign(-32, 4.8, 0, 4.5, 1.5, Math.PI / 2, 'JEMBATAN GANTUNG TENGAH', 'ZONA ELEVASI OPERASIONAL', { theme: 'military' })
+    // Signboards
+    this.createSign(64, 5.2, 0, 6, 1.8, -Math.PI / 2, 'CATWALK LANTAI 2', 'AWAS! BAHAYA JATUH DARI KETINGGIAN', { theme: 'warning' })
+    this.createSign(-64, 5.2, 0, 6, 1.8, Math.PI / 2, 'JEMBATAN GANTUNG TENGAH', 'ZONA ELEVASI OPERASIONAL', { theme: 'military' })
 
     // ==========================================================
     // 5. ORGANIZED LOGISTICS CONTAINERS & STORAGE BLOCKS
     // ==========================================================
-    // North Center Stack (Red & Blue at z = -14)
-    this.createContainer(0, 1.5, -14, 3.2, 3, 10, this.redContainerMat, physics)
-    this.createContainer(0, 4.5, -14, 3.2, 3, 10, this.blueContainerMat, physics)
+    this.createContainer(0, 1.5, -28, 5, 3, 16, this.redContainerMat, physics)
+    this.createContainer(0, 4.5, -28, 5, 3, 16, this.blueContainerMat, physics)
+    this.createContainer(0, 1.5, 28, 5, 3, 16, this.blueContainerMat, physics)
+    this.createContainer(0, 4.5, 28, 5, 3, 16, this.greenContainerMat, physics)
 
-    // South Center Stack (Blue & Green at z = 14)
-    this.createContainer(0, 1.5, 14, 3.2, 3, 10, this.blueContainerMat, physics)
-    this.createContainer(0, 4.5, 14, 3.2, 3, 10, this.greenContainerMat, physics)
+    this.createContainer(-32, 1.5, 0, 5, 3, 16, this.greenContainerMat, physics)
+    this.createContainer(32, 1.5, 0, 5, 3, 16, this.redContainerMat, physics)
 
-    // Flank container blocks (West & East at z = 0)
-    this.createContainer(-16, 1.5, 0, 3.2, 3, 10, this.greenContainerMat, physics)
-    this.createContainer(16, 1.5, 0, 3.2, 3, 10, this.redContainerMat, physics)
+    this.createContainer(-30, 1.5, 40, 10, 3, 4, this.blueContainerMat, physics)
+    this.createContainer(30, 1.5, 40, 10, 3, 4, this.redContainerMat, physics)
+    this.createContainer(-30, 1.5, -40, 10, 3, 4, this.greenContainerMat, physics)
+    this.createContainer(30, 1.5, -40, 10, 3, 4, this.blueContainerMat, physics)
 
-    // Secondary perimeter containers
-    this.createContainer(-15, 1.5, 20, 7, 3, 3, this.blueContainerMat, physics)
-    this.createContainer(15, 1.5, 20, 7, 3, 3, this.redContainerMat, physics)
-    this.createContainer(-15, 1.5, -20, 7, 3, 3, this.greenContainerMat, physics)
-    this.createContainer(15, 1.5, -20, 7, 3, 3, this.blueContainerMat, physics)
+    this.createSign(0, 2.8, 17.6, 6, 1.6, Math.PI, 'PINTU DARURAT EVAKUASI ▲', 'JANGAN HALANGI AKSES KELUAR', { theme: 'info', arrow: 'up' })
+    this.createSign(0, 2.8, -17.6, 6, 1.6, 0, 'JALUR FORKLIFT & TANK AKTIF', 'AWAS KENDARAAN OPERASIONAL BERAT', { theme: 'warning' })
 
-    // Central Stacks Signboards
-    this.createSign(0, 2.5, 8.8, 4.5, 1.4, Math.PI, 'PINTU DARURAT EVAKUASI ▲', 'JANGAN HALANGI AKSES KELUAR', { theme: 'info', arrow: 'up' })
-    this.createSign(0, 2.5, -8.8, 4.5, 1.4, 0, 'JALUR FORKLIFT AKTIF', 'AWAS KENDARAAN OPERASIONAL', { theme: 'warning' })
-
-    // ==========================================================
-    // 6. INDUSTRIAL HIGH STEEL GIRDERS & STORAGE RACKS
-    // ==========================================================
-    // Supporting steel pillars (12 Pillars)
-    for (const x of [-20, 20]) {
-      for (const z of [-30, -15, 0, 15, 30]) {
-        const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.0, 9, 1.0), this.girderMat)
-        pillar.position.set(x, 4.5, z)
+    // High Storage Racks
+    for (const x of [-40, 40]) {
+      for (const z of [-60, -30, 0, 30, 60]) {
+        const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.2, 10, 1.2), this.girderMat)
+        pillar.position.set(x, 5.0, z)
         pillar.castShadow = true
         this.group.add(pillar)
         this.collidableMeshes.push(pillar)
-        physics.createBox(x, 4.5, z, 0.5, 4.5, 0.5, true)
+        physics.createBox(x, 5.0, z, 0.6, 5.0, 0.6, true)
       }
     }
 
-    // High Storage Racks with pallet crates (at x = 20, z = -10 to 10)
-    this.createCrate(20, 1, 4, 3, 2, 2, physics)
-    this.createCrate(20, 3, 4, 2.5, 2, 2, physics)
-    this.createCrate(20, 1, -4, 3, 2, 2, physics)
-    this.createCrate(20, 3, -4, 2.5, 2, 2, physics)
+    this.createCrate(40, 1, 8, 4, 2, 3, physics)
+    this.createCrate(40, 3, 8, 3.5, 2, 3, physics)
+    this.createCrate(40, 1, -8, 4, 2, 3, physics)
+    this.createCrate(40, 3, -8, 3.5, 2, 3, physics)
 
-    // Rambu K3 & Keselamatan Industri
-    this.createSign(46.3, 3.5, 15, 5, 1.6, -Math.PI / 2, 'UTAMAKAN KESELAMATAN KERJA (K3)', 'WAJIB GUNAKAN HELM & SEPATU SAFETY', { theme: 'industrial' })
-    this.createSign(46.3, 3.5, -15, 5, 1.6, -Math.PI / 2, 'DILARANG MEROKOK!', 'MUATAN MUDAH TERBAKAR DI SEKTOR INI', { theme: 'danger' })
+    this.createSign(93.5, 4.0, 30, 7, 2.0, -Math.PI / 2, 'UTAMAKAN KESELAMATAN KERJA (K3)', 'WAJIB GUNAKAN HELM & SEPATU SAFETY', { theme: 'industrial' })
+    this.createSign(93.5, 4.0, -30, 7, 2.0, -Math.PI / 2, 'DILARANG MEROKOK!', 'MUATAN MUDAH TERBAKAR DI SEKTOR INI', { theme: 'danger' })
 
-    // ==========================================================
-    // 7. CHEMICAL HAZARD ZONE (WEST SECTOR)
-    // ==========================================================
-    this.createSign(-46.3, 3.5, 0, 6, 2.0, Math.PI / 2, 'BAHAYA BAHAN KIMIA BERACUN', 'HANYA PETUGAS BERSERTIFIKAT BERWENANG', { theme: 'danger', code: 'HAZMAT-B3' })
-    this.createSign(-46.3, 3.5, 20, 5, 1.6, Math.PI / 2, 'RUANG KONTROL & SERVER ➔', 'AKSES TERBATAS TINGKAT 1', { theme: 'military', arrow: 'right' })
+    this.createSign(-93.5, 4.0, 0, 8, 2.2, Math.PI / 2, 'BAHAYA BAHAN KIMIA BERACUN', 'HANYA PETUGAS BERSERTIFIKAT BERWENANG', { theme: 'danger', code: 'HAZMAT-B3' })
 
-    // Chemical Hazard Barrels & Supply Crates
     const barrelLocations = [
-      [-22, 0, 8], [-22, 0, 9.5], [-23.5, 0, 8.5],
-      [-22, 0, -8], [-22, 0, -9.5], [-23.5, 0, -8.5],
-      [10, 0, 20], [-10, 0, 20], [10, 0, -20]
+      [-44, 0, 16], [-44, 0, 19], [-47, 0, 17],
+      [-44, 0, -16], [-44, 0, -19], [-47, 0, -17],
+      [20, 0, 40], [-20, 0, 40], [20, 0, -40]
     ]
     barrelLocations.forEach(([bx, by, bz]) => {
       this.createBarrel(bx, by, bz, physics)
     })
 
-    // ==========================================================
-    // 8. ARCHITECTURAL OVERHEAD STEEL TRUSSES & INDUSTRIAL HIGH-BAY LIGHTS
-    // ==========================================================
-    const trussInterval = 20
-    for (let tz = -40; tz <= 40; tz += trussInterval) {
-      // Main steel crossbeam spanning the warehouse (93m wide)
-      const truss = new THREE.Mesh(new THREE.BoxGeometry(93, 0.55, 0.55), this.girderMat)
-      truss.position.set(0, 8.6, tz)
-      truss.castShadow = true
+    // Roof Trusses across 188m span
+    const trussInterval = 40
+    for (let tz = -80; tz <= 80; tz += trussInterval) {
+      const truss = new THREE.Mesh(new THREE.BoxGeometry(188, 0.6, 0.6), this.girderMat)
+      truss.position.set(0, 9.8, tz)
       this.group.add(truss)
-
-      // 3x High-Bay Industrial Floodlight Lamps hanging from each truss
-      for (const lx of [-26, 0, 26]) {
-        // Drop cable
-        const cable = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.3, 6), this.girderMat)
-        cable.position.set(lx, 7.95, tz)
-        this.group.add(cable)
-
-        // Industrial reflector shade
-        const shade = new THREE.Mesh(new THREE.ConeGeometry(0.75, 0.45, 12, 1, true), this.wallMat)
-        shade.position.set(lx, 7.3, tz)
-        this.group.add(shade)
-
-        // Glowing emissive lamp bulb
-        const bulb = new THREE.Mesh(
-          new THREE.SphereGeometry(0.22, 8, 8),
-          new THREE.MeshBasicMaterial({ color: 0xfffae0 })
-        )
-        bulb.position.set(lx, 7.15, tz)
-        this.group.add(bulb)
-      }
     }
-
-    // Concrete Protective Wall Skirting around perimeter
-    const skirtingMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
-      roughness: 0.8,
-      metalness: 0.2
-    })
-    const skirtNSGeom = new THREE.BoxGeometry(94, 0.35, 0.4)
-    const skirtN = new THREE.Mesh(skirtNSGeom, skirtingMat)
-    skirtN.position.set(0, 0.17, -56.3)
-    this.group.add(skirtN)
-
-    const skirtS = new THREE.Mesh(skirtNSGeom, skirtingMat)
-    skirtS.position.set(0, 0.17, 56.3)
-    this.group.add(skirtS)
-
-    const skirtEWGeom = new THREE.BoxGeometry(0.4, 0.35, 114)
-    const skirtW = new THREE.Mesh(skirtEWGeom, skirtingMat)
-    skirtW.position.set(-46.3, 0.17, 0)
-    this.group.add(skirtW)
-
-    const skirtE = new THREE.Mesh(skirtEWGeom, skirtingMat)
-    skirtE.position.set(46.3, 0.17, 0)
-    this.group.add(skirtE)
   }
 
   private createSign(

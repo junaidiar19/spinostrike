@@ -325,9 +325,9 @@ export class Bot {
       }
     }
 
-    // Outer perimeter boundary clamp
-    targetX = Math.max(-56, Math.min(56, targetX))
-    targetZ = Math.max(-56, Math.min(56, targetZ))
+    // Outer perimeter boundary clamp (expanded 240m map bounds)
+    targetX = Math.max(-114, Math.min(114, targetX))
+    targetZ = Math.max(-114, Math.min(114, targetZ))
 
     // Check if bot actually made forward progress or is stuck against a wall
     const movedDistSq = (targetX - this.position.x) ** 2 + (targetZ - this.position.z) ** 2

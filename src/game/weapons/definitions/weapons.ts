@@ -134,14 +134,14 @@ export const WEAPON_DEFINITIONS: Record<WeaponId, WeaponConfig> = {
     damage: 180, // Heavy explosive rocket
     headshotMultiplier: 1.5,
     legMultiplier: 1.0,
-    fireRate: 0.6,
-    clipSize: 1,
-    maxReserve: 8,
-    reloadTime: 3.2,
+    fireRate: 1.2, // Ready to fire follow-up rockets smoothly
+    clipSize: 8, // 8 default rockets ready in the clip
+    maxReserve: 24, // 24 reserve rockets
+    reloadTime: 3.5,
     recoilVertical: 0.14,
     recoilHorizontal: 0.03,
     spread: 0.004,
     zoomFov: 42,
-    description: 'Peluncur roket berkepala hulu ledak eksplosif tinggi. Menghasilkan ledakan dahsyat dengan daya hancur area (AoE).'
+    description: 'Peluncur roket berkepala hulu ledak eksplosif tinggi. Menghasilkan ledakan dahsyat dengan daya hancur area (AoE). Default 8 roket siap tembak.'
   }
 }

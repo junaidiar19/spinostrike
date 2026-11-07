@@ -7,25 +7,25 @@ export class ArcticOutpost {
   public collidableMeshes: THREE.Object3D[] = []
 
   // Expanded tactical spawn locations (120m x 120m map)
-  public ctSpawn = new THREE.Vector3(0, 1.5, 48)
-  public tSpawn = new THREE.Vector3(0, 1.5, -48)
+  public ctSpawn = new THREE.Vector3(0, 1.5, 96)
+  public tSpawn = new THREE.Vector3(0, 1.5, -96)
   public botWaypoints: THREE.Vector3[] = [
     new THREE.Vector3(0, 1, 0),         // Central Snow Courtyard
-    new THREE.Vector3(0, 7.5, 0),       // Central Sniper Watchtower Apex (7.5m!)
-    new THREE.Vector3(16, 5.5, 0),      // Skywalk East Bridge
-    new THREE.Vector3(-16, 5.5, 0),     // Skywalk West Bridge
-    new THREE.Vector3(32, 1, 18),       // Helipad Landing Zone
-    new THREE.Vector3(34, 1, -16),      // Sub-Zero Fuel Depot Ground
-    new THREE.Vector3(34, 5.5, -16),    // Fuel Depot Roof Vantage
-    new THREE.Vector3(-34, 1, -16),     // Radar Station Entrance
-    new THREE.Vector3(-34, 5.5, -16),   // Radar Station Roof Vantage
-    new THREE.Vector3(-32, 1, 18),      // Cryo Pipeline Pass West
-    new THREE.Vector3(0, 1, 36),        // CT Spawn Yard Exit
-    new THREE.Vector3(0, 1, -36),       // T Spawn Yard Exit
-    new THREE.Vector3(18, 1, 30),       // Helipad Access Path
-    new THREE.Vector3(-18, 1, -30),     // Radar Flank Path North
-    new THREE.Vector3(0, 3.8, 10),      // Tower South Ramp Midpoint
-    new THREE.Vector3(0, 3.8, -10)      // Tower North Ramp Midpoint
+    new THREE.Vector3(0, 7.5, 0),       // Central Sniper Watchtower Apex
+    new THREE.Vector3(32, 5.5, 0),      // Skywalk East Bridge
+    new THREE.Vector3(-32, 5.5, 0),     // Skywalk West Bridge
+    new THREE.Vector3(64, 1, 36),       // Helipad Landing Zone
+    new THREE.Vector3(68, 1, -32),      // Sub-Zero Fuel Depot Ground
+    new THREE.Vector3(68, 5.5, -32),    // Fuel Depot Roof Vantage
+    new THREE.Vector3(-68, 1, -32),     // Radar Station Entrance
+    new THREE.Vector3(-68, 5.5, -32),   // Radar Station Roof Vantage
+    new THREE.Vector3(-64, 1, 36),      // Cryo Pipeline Pass West
+    new THREE.Vector3(0, 1, 72),        // CT Spawn Yard Exit
+    new THREE.Vector3(0, 1, -72),       // T Spawn Yard Exit
+    new THREE.Vector3(36, 1, 60),       // Helipad Access Path
+    new THREE.Vector3(-36, 1, -60),     // Radar Flank Path North
+    new THREE.Vector3(0, 3.8, 20),      // Tower South Ramp Midpoint
+    new THREE.Vector3(0, 3.8, -20)      // Tower North Ramp Midpoint
   ]
 
   // Realistic Procedural Materials with DoubleSide for raycast & collision reliability
@@ -83,247 +83,189 @@ export class ArcticOutpost {
   public build(physics: PhysicsWorld) {
     this.group.name = 'map_arctic_outpost'
 
-    // 1. Expanded Snow Ground (120m x 120m)
-    const groundGeom = new THREE.BoxGeometry(120, 1, 120)
+    // 1. Expanded Snow Ground (240m x 240m - 2x Larger Combat Area)
+    const groundGeom = new THREE.BoxGeometry(240, 1, 240)
     const ground = new THREE.Mesh(groundGeom, this.snowMat)
     ground.position.set(0, -0.5, 0)
     ground.receiveShadow = true
     this.group.add(ground)
     this.collidableMeshes.push(ground)
-    physics.createBox(0, -0.5, 0, 60, 0.5, 60, true)
+    physics.createBox(0, -0.5, 0, 120, 0.5, 120, true)
 
-    // 2. Perimeter Frost Walls (Height 8m, Thickness 2m at ±60m)
-    this.createWall(0, 4, -60, 120, 8, 2, physics) // North
-    this.createWall(0, 4, 60, 120, 8, 2, physics)  // South
-    this.createWall(-60, 4, 0, 2, 8, 120, physics) // West
-    this.createWall(60, 4, 0, 2, 8, 120, physics)  // East
+    // 2. Perimeter Frost Walls (Height 8m, Thickness 3m at ±120m)
+    this.createWall(0, 4, -120, 240, 8, 3, physics) // North
+    this.createWall(0, 4, 120, 240, 8, 3, physics)  // South
+    this.createWall(-120, 4, 0, 3, 8, 240, physics) // West
+    this.createWall(120, 4, 0, 3, 8, 240, physics)  // East
 
     // ==========================================================
     // 3. FORTIFIED CT & T SPAWN HIDEOUTS (Tempat Persembunyian Awal)
     // ==========================================================
-    // CT Spawn Hideout (z = 48): Frost bunker with blast walls at z = 40
-    this.createWall(-10, 3.5, 40, 16, 7, 2, physics)
-    this.createWall(10, 3.5, 40, 16, 7, 2, physics)
-    this.createCrate(0, 1, 43, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, 45, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, 45, 2.5, 2, 2, physics)
+    // CT Spawn Hideout (z = 96): Frost bunker with blast walls at z = 80
+    this.createWall(-20, 3.5, 80, 32, 7, 3, physics)
+    this.createWall(20, 3.5, 80, 32, 7, 3, physics)
+    this.createCrate(0, 1, 86, 6, 2, 3, physics)
+    this.createCrate(-9, 1, 90, 4, 2, 3, physics)
+    this.createCrate(9, 1, 90, 4, 2, 3, physics)
 
     // CT Spawn Indonesian Signage
-    this.createSign(0, 5.5, 58.8, 8, 2.2, Math.PI, 'PANGKALAN RISET & MILITER ARKTIK', 'POS PERTAHANAN SELATAN (CT) - STATUS SIAGA 1', { theme: 'military', code: 'ARKTIK-CT-01' })
-    this.createSign(10, 3.2, 38.8, 4.5, 1.5, 0, 'MENUJU HELIPAD ➔', 'LANDASAN UDARA SEKTOR 01', { theme: 'info', arrow: 'right' })
-    this.createSign(-10, 3.2, 38.8, 4.5, 1.5, 0, '◀ MENUJU STASIUN RADAR', 'FASILITAS RISET & KOMUNIKASI', { theme: 'info', arrow: 'left' })
+    this.createSign(0, 5.5, 118.5, 12, 2.6, Math.PI, 'PANGKALAN RISET & MILITER ARKTIK', 'POS PERTAHANAN SELATAN (CT) - STATUS SIAGA 1 (240M)', { theme: 'military', code: 'ARKTIK-CT-01' })
+    this.createSign(20, 3.8, 77.8, 6, 1.8, 0, 'MENUJU HELIPAD ➔', 'LANDASAN UDARA SEKTOR 01', { theme: 'info', arrow: 'right' })
+    this.createSign(-20, 3.8, 77.8, 6, 1.8, 0, '◀ MENUJU STASIUN RADAR', 'FASILITAS RISET & KOMUNIKASI', { theme: 'info', arrow: 'left' })
 
-    // T Spawn Hideout (z = -48): Infiltration base with blast walls at z = -40
-    this.createWall(-10, 3.5, -40, 16, 7, 2, physics)
-    this.createWall(10, 3.5, -40, 16, 7, 2, physics)
-    this.createCrate(0, 1, -43, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, -45, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, -45, 2.5, 2, 2, physics)
+    // T Spawn Hideout (z = -96): Infiltration base with blast walls at z = -80
+    this.createWall(-20, 3.5, -80, 32, 7, 3, physics)
+    this.createWall(20, 3.5, -80, 32, 7, 3, physics)
+    this.createCrate(0, 1, -86, 6, 2, 3, physics)
+    this.createCrate(-9, 1, -90, 4, 2, 3, physics)
+    this.createCrate(9, 1, -90, 4, 2, 3, physics)
 
     // T Spawn Indonesian Signage
-    this.createSign(0, 5.5, -58.8, 8, 2.2, 0, 'STASIUN INFILTRASI KUTUB (T)', 'DEPO PENYUSUPAN UTARA - BADAI SALJU', { theme: 'danger', code: 'ARKTIK-T-02' })
-    this.createSign(10, 3.2, -38.8, 4.5, 1.5, Math.PI, '◀ SERBU DEPO BAHAN BAKAR', 'JALUR SAYAP TIMUR', { theme: 'warning', arrow: 'left' })
-    this.createSign(-10, 3.2, -38.8, 4.5, 1.5, Math.PI, 'SERBU STASIUN RADAR ▶', 'JALUR SAYAP BARAT', { theme: 'warning', arrow: 'right' })
+    this.createSign(0, 5.5, -118.5, 12, 2.6, 0, 'STASIUN INFILTRASI KUTUB (T)', 'DEPO PENYUSUPAN UTARA - BADAI SALJU', { theme: 'danger', code: 'ARKTIK-T-02' })
+    this.createSign(20, 3.8, -77.8, 6, 1.8, Math.PI, '◀ SERBU DEPO BAHAN BAKAR', 'JALUR SAYAP TIMUR', { theme: 'warning', arrow: 'left' })
+    this.createSign(-20, 3.8, -77.8, 6, 1.8, Math.PI, 'SERBU STASIUN RADAR ▶', 'JALUR SAYAP BARAT', { theme: 'warning', arrow: 'right' })
 
     // ==========================================================
     // 4. LANDASAN HELIKOPTER MILITER (HELIPAD SECTOR 01)
     // ==========================================================
-    // Helipad Concrete Pad at (32, 0.1, 18) (20m x 20m)
-    const helipadMesh = new THREE.Mesh(new THREE.BoxGeometry(20, 0.2, 20), this.helipadMat)
-    helipadMesh.position.set(32, 0.1, 18)
+    const helipadMesh = new THREE.Mesh(new THREE.BoxGeometry(36, 0.2, 36), this.helipadMat)
+    helipadMesh.position.set(64, 0.1, 36)
     helipadMesh.receiveShadow = true
     this.group.add(helipadMesh)
     this.collidableMeshes.push(helipadMesh)
-    physics.createBox(32, 0.1, 18, 10, 0.1, 10, true)
+    physics.createBox(64, 0.1, 36, 18, 0.1, 18, true)
 
     // Helipad Yellow 'H' Marking in 3D
     const hBarMat = new THREE.MeshStandardMaterial({ color: 0xfacc15, roughness: 0.5 })
-    // Left vertical bar
-    const hLeft = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.05, 8), hBarMat)
-    hLeft.position.set(29, 0.23, 18)
+    const hLeft = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.05, 14), hBarMat)
+    hLeft.position.set(58, 0.23, 36)
     this.group.add(hLeft)
-    // Right vertical bar
-    const hRight = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.05, 8), hBarMat)
-    hRight.position.set(35, 0.23, 18)
+    const hRight = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.05, 14), hBarMat)
+    hRight.position.set(70, 0.23, 36)
     this.group.add(hRight)
-    // Crossbar
-    const hMid = new THREE.Mesh(new THREE.BoxGeometry(6, 0.05, 1.2), hBarMat)
-    hMid.position.set(32, 0.23, 18)
+    const hMid = new THREE.Mesh(new THREE.BoxGeometry(10, 0.05, 2.0), hBarMat)
+    hMid.position.set(64, 0.23, 36)
     this.group.add(hMid)
 
-    // Helipad Supply Crates & Blast Barriers
-    this.createCrate(32, 1, 26, 4, 2, 2, physics)
-    this.createCrate(40, 1, 18, 2, 2, 3, physics)
+    this.createCrate(64, 1, 52, 6, 2, 3, physics)
+    this.createCrate(80, 1, 36, 4, 2, 4, physics)
 
-    // Helipad Indonesian Signs
-    this.createSign(32, 2.4, 7.8, 5.5, 1.8, 0, 'LANDASAN HELIKOPTER SEKTOR 01', 'KHUSUS EVAKUASI MEDIS & PENERBANGAN MILITER', { theme: 'military', code: 'HELI-BASE' })
-    this.createSign(42.2, 2.4, 18, 5, 1.6, -Math.PI / 2, 'AWAS ARUS ANGIN HELIKOPTER', 'DILARANG MENDEKAT SAAT BALING-BALING BERPUTAR', { theme: 'warning' })
+    this.createSign(64, 3.0, 16.5, 8, 2.0, 0, 'LANDASAN HELIKOPTER SEKTOR 01', 'KHUSUS EVAKUASI MEDIS & PENERBANGAN MILITER', { theme: 'military', code: 'HELI-BASE' })
+    this.createSign(84.4, 3.0, 36, 7, 1.8, -Math.PI / 2, 'AWAS ARUS ANGIN HELIKOPTER', 'DILARANG MENDEKAT SAAT BALING-BALING BERPUTAR', { theme: 'warning' })
 
     // ==========================================================
     // 5. CENTRAL HIGH WATCHTOWER (7.5M SNIPER APEX) & SKYBRIDGES
     // ==========================================================
-    // 4 Steel Pillar Legs (Height 7.5m)
-    const pillarGeom = new THREE.BoxGeometry(1.0, 7.2, 1.0)
+    const pillarGeom = new THREE.BoxGeometry(1.4, 7.2, 1.4)
     const pMat = new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.3 })
-    const coords = [[-3.5, -3.5], [3.5, -3.5], [-3.5, 3.5], [3.5, 3.5]]
+    const coords = [[-6, -6], [6, -6], [-6, 6], [6, 6]]
     coords.forEach(([px, pz]) => {
       const p = new THREE.Mesh(pillarGeom, pMat)
       p.position.set(px, 3.6, pz)
       p.castShadow = true
       this.group.add(p)
       this.collidableMeshes.push(p)
-      physics.createBox(px, 3.6, pz, 0.5, 3.6, 0.5, true)
+      physics.createBox(px, 3.6, pz, 0.7, 3.6, 0.7, true)
     })
 
-    // Tower Observation Platform floor (8m x 8m at y = 7.2m)
-    const towerFloor = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.4, 8.5), this.metalCatwalkMat)
+    const towerFloor = new THREE.Mesh(new THREE.BoxGeometry(14, 0.4, 14), this.metalCatwalkMat)
     towerFloor.position.set(0, 7.2, 0)
     towerFloor.receiveShadow = true
     this.group.add(towerFloor)
     this.collidableMeshes.push(towerFloor)
-    physics.createBox(0, 7.2, 0, 4.25, 0.2, 4.25, true)
+    physics.createBox(0, 7.2, 0, 7.0, 0.2, 7.0, true)
 
-    // Tower Mid-Level Staging Platform (8.5m x 8.5m at y = 5.0m) seamlessly docking East & West Skywalks
-    const towerMidFloor = new THREE.Mesh(new THREE.BoxGeometry(8.5, 0.3, 8.5), this.metalCatwalkMat)
+    const towerMidFloor = new THREE.Mesh(new THREE.BoxGeometry(14, 0.3, 14), this.metalCatwalkMat)
     towerMidFloor.position.set(0, 5.0, 0)
     towerMidFloor.receiveShadow = true
     this.group.add(towerMidFloor)
     this.collidableMeshes.push(towerMidFloor)
-    physics.createBox(0, 5.0, 0, 4.25, 0.15, 4.25, true)
+    physics.createBox(0, 5.0, 0, 7.0, 0.15, 7.0, true)
 
-    // Tower parapet railing cover for snipers (1.2m high)
-    this.createCoverWall(0, 8.0, -4.2, 8.5, 1.2, 0.3, physics)
-    this.createCoverWall(0, 8.0, 4.2, 8.5, 1.2, 0.3, physics)
-    this.createCoverWall(-4.2, 8.0, 0, 0.3, 1.2, 8.5, physics)
-    this.createCoverWall(4.2, 8.0, 0, 0.3, 1.2, 8.5, physics)
+    this.createCoverWall(0, 8.0, -6.8, 14, 1.2, 0.4, physics)
+    this.createCoverWall(0, 8.0, 6.8, 14, 1.2, 0.4, physics)
+    this.createCoverWall(-6.8, 8.0, 0, 0.4, 1.2, 14, physics)
+    this.createCoverWall(6.8, 8.0, 0, 0.4, 1.2, 14, physics)
 
-    // Ramps to Tower Apex from South & North
-    this.createRamp(0, 6.1, 4.2, 2.5, 0.25, 4.8, -Math.PI / 7, physics)
-    this.createRamp(0, 6.1, -4.2, 2.5, 0.25, 4.8, Math.PI / 7, physics)
+    // Ramps to Tower Apex
+    this.createRamp(0, 6.1, 8, 3.5, 0.25, 7.0, -Math.PI / 7, physics)
+    this.createRamp(0, 6.1, -8, 3.5, 0.25, 7.0, Math.PI / 7, physics)
 
-    // Ground Access Ramps to Mid-Level (from y = 0 to y = 5.0)
-    this.createRamp(0, 2.5, 12, 3.0, 0.3, 11, -Math.PI / 7.5, physics)
-    this.createRamp(0, 2.5, -12, 3.0, 0.3, 11, Math.PI / 7.5, physics)
+    // Ground Access Ramps to Mid-Level
+    this.createRamp(0, 2.5, 20, 4.5, 0.3, 18, -Math.PI / 7.5, physics)
+    this.createRamp(0, 2.5, -20, 4.5, 0.3, 18, Math.PI / 7.5, physics)
 
-    // Skywalk Bridges seamlessly connecting Tower Mid-Level (y = 5.0m) to East and West bunkers
-    // Skywalk East: span from x = 4.2 to 24 (Length 20m at y = 5.0m)
-    this.createSkywalk(14, 5.0, 0, 20, 0.3, 3.5, physics)
-    // Skywalk East L-Junction: docks directly into Fuel Depot roof at z = -5
-    this.createSkywalk(24, 5.0, -2.5, 3.5, 0.3, 5.0, physics)
+    // Skywalk Bridges
+    this.createSkywalk(28, 5.0, 0, 42, 0.3, 4.5, physics)
+    this.createSkywalk(48, 5.0, -10, 4.5, 0.3, 20, physics)
 
-    // Skywalk West: span from x = -4.2 to -24 (Length 20m at y = 5.0m)
-    this.createSkywalk(-14, 5.0, 0, 20, 0.3, 3.5, physics)
-    // Skywalk West L-Junction: docks directly into Radar Bunker roof at z = -5
-    this.createSkywalk(-24, 5.0, -2.5, 3.5, 0.3, 5.0, physics)
+    this.createSkywalk(-28, 5.0, 0, 42, 0.3, 4.5, physics)
+    this.createSkywalk(-48, 5.0, -10, 4.5, 0.3, 20, physics)
 
-    // Heavy Steel Structural Trestle Pillars supporting Skywalk Bridges from ground
-    const bridgePillars = [
-      [14, 0], [24, 0], [24, -4.5],
-      [-14, 0], [-24, 0], [-24, -4.5]
-    ]
-    const bPillarGeom = new THREE.BoxGeometry(0.8, 5.0, 0.8)
-    const bPillarMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.7 })
-    bridgePillars.forEach(([bx, bz]) => {
-      const col = new THREE.Mesh(bPillarGeom, bPillarMat)
-      col.position.set(bx, 2.5, bz)
-      col.castShadow = true
-      this.group.add(col)
-      this.collidableMeshes.push(col)
-      physics.createBox(bx, 2.5, bz, 0.4, 2.5, 0.4, true)
-    })
-
-    // Tower Indonesian Signs
-    this.createSign(0, 8.0, -4.0, 5, 1.4, 0, 'MENARA OBSERVASI UTAMA', 'POS PENEMBAK JITU KETINGGIAN 7.5M', { theme: 'military', code: 'SNIPER-TOWER' })
-    this.createSign(0, 8.0, 4.0, 5, 1.4, Math.PI, 'MENARA OBSERVASI UTAMA', 'POS PENEMBAK JITU KETINGGIAN 7.5M', { theme: 'military', code: 'SNIPER-TOWER' })
+    this.createSign(0, 8.0, -6.5, 7, 1.6, 0, 'MENARA OBSERVASI UTAMA', 'POS PENEMBAK JITU KETINGGIAN 7.5M', { theme: 'military', code: 'SNIPER-TOWER' })
+    this.createSign(0, 8.0, 6.5, 7, 1.6, Math.PI, 'MENARA OBSERVASI UTAMA', 'POS PENEMBAK JITU KETINGGIAN 7.5M', { theme: 'military', code: 'SNIPER-TOWER' })
 
     // ==========================================================
     // 6. STASIUN RADAR & RISET ES (SECTOR B - WEST WING)
     // ==========================================================
-    // Bunker Building Body at (-34, 2.5, -16) (w = 20, h = 5, d = 22)
-    this.createWall(-34, 2.5, -16, 20, 5, 22, physics)
-    // Accessible Bunker Roof at y = 5.2m
-    const radarRoof = new THREE.Mesh(new THREE.BoxGeometry(20.5, 0.4, 22.5), this.metalCatwalkMat)
-    radarRoof.position.set(-34, 5.2, -16)
+    this.createWall(-68, 2.5, -32, 36, 5, 36, physics)
+    const radarRoof = new THREE.Mesh(new THREE.BoxGeometry(37, 0.4, 37), this.metalCatwalkMat)
+    radarRoof.position.set(-68, 5.2, -32)
     radarRoof.receiveShadow = true
     this.group.add(radarRoof)
     this.collidableMeshes.push(radarRoof)
-    physics.createBox(-34, 5.2, -16, 10.25, 0.2, 11.25, true)
+    physics.createBox(-68, 5.2, -32, 18.5, 0.2, 18.5, true)
 
-    // Radar Roof Parapets for Sniper Protection
-    this.createCoverWall(-34, 5.9, -4.8, 20.5, 1.1, 0.3, physics)
-    this.createCoverWall(-44.2, 5.9, -16, 0.3, 1.1, 22.5, physics)
-    // Ramp to Radar Roof
-    this.createRamp(-23, 2.6, -16, 3.0, 0.3, 8.0, 0.35, physics)
+    this.createCoverWall(-68, 5.9, -13.2, 37, 1.1, 0.4, physics)
+    this.createCoverWall(-86.8, 5.9, -32, 0.4, 1.1, 37, physics)
+    this.createRamp(-48, 2.6, -32, 4.5, 0.3, 14.0, 0.35, physics)
 
-    // Radar Dish Base
-    const dishBase = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 2.2, 2.5, 16), this.hazardMat)
-    dishBase.position.set(-34, 6.6, -16)
+    const dishBase = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 3.4, 3.5, 16), this.hazardMat)
+    dishBase.position.set(-68, 7.0, -32)
     dishBase.castShadow = true
     this.group.add(dishBase)
     this.collidableMeshes.push(dishBase)
-    physics.createBox(-34, 6.6, -16, 1.8, 1.25, 1.8, true)
+    physics.createBox(-68, 7.0, -32, 2.8, 1.75, 2.8, true)
 
-    // Radar Station Indonesian Signs
-    this.createSign(-34, 4.0, -4.8, 7, 2.0, 0, 'STASIUN RADAR & PERTAHANAN UDARA', 'SEKTOR B - SISTEM DETEKSI AWAL DINI', { theme: 'military', code: 'RADAR-BRAVO' })
-    this.createSign(-23.8, 2.8, -16, 5, 1.5, Math.PI / 2, 'LABORATORIUM KRIOGENIK - AREA TERBATAS', 'KENAKAN PAKAIAN KHUSUS TAHAN DINGIN', { theme: 'danger' })
-    this.createSign(-34, 5.9, -4.6, 4.5, 1.2, 0, 'ATAP PENGAWASAN RADAR ▲', 'POS TEMBAK SUDUT BARAT', { theme: 'info', arrow: 'up' })
+    this.createSign(-68, 4.0, -13.2, 9, 2.2, 0, 'STASIUN RADAR & PERTAHANAN UDARA', 'SEKTOR B - SISTEM DETEKSI AWAL DINI', { theme: 'military', code: 'RADAR-BRAVO' })
 
     // ==========================================================
     // 7. DEPO BAHAN BAKAR SUB-ZERO & TANGKI CRYO (EAST WING)
     // ==========================================================
-    // Fuel Depot Building Body at (34, 2.5, -16) (w = 20, h = 5, d = 22)
-    this.createWall(34, 2.5, -16, 20, 5, 22, physics)
-    // Roof at y = 5.2m
-    const fuelRoof = new THREE.Mesh(new THREE.BoxGeometry(20.5, 0.4, 22.5), this.metalCatwalkMat)
-    fuelRoof.position.set(34, 5.2, -16)
+    this.createWall(68, 2.5, -32, 36, 5, 36, physics)
+    const fuelRoof = new THREE.Mesh(new THREE.BoxGeometry(37, 0.4, 37), this.metalCatwalkMat)
+    fuelRoof.position.set(68, 5.2, -32)
     fuelRoof.receiveShadow = true
     this.group.add(fuelRoof)
     this.collidableMeshes.push(fuelRoof)
-    physics.createBox(34, 5.2, -16, 10.25, 0.2, 11.25, true)
-    // Fuel Roof Parapets
-    this.createCoverWall(34, 5.9, -4.8, 20.5, 1.1, 0.3, physics)
-    this.createCoverWall(44.2, 5.9, -16, 0.3, 1.1, 22.5, physics)
-    this.createRamp(23, 2.6, -16, 3.0, 0.3, 8.0, 0.35, physics)
+    physics.createBox(68, 5.2, -32, 18.5, 0.2, 18.5, true)
+    this.createCoverWall(68, 5.9, -13.2, 37, 1.1, 0.4, physics)
+    this.createCoverWall(86.8, 5.9, -32, 0.4, 1.1, 37, physics)
+    this.createRamp(48, 2.6, -32, 4.5, 0.3, 14.0, 0.35, physics)
 
-    // 3 Large Cryogenic Fuel Tanks
-    this.createCryoTank(30, 0, -22, physics)
-    this.createCryoTank(34, 0, -22, physics)
-    this.createCryoTank(38, 0, -22, physics)
+    this.createCryoTank(60, 0, -42, physics)
+    this.createCryoTank(68, 0, -42, physics)
+    this.createCryoTank(76, 0, -42, physics)
 
-    // Fuel Depot Indonesian Signs
-    this.createSign(34, 4.0, -4.8, 7, 2.0, 0, 'DEPO BAHAN BAKAR SUB-ZERO', 'BAHAN BAKAR TANK & GENERATOR LISTRIK', { theme: 'warning', code: 'FUEL-DEPOT' })
-    this.createSign(23.8, 2.8, -16, 5, 1.5, -Math.PI / 2, 'DILARANG MENYALAKAN API!', 'BAHAN PELEDAK MUDAH TERBAKAR PADA SUHU DINGIN', { theme: 'danger' })
+    this.createSign(68, 4.0, -13.2, 9, 2.2, 0, 'DEPO BAHAN BAKAR SUB-ZERO', 'BAHAN BAKAR TANK & GENERATOR LISTRIK', { theme: 'warning', code: 'FUEL-DEPOT' })
 
-    // 8. Tactical Cryo Barrels & Ice Boulders
-    this.createBarrel(14, 0, 18, physics)
-    this.createBarrel(14, 0, 19.5, physics)
-    this.createBarrel(-14, 0, 18, physics)
-    this.createBarrel(-14, 0, -18, physics)
+    this.createBarrel(28, 0, 36, physics)
+    this.createBarrel(28, 0, 39, physics)
+    this.createBarrel(-28, 0, 36, physics)
+    this.createBarrel(-28, 0, -36, physics)
 
-    // ==========================================================
-    // 9. ARCHITECTURAL FLOODLIGHT MASTS & SUB-ZERO BUNKER TRIMS
-    // ==========================================================
+    // Floodlight Masts
     const mastLocations = [
-      [48, 48], [-48, 48], [48, -48], [-48, -48]
+      [96, 96], [-96, 96], [96, -96], [-96, -96]
     ]
     const mastMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4, metalness: 0.8 })
-    const lampMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe })
-
     mastLocations.forEach(([mx, mz]) => {
-      // 8m steel utility mast pole
-      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.25, 8.5, 8), mastMat)
-      mast.position.set(mx, 4.25, mz)
+      const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.35, 10, 8), mastMat)
+      mast.position.set(mx, 5.0, mz)
       this.group.add(mast)
-
-      // Searchlight head
-      const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.8), mastMat)
-      head.position.set(mx, 8.3, mz)
+      const head = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 1.2), mastMat)
+      head.position.set(mx, 10.2, mz)
       this.group.add(head)
-
-      // Glowing lens
-      const lens = new THREE.Mesh(new THREE.SphereGeometry(0.3, 8, 8), lampMat)
-      lens.position.set(mx, 8.3, mz)
-      this.group.add(lens)
     })
   }
 

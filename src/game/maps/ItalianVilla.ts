@@ -7,25 +7,25 @@ export class ItalianVilla {
   public collidableMeshes: THREE.Object3D[] = []
 
   // Expanded tactical spawn locations (120m x 120m map)
-  public ctSpawn = new THREE.Vector3(0, 1.5, 48)
-  public tSpawn = new THREE.Vector3(0, 1.5, -48)
+  public ctSpawn = new THREE.Vector3(0, 1.5, 96)
+  public tSpawn = new THREE.Vector3(0, 1.5, -96)
   public botWaypoints: THREE.Vector3[] = [
     new THREE.Vector3(0, 1, 0),         // Central Piazza Marble Fountain
-    new THREE.Vector3(0, 5.2, 28),      // South Villa Balcony Vantage
-    new THREE.Vector3(0, 5.2, -28),     // North Villa Sniper Terrace
-    new THREE.Vector3(36, 1, 0),        // Campanile Belltower Foot
-    new THREE.Vector3(36, 7.8, 0),      // Campanile Belltower Apex (8.5m!)
-    new THREE.Vector3(-34, 1, 8),       // Bistro Cafe Terrace West
-    new THREE.Vector3(-34, 1, -18),     // Wine Cellar Corridor West
-    new THREE.Vector3(22, 1, 20),       // East Cobblestone Avenue South
-    new THREE.Vector3(22, 1, -20),      // East Cobblestone Avenue North
-    new THREE.Vector3(-20, 1, 20),      // West Alley Avenue South
-    new THREE.Vector3(-20, 1, -20),     // West Alley Avenue North
-    new THREE.Vector3(0, 1, 38),        // CT Courtyard Spawn Exit
-    new THREE.Vector3(0, 1, -38),       // T Courtyard Spawn Exit
-    new THREE.Vector3(14, 4.5, 0),      // Overhead Stone Arch Bridge East
-    new THREE.Vector3(-14, 4.5, 0),     // Overhead Stone Arch Bridge West
-    new THREE.Vector3(0, 1, 14)         // Piazza South Approach
+    new THREE.Vector3(0, 5.2, 56),      // South Villa Balcony Vantage
+    new THREE.Vector3(0, 5.2, -56),     // North Villa Sniper Terrace
+    new THREE.Vector3(72, 1, 0),        // Campanile Belltower Foot
+    new THREE.Vector3(72, 7.8, 0),      // Campanile Belltower Apex (8.5m!)
+    new THREE.Vector3(-68, 1, 16),      // Bistro Cafe Terrace West
+    new THREE.Vector3(-68, 1, -36),     // Wine Cellar Corridor West
+    new THREE.Vector3(44, 1, 40),       // East Cobblestone Avenue South
+    new THREE.Vector3(44, 1, -40),      // East Cobblestone Avenue North
+    new THREE.Vector3(-40, 1, 40),      // West Alley Avenue South
+    new THREE.Vector3(-40, 1, -40),     // West Alley Avenue North
+    new THREE.Vector3(0, 1, 76),        // CT Courtyard Spawn Exit
+    new THREE.Vector3(0, 1, -76),       // T Courtyard Spawn Exit
+    new THREE.Vector3(28, 4.5, 0),      // Overhead Stone Arch Bridge East
+    new THREE.Vector3(-28, 4.5, 0),     // Overhead Stone Arch Bridge West
+    new THREE.Vector3(0, 1, 28)         // Piazza South Approach
   ]
 
   // Realistic Procedural Materials with DoubleSide for raycast & collision reliability
@@ -74,170 +74,148 @@ export class ItalianVilla {
   public build(physics: PhysicsWorld) {
     this.group.name = 'map_italian_villa'
 
-    // 1. Expanded Cobblestone Ground (120m x 120m)
-    const groundGeom = new THREE.BoxGeometry(120, 1, 120)
+    // 1. Expanded Cobblestone Street Ground (240m x 240m - 2x Larger Italian City Arena)
+    const groundGeom = new THREE.BoxGeometry(240, 1, 240)
     const ground = new THREE.Mesh(groundGeom, this.streetMat)
     ground.position.set(0, -0.5, 0)
     ground.receiveShadow = true
     this.group.add(ground)
     this.collidableMeshes.push(ground)
-    physics.createBox(0, -0.5, 0, 60, 0.5, 60, true)
+    physics.createBox(0, -0.5, 0, 120, 0.5, 120, true)
 
-    // 2. Perimeter Tuscan Stone Walls (Height 8m, Thickness 2m at ±60m)
-    this.createWall(0, 4, -60, 120, 8, 2, physics) // North
-    this.createWall(0, 4, 60, 120, 8, 2, physics)  // South
-    this.createWall(-60, 4, 0, 2, 8, 120, physics) // West
-    this.createWall(60, 4, 0, 2, 8, 120, physics)  // East
+    // 2. Perimeter Tuscan Stone Walls (Height 8m, Thickness 3m at ±120m)
+    this.createWall(0, 4, -120, 240, 8, 3, physics) // North
+    this.createWall(0, 4, 120, 240, 8, 3, physics)  // South
+    this.createWall(-120, 4, 0, 3, 8, 240, physics) // West
+    this.createWall(120, 4, 0, 3, 8, 240, physics)  // East
 
     // ==========================================================
     // 3. FORTIFIED CT & T SPAWN HIDEOUTS (Tempat Persembunyian Awal)
     // ==========================================================
-    // CT Spawn Hideout (z = 48): Tuscan villa entrance courtyard with blast walls at z = 40
-    this.createWall(-10, 3.5, 40, 16, 7, 2, physics)
-    this.createWall(10, 3.5, 40, 16, 7, 2, physics)
-    this.createCrate(0, 1, 43, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, 45, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, 45, 2.5, 2, 2, physics)
+    // CT Spawn Hideout (z = 96): Tuscan villa entrance courtyard with blast walls at z = 80
+    this.createWall(-20, 3.5, 80, 32, 7, 3, physics)
+    this.createWall(20, 3.5, 80, 32, 7, 3, physics)
+    this.createCrate(0, 1, 86, 6, 2, 3, physics)
+    this.createCrate(-9, 1, 90, 4, 2, 3, physics)
+    this.createCrate(9, 1, 90, 4, 2, 3, physics)
 
     // CT Spawn Indonesian Signage
-    this.createSign(0, 5.5, 58.8, 8, 2.2, Math.PI, 'VILLA MEDITERANIA - GERBANG SELATAN', 'POS PERTAHANAN KOTA KUNO (CT)', { theme: 'vintage', code: 'VILLA-CT-01' })
-    this.createSign(10, 3.2, 38.8, 4.5, 1.5, 0, 'MENUJU ALUN-ALUN PIAZZA ➔', 'JALUR JALAN UTAMA', { theme: 'info', arrow: 'right' })
-    this.createSign(-10, 3.2, 38.8, 4.5, 1.5, 0, '◀ GANG PENYIMPANAN ANGGUR', 'JALUR SAYAP BARAT', { theme: 'info', arrow: 'left' })
+    this.createSign(0, 5.5, 118.5, 12, 2.6, Math.PI, 'VILLA MEDITERANIA - GERBANG SELATAN', 'POS PERTAHANAN KOTA KUNO (CT) - 240M PIAZZA ARENA', { theme: 'vintage', code: 'VILLA-CT-01' })
+    this.createSign(20, 3.8, 77.8, 6, 1.8, 0, 'MENUJU ALUN-ALUN PIAZZA ➔', 'JALUR JALAN UTAMA', { theme: 'info', arrow: 'right' })
+    this.createSign(-20, 3.8, 77.8, 6, 1.8, 0, '◀ GANG PENYIMPANAN ANGGUR', 'JALUR SAYAP BARAT', { theme: 'info', arrow: 'left' })
 
-    // T Spawn Hideout (z = -48): North villa estate with blast walls at z = -40
-    this.createWall(-10, 3.5, -40, 16, 7, 2, physics)
-    this.createWall(10, 3.5, -40, 16, 7, 2, physics)
-    this.createCrate(0, 1, -43, 4, 2, 2, physics)
-    this.createCrate(-4.5, 1, -45, 2.5, 2, 2, physics)
-    this.createCrate(4.5, 1, -45, 2.5, 2, 2, physics)
+    // T Spawn Hideout (z = -96): North villa estate with blast walls at z = -80
+    this.createWall(-20, 3.5, -80, 32, 7, 3, physics)
+    this.createWall(20, 3.5, -80, 32, 7, 3, physics)
+    this.createCrate(0, 1, -86, 6, 2, 3, physics)
+    this.createCrate(-9, 1, -90, 4, 2, 3, physics)
+    this.createCrate(9, 1, -90, 4, 2, 3, physics)
 
     // T Spawn Indonesian Signage
-    this.createSign(0, 5.5, -58.8, 8, 2.2, 0, 'KOMPLEKS VILLA UTARA (T)', 'MARKAS PENYUSUPAN KOTA TUA', { theme: 'danger', code: 'VILLA-T-02' })
-    this.createSign(10, 3.2, -38.8, 4.5, 1.5, Math.PI, '◀ SERBU MENARA LONCENG', 'JALUR PENGINTAI TIMUR', { theme: 'warning', arrow: 'left' })
-    this.createSign(-10, 3.2, -38.8, 4.5, 1.5, Math.PI, 'SERBU BISTRO NUSANTARA ▶', 'PASAR TRADISIONAL', { theme: 'warning', arrow: 'right' })
+    this.createSign(0, 5.5, -118.5, 12, 2.6, 0, 'KOMPLEKS VILLA UTARA (T)', 'MARKAS PENYUSUPAN KOTA TUA', { theme: 'danger', code: 'VILLA-T-02' })
+    this.createSign(20, 3.8, -77.8, 6, 1.8, Math.PI, '◀ SERBU MENARA LONCENG', 'JALUR PENGINTAI TIMUR', { theme: 'warning', arrow: 'left' })
+    this.createSign(-20, 3.8, -77.8, 6, 1.8, Math.PI, 'SERBU BISTRO NUSANTARA ▶', 'PASAR TRADISIONAL', { theme: 'warning', arrow: 'right' })
 
     // ==========================================================
     // 4. CENTRAL PIAZZA & GRAND MARBLE FOUNTAIN
     // ==========================================================
-    // Fountain Marble Outer Basin (Radius 6.5m, Height 1.2m)
-    const fountainBase = new THREE.Mesh(new THREE.CylinderGeometry(6.0, 6.5, 1.2, 24), this.marbleMat)
+    // Fountain Marble Outer Basin (Radius 10m, Height 1.2m)
+    const fountainBase = new THREE.Mesh(new THREE.CylinderGeometry(9.0, 10.0, 1.2, 24), this.marbleMat)
     fountainBase.position.set(0, 0.6, 0)
     fountainBase.castShadow = true
     fountainBase.receiveShadow = true
     this.group.add(fountainBase)
     this.collidableMeshes.push(fountainBase)
-    physics.createBox(0, 0.6, 0, 6.0, 0.6, 6.0, true)
+    physics.createBox(0, 0.6, 0, 9.0, 0.6, 9.0, true)
 
-    // Second Tier Basin (Radius 3.2m at y = 1.6m)
-    const fountainTier2 = new THREE.Mesh(new THREE.CylinderGeometry(3.0, 3.5, 1.0, 16), this.marbleMat)
+    // Second Tier Basin
+    const fountainTier2 = new THREE.Mesh(new THREE.CylinderGeometry(5.0, 5.8, 1.0, 16), this.marbleMat)
     fountainTier2.position.set(0, 1.7, 0)
     fountainTier2.castShadow = true
     this.group.add(fountainTier2)
     this.collidableMeshes.push(fountainTier2)
-    physics.createBox(0, 1.7, 0, 3.0, 0.5, 3.0, true)
+    physics.createBox(0, 1.7, 0, 5.0, 0.5, 5.0, true)
 
-    // Center Marble Obelisk Spire (Height 5m)
-    const obelisk = new THREE.Mesh(new THREE.BoxGeometry(1.2, 5.0, 1.2), this.marbleMat)
-    obelisk.position.set(0, 4.2, 0)
+    // Center Marble Obelisk Spire (Height 6.5m)
+    const obelisk = new THREE.Mesh(new THREE.BoxGeometry(1.8, 6.5, 1.8), this.marbleMat)
+    obelisk.position.set(0, 5.0, 0)
     obelisk.castShadow = true
     this.group.add(obelisk)
     this.collidableMeshes.push(obelisk)
-    physics.createBox(0, 4.2, 0, 0.6, 2.5, 0.6, true)
+    physics.createBox(0, 5.0, 0, 0.9, 3.25, 0.9, true)
 
     // Piazza Signs
-    this.createSign(0, 2.6, -14, 6.5, 1.8, 0, 'ALUN-ALUN KOTA TUA (PIAZZA)', 'ZONA EVAKUASI & PERLINDUNGAN WARGA SIPIL', { theme: 'vintage' })
-    this.createSign(0, 2.6, 14, 6.5, 1.8, Math.PI, 'ALUN-ALUN KOTA TUA (PIAZZA)', 'ZONA EVAKUASI & PERLINDUNGAN WARGA SIPIL', { theme: 'vintage' })
+    this.createSign(0, 3.0, -24, 9.0, 2.2, 0, 'ALUN-ALUN KOTA TUA (PIAZZA)', 'ZONA EVAKUASI & PERLINDUNGAN WARGA SIPIL', { theme: 'vintage' })
+    this.createSign(0, 3.0, 24, 9.0, 2.2, Math.PI, 'ALUN-ALUN KOTA TUA (PIAZZA)', 'ZONA EVAKUASI & PERLINDUNGAN WARGA SIPIL', { theme: 'vintage' })
 
     // ==========================================================
     // 5. CAMPANILE BELLTOWER (MENARA LONCENG 8.5M SNIPER APEX)
     // ==========================================================
-    // Tower Structure at (36, 4.25, 0) (8m x 8m, Height 8.5m)
-    this.createWall(36, 4.25, 0, 8, 8.5, 8, physics)
+    this.createWall(72, 4.25, 0, 14, 8.5, 14, physics)
 
-    // Belfry Sniper Observation Deck Roof at y = 8.5m
-    const bellDeck = new THREE.Mesh(new THREE.BoxGeometry(8.8, 0.4, 8.8), this.roofTileMat)
-    bellDeck.position.set(36, 8.5, 0)
+    const bellDeck = new THREE.Mesh(new THREE.BoxGeometry(15, 0.4, 15), this.roofTileMat)
+    bellDeck.position.set(72, 8.5, 0)
     bellDeck.receiveShadow = true
     this.group.add(bellDeck)
     this.collidableMeshes.push(bellDeck)
-    physics.createBox(36, 8.5, 0, 4.4, 0.2, 4.4, true)
+    physics.createBox(72, 8.5, 0, 7.5, 0.2, 7.5, true)
 
-    // Belltower Parapet Railings
-    this.createCoverWall(36, 9.3, -4.2, 8.8, 1.2, 0.3, physics)
-    this.createCoverWall(36, 9.3, 4.2, 8.8, 1.2, 0.3, physics)
-    this.createCoverWall(31.8, 9.3, 0, 0.3, 1.2, 8.8, physics)
-    this.createCoverWall(40.2, 9.3, 0, 0.3, 1.2, 8.8, physics)
+    this.createCoverWall(72, 9.3, -7.2, 15, 1.2, 0.4, physics)
+    this.createCoverWall(72, 9.3, 7.2, 15, 1.2, 0.4, physics)
+    this.createCoverWall(64.8, 9.3, 0, 0.4, 1.2, 15, physics)
+    this.createCoverWall(79.2, 9.3, 0, 0.4, 1.2, 15, physics)
 
-    // Stairs up to Belltower from South & North
-    this.createRamp(36, 4.25, 9.0, 3.0, 0.4, 10.0, -Math.PI / 5.2, physics)
-    this.createRamp(36, 4.25, -9.0, 3.0, 0.4, 10.0, Math.PI / 5.2, physics)
+    this.createRamp(72, 4.25, 16.0, 4.5, 0.4, 16.0, -Math.PI / 5.2, physics)
+    this.createRamp(72, 4.25, -16.0, 4.5, 0.4, 16.0, Math.PI / 5.2, physics)
 
-    // Belltower Indonesian Signs
-    this.createSign(36, 4.8, -4.3, 5.5, 1.6, 0, 'MENARA LONCENG KOTA', 'POS PENGINTAI PENEMBAK JITU KETINGGIAN 8.5M', { theme: 'military', code: 'BELLTOWER' })
-    this.createSign(31.7, 3.0, 0, 4.5, 1.4, Math.PI / 2, 'TANGGA NAIK MENARA ▲', 'PENGINTAIAN ELEVASI TINGGI', { theme: 'info', arrow: 'up' })
+    this.createSign(72, 5.2, -7.3, 8.0, 1.8, 0, 'MENARA LONCENG KOTA', 'POS PENGINTAI PENEMBAK JITU KETINGGIAN 8.5M', { theme: 'military', code: 'BELLTOWER' })
+    this.createSign(64.5, 3.5, 0, 6.0, 1.6, Math.PI / 2, 'TANGGA NAIK MENARA ▲', 'PENGINTAIAN ELEVASI TINGGI', { theme: 'info', arrow: 'up' })
 
-    // Overhead Stone Arch Bridge connecting Campanile to Piazza East
-    this.createSkybridge(24, 4.5, 0, 16, 0.4, 4, physics)
-    // Stone Archway Support Pillars under Skybridge
-    this.createWall(16.5, 2.25, 0, 1.2, 4.5, 4.2, physics)
-    this.createWall(24, 2.25, -1.8, 14, 4.5, 0.6, physics)
-    this.createWall(24, 2.25, 1.8, 14, 4.5, 0.6, physics)
+    // Overhead Stone Arch Bridge
+    this.createSkybridge(44, 4.5, 0, 32, 0.4, 6, physics)
+    this.createWall(30, 2.25, 0, 1.6, 4.5, 6.2, physics)
 
     // ==========================================================
     // 6. KEDAI KOPI & BISTRO NUSANTARA + WINE CELLAR (WEST WING)
     // ==========================================================
-    // Bistro Building Body at (-34, 2.5, 8) (w = 18, h = 5, d = 16)
-    this.createWall(-34, 2.5, 8, 18, 5, 16, physics)
-    // Wine Cellar Building Body at (-34, 2.5, -16) (w = 18, h = 5, d = 16)
-    this.createWall(-34, 2.5, -16, 18, 5, 16, physics)
+    this.createWall(-68, 2.5, 16, 32, 5, 28, physics)
+    this.createWall(-68, 2.5, -32, 32, 5, 28, physics)
 
-    // Overhead Arch Bridge connecting West buildings at y = 4.5m with arch supports
-    this.createSkybridge(-34, 4.5, -4, 4, 0.4, 8, physics)
-    this.createWall(-32.2, 2.25, -4, 0.6, 4.5, 8.0, physics)
+    this.createSkybridge(-68, 4.5, -8, 6, 0.4, 16, physics)
 
-    // Bistro Outdoor Pergola / Cafe Tables
-    this.createCrate(-22, 1, 6, 3, 2, 2, physics)
-    this.createCrate(-22, 1, 10, 2, 2, 2, physics)
-    this.createBarrel(-22, 0, -12, physics)
-    this.createBarrel(-22, 0, -14, physics)
+    this.createCrate(-44, 1, 12, 5, 2, 3, physics)
+    this.createCrate(-44, 1, 20, 4, 2, 3, physics)
+    this.createBarrel(-44, 0, -24, physics)
+    this.createBarrel(-44, 0, -28, physics)
 
-    // Bistro Indonesian Signs
-    this.createSign(-34, 3.6, 16.3, 6.5, 1.8, 0, 'KEDAI KOPI & BISTRO NUSANTARA', 'KULINER & TEMPAT PERTEMUAN KOTA TUA', { theme: 'vintage' })
-    this.createSign(-34, 3.6, -7.7, 6.5, 1.8, 0, 'GUDANG PENYIMPANAN MINYAK & ANGGUR', 'AWAS! TONG ANGGUR MUDAH PECAH', { theme: 'vintage' })
-    this.createSign(-24.7, 2.8, 0, 5, 1.5, Math.PI / 2, 'AWAS! ZONA RAWAN BAKU TEMBAK', 'DILARANG MELINTAS TANPA PENGAWAL', { theme: 'danger' })
+    this.createSign(-68, 3.8, 30.5, 9.0, 2.2, 0, 'KEDAI KOPI & BISTRO NUSANTARA', 'KULINER & TEMPAT PERTEMUAN KOTA TUA', { theme: 'vintage' })
+    this.createSign(-68, 3.8, -17.5, 9.0, 2.2, 0, 'GUDANG PENYIMPANAN MINYAK & ANGGUR', 'AWAS! TONG ANGGUR MUDAH PECAH', { theme: 'vintage' })
 
     // ==========================================================
     // 7. DUAL VILLA BALCONY DUEL (SOUTH & NORTH TERRACES)
     // ==========================================================
-    // South Villa Balcony Building at (0, 2.5, 34) (w = 26, h = 5, d = 10)
-    this.createWall(0, 2.5, 34, 26, 5, 10, physics)
-    // South Balcony Walkout Roof at y = 5.0m
-    const southBalcony = new THREE.Mesh(new THREE.BoxGeometry(26.5, 0.4, 10.5), this.terracottaWallMat)
-    southBalcony.position.set(0, 5.0, 34)
+    this.createWall(0, 2.5, 68, 48, 5, 18, physics)
+    const southBalcony = new THREE.Mesh(new THREE.BoxGeometry(49, 0.4, 18.5), this.terracottaWallMat)
+    southBalcony.position.set(0, 5.0, 68)
     southBalcony.receiveShadow = true
     this.group.add(southBalcony)
     this.collidableMeshes.push(southBalcony)
-    physics.createBox(0, 5.0, 34, 13.25, 0.2, 5.25, true)
-    // South Balcony Parapet Railing
-    this.createCoverWall(0, 5.8, 28.8, 26.5, 1.2, 0.3, physics)
-    this.createRamp(14, 2.5, 34, 3.0, 0.4, 8.0, 0.35, physics)
+    physics.createBox(0, 5.0, 68, 24.5, 0.2, 9.25, true)
+    this.createCoverWall(0, 5.8, 58.5, 49, 1.2, 0.4, physics)
+    this.createRamp(24, 2.5, 68, 4.5, 0.4, 14.0, 0.35, physics)
 
-    // North Villa Balcony Building at (0, 2.5, -34) (w = 26, h = 5, d = 10)
-    this.createWall(0, 2.5, -34, 26, 5, 10, physics)
-    // North Balcony Roof at y = 5.0m
-    const northBalcony = new THREE.Mesh(new THREE.BoxGeometry(26.5, 0.4, 10.5), this.terracottaWallMat)
-    northBalcony.position.set(0, 5.0, -34)
+    this.createWall(0, 2.5, -68, 48, 5, 18, physics)
+    const northBalcony = new THREE.Mesh(new THREE.BoxGeometry(49, 0.4, 18.5), this.terracottaWallMat)
+    northBalcony.position.set(0, 5.0, -68)
     northBalcony.receiveShadow = true
     this.group.add(northBalcony)
     this.collidableMeshes.push(northBalcony)
-    physics.createBox(0, 5.0, -34, 13.25, 0.2, 5.25, true)
-    // North Balcony Parapet Railing
-    this.createCoverWall(0, 5.8, -28.8, 26.5, 1.2, 0.3, physics)
-    this.createRamp(-14, 2.5, -34, 3.0, 0.4, 8.0, -0.35, physics)
+    physics.createBox(0, 5.0, -68, 24.5, 0.2, 9.25, true)
+    this.createCoverWall(0, 5.8, -58.5, 49, 1.2, 0.4, physics)
+    this.createRamp(-24, 2.5, -68, 4.5, 0.4, 14.0, -0.35, physics)
 
-    // Balcony Indonesian Signs
-    this.createSign(0, 5.8, 28.6, 5.5, 1.5, 0, 'VILLA SELATAN - TERAS ATAP', 'POS TEMBAK GARIS BELAKANG', { theme: 'vintage' })
-    this.createSign(0, 5.8, -28.6, 5.5, 1.5, Math.PI, 'VILLA UTARA - TERAS ATAP', 'POS TEMBAK GARIS DEPAN', { theme: 'vintage' })
+    this.createSign(0, 5.8, 58.2, 8.0, 1.8, 0, 'VILLA SELATAN - TERAS ATAP', 'POS TEMBAK GARIS BELAKANG', { theme: 'vintage' })
+    this.createSign(0, 5.8, -58.2, 8.0, 1.8, Math.PI, 'VILLA UTARA - TERAS ATAP', 'POS TEMBAK GARIS DEPAN', { theme: 'vintage' })
   }
 
   private createSkybridge(
